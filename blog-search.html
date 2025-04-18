@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>검색 결과 | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체</title>
+    <meta name="description" content="집꾸미다 블로그에서 원하는 정보를 검색하세요.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Search Page Specific Styles */
+        .page-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 100px 0 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb ol {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 5px;
+        }
+        
+        .breadcrumb li:not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+        }
+        
+        .breadcrumb a {
+            color: var(--accent-color);
+        }
+        
+        .blog-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .blog-main {
+            flex: 0 0 70%;
+        }
+        
+        .blog-sidebar {
+            flex: 0 0 25%;
+        }
+        
+        .search-header {
+            margin-bottom: 30px;
+        }
+        
+        .search-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .search-query {
+            font-weight: 600;
+        }
+        
+        .search-count {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .blog-posts {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        
+        .blog-post {
+            flex: 0 0 calc(50% - 15px);
+            margin-bottom: 30px;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .blog-post:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .blog-post-image {
+            height: 200px;
+            overflow: hidden;
+        }
+        
+        .blog-post-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        
+        .blog-post:hover .blog-post-image img {
+            transform: scale(1.05);
+        }
+        
+        .blog-post-content {
+            padding: 20px;
+        }
+        
+        .blog-post-category {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .blog-post-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .blog-post-excerpt {
+            color: var(--gray);
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .highlight {
+            background-color: #FFFF00;
+            padding: 0 2px;
+        }
+        
+        .blog-post-meta {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .blog-post-date i, .blog-post-author i {
+            margin-right: 5px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar-widget {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .widget-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .widget-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .search-form {
+            display: flex;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            border-right: none;
+        }
+        
+        .search-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0 15px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        
+        .category-list, .recent-posts {
+            list-style: none;
+        }
+        
+        .category-list li, .recent-posts li {
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 10px;
+        }
+        
+        .category-list li:last-child, .recent-posts li:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .category-list a, .recent-posts a {
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            transition: color 0.3s ease, padding-left 0.3s ease;
+        }
+        
+        .category-list a:hover, .recent-posts a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .category-list .count {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 0 5px 10px 0;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .tag:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 40px;
+        }
+        
+        .pagination-link {
+            display: block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            color: var(--text-color);
+            margin: 0 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .pagination-link:hover, .pagination-link.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .pagination-prev, .pagination-next {
+            width: auto;
+            padding: 0 15px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 50px 20px;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .no-results p {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        @media screen and (max-width: 992px) {
+            .blog-container {
+                flex-direction: column;
+            }
+            
+            .blog-main, .blog-sidebar {
+                flex: 0 0 100%;
+            }
+            
+            .blog-sidebar {
+                margin-top: 40px;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .blog-post {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="집꾸미다 로고">
+            </a>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                    <li class="nav-item"><a href="services.html" class="nav-link">서비스</a></li>
+                    <li class="nav-item"><a href="blog.html" class="nav-link">블로그</a></li>
+                    <li class="nav-item"><a href="qna.html" class="nav-link">묻고답하기</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-link">연락처</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">블로그 검색</h1>
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li>검색 결과</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Blog Section -->
+    <section class="section blog">
+        <div class="container blog-container">
+            <main class="blog-main">
+                <div class="search-header">
+                    <h2 class="search-title">"<span class="search-query" id="search-term">누수</span>" 검색 결과</h2>
+                    <p class="search-count" id="result-count">검색 결과: 4건</p>
+                </div>
+                
+                <div class="blog-posts" id="search-results">
+                    <!-- Blog Post 1 -->
+                    <article class="blog-post">
+                        <div class="blog-post-image">
+                            <a href="blog-view.html">
+                                <img src="images/blog-1.jpg" alt="누수 징후 알아보기">
+                            </a>
+                        </div>
+                        <div class="blog-post-content">
+                            <span class="blog-post-category">누수 탐지</span>
+                            <h2 class="blog-post-title"><a href="blog-view.html">집에서 발견할 수 있는 <span class="highlight">누수</span> 징후 5가지</a></h2>
+                            <p class="blog-post-excerpt"><span class="highlight">누수</span>는 초기에 발견하기 쉽지 않지만, 몇 가지 징후를 알아두면 더 큰 피해를 예방할 수 있습니다. 이 글에서는 누구나 쉽게 확인할 수 있는 <span class="highlight">누수</span> 징후 5가지를 소개합니다.</p>
+                            <div class="blog-post-meta">
+                                <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> 2025.04.15</span>
+                                <span class="blog-post-author"><i class="fas fa-user"></i> 김기술</span>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <!-- Blog Post 2 -->
+                    <article class="blog-post">
+                        <div class="blog-post-image">
+                            <a href="blog-view.html">
+                                <img src="images/blog-2.jpg" alt="열화상 카메라 원리">
+                            </a>
+                        </div>
+                        <div class="blog-post-content">
+                            <span class="blog-post-category">기술</span>
+                            <h2 class="blog-post-title"><a href="blog-view.html">최신 <span class="highlight">누수</span> 탐지 기술: 열화상 카메라의 원리와 효과</a></h2>
+                            <p class="blog-post-excerpt">열화상 카메라는 <span class="highlight">누수</span> 탐지에 혁명을 가져온 기술입니다. 어떤 원리로 작동하며 얼마나 정확하게 <span class="highlight">누수</span>를 찾아내는지 자세히 알아봅니다.</p>
+                            <div class="blog-post-meta">
+                                <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> 2025.03.20</span>
+                                <span class="blog-post-author"><i class="fas fa-user"></i> 이기술</span>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <!-- Blog Post 3 -->
+                    <article class="blog-post">
+                        <div class="blog-post-image">
+                            <a href="blog-view.html">
+                                <img src="images/blog-3.jpg" alt="비파괴 누수탐지">
+                            </a>
+                        </div>
+                        <div class="blog-post-content">
+                            <span class="blog-post-category">누수 탐지</span>
+                            <h2 class="blog-post-title"><a href="blog-view.html">비파괴 <span class="highlight">누수</span> 탐지: 벽을 뜯지 않고 <span class="highlight">누수</span> 지점 찾기</a></h2>
+                            <p class="blog-post-excerpt">현대적인 <span class="highlight">누수</span> 탐지 기술은 구조물을 손상시키지 않고도 정확한 <span class="highlight">누수</span> 위치를 찾아낼 수 있습니다. 비파괴 검사 방법의 종류와 원리를 알아봅니다.</p>
+                            <div class="blog-post-meta">
+                                <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> 2025.02.18</span>
+                                <span class="blog-post-author"><i class="fas fa-user"></i> 박탐지</span>
+                            </div>
+                        </div>
+                    </article>
+                    
+                    <!-- Blog Post 4 -->
+                    <article class="blog-post">
+                        <div class="blog-post-image">
+                            <a href="blog-view.html">
+                                <img src="images/blog-4.jpg" alt="화장실 누수 처리">
+                            </a>
+                        </div>
+                        <div class="blog-post-content">
+                            <span class="blog-post-category">누수 수리</span>
+                            <h2 class="blog-post-title"><a href="blog-view.html">화장실 <span class="highlight">누수</span>, 응급 상황에서 할 수 있는 대처법</a></h2>
+                            <p class="blog-post-excerpt">갑작스러운 화장실 <span class="highlight">누수</span>는 당황스러울 수 있습니다. 전문가가 오기 전까지 피해를 최소화할 수 있는 응급 대처 방법을 알아봅니다.</p>
+                            <div class="blog-post-meta">
+                                <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> 2025.02.10</span>
+                                <span class="blog-post-author"><i class="fas fa-user"></i> 최수리</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                
+                <!-- No Results (Hidden by default) -->
+                <div class="no-results" id="no-results" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <h3>검색 결과가 없습니다</h3>
+                    <p>입력하신 검색어와 일치하는 결과를 찾을 수 없습니다. 다른 검색어를 입력하거나 아래 제안을 확인해보세요.</p>
+                    <ul>
+                        <li>철자가 정확한지 확인하세요.</li>
+                        <li>더 일반적인 키워드를 사용해보세요.</li>
+                        <li>키워드 수를 줄여보세요.</li>
+                    </ul>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a href="#" class="pagination-link pagination-prev"><i class="fas fa-angle-left"></i> 이전</a>
+                    <a href="#" class="pagination-link active">1</a>
+                    <a href="#" class="pagination-link">2</a>
+                    <a href="#" class="pagination-link pagination-next">다음 <i class="fas fa-angle-right"></i></a>
+                </div>
+            </main>
+            
+            <aside class="blog-sidebar">
+                <!-- Search Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">검색</h3>
+                    <form class="search-form" action="blog-search.html" method="get">
+                        <input type="text" class="search-input" name="query" placeholder="검색어를 입력하세요..." id="sidebar-search">
+                        <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- Categories Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">카테고리</h3>
+                    <ul class="category-list">
+                        <li><a href="category-view.html?category=누수탐지">누수 탐지 <span class="count">8</span></a></li>
+                        <li><a href="category-view.html?category=누수수리">누수 수리 <span class="count">12</span></a></li>
+                        <li><a href="category-view.html?category=피해복구">피해 복구 <span class="count">5</span></a></li>
+                        <li><a href="category-view.html?category=예방관리">예방 관리 <span class="count">9</span></a></li>
+                        <li><a href="category-view.html?category=정보">정보 <span class="count">7</span></a></li>
+                        <li><a href="category-view.html?category=기술">기술 <span class="count">4</span></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Recent Posts Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">최근 게시물</h3>
+                    <ul class="recent-posts">
+                        <li><a href="blog-view.html">집에서 발견할 수 있는 누수 징후 5가지</a></li>
+                        <li><a href="blog-view.html">화장실 누수, 응급 상황에서 할 수 있는 대처법</a></li>
+                        <li><a href="blog-view.html">겨울철 배관 동파 예방법과 대처 요령</a></li>
+                        <li><a href="blog-view.html">누수로 인한 곰팡이, 안전하게 제거하는 방법</a></li>
+                        <li><a href="blog-view.html">누수 피해, 보험 청구 시 알아야 할 사항들</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Tags Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">태그</h3>
+                    <div class="tag-cloud">
+                        <a href="tag-view.html?tag=누수탐지" class="tag">누수탐지</a>
+                        <a href="tag-view.html?tag=수리" class="tag">수리</a>
+                        <a href="tag-view.html?tag=복구" class="tag">복구</a>
+                        <a href="tag-view.html?tag=예방" class="tag">예방</a>
+                        <a href="tag-view.html?tag=배관" class="tag">배관</a>
+                        <a href="tag-view.html?tag=화장실" class="tag">화장실</a>
+                        <a href="tag-view.html?tag=부엌" class="tag">부엌</a>
+                        <a href="tag-view.html?tag=천장" class="tag">천장</a>
+                        <a href="tag-view.html?tag=벽체" class="tag">벽체</a>
+                        <a href="tag-view.html?tag=곰팡이" class="tag">곰팡이</a>
+                        <a href="tag-view.html?tag=습기" class="tag">습기</a>
+                        <a href="tag-view.html?tag=열화상" class="tag">열화상</a>
+                        <a href="tag-view.html?tag=보험" class="tag">보험</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3 class="footer-title">집꾸미다</h3>
+                <p>누수탐지 및 누수피해복구 전문업체로서 최신 기술과 풍부한 경험을 바탕으로 고객 만족을 최우선으로 합니다.</p>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-blog"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">서비스</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">누수 탐지</a></li>
+                    <li><a href="services.html">누수 수리</a></li>
+                    <li><a href="services.html">피해 복구</a></li>
+                    <li><a href="services.html">예방 점검</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="services.html">서비스</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="qna.html">묻고답하기</a></li>
+                    <li><a href="contact.html">연락처</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">연락처</h3>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> 서울특별시 강남구 테헤란로 123</li>
+                    <li><i class="fas fa-phone"></i> 02-123-4567</li>
+                    <li><i class="fas fa-mobile-alt"></i> 010-1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> info@jipkkumida.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <p>&copy; 2025 집꾸미다. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+    <!-- Search Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // URL에서 검색어 파라미터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const query = urlParams.get('query');
+            
+            if (query) {
+                // 검색어 화면에 표시
+                const decodedQuery = decodeURIComponent(query).replace(/\+/g, ' ');
+                document.getElementById('search-term').textContent = decodedQuery;
+                
+                // 사이드바 검색창에 검색어 넣기
+                document.getElementById('sidebar-search').value = decodedQuery;
+                
+                // 검색 결과가 있는지 확인 (실제로는 서버에서 데이터를 가져와야 함)
+                // 여기서는 간단히 '없음'이라는 검색어일 때 결과가 없다고 가정
+                if (decodedQuery.toLowerCase() === '없음') {
+                    document.getElementById('search-results').style.display = 'none';
+                    document.getElementById('no-results').style.display = 'block';
+                    document.getElementById('result-count').textContent = '검색 결과: 0건';
+                    document.querySelector('.pagination').style.display = 'none';
+                } else {
+                    // 결과 개수 (실제로는 서버에서 가져와야 함)
+                    const resultCount = 4; // 예시 데이터
+                    document.getElementById('result-count').textContent = `검색 결과: ${resultCount}건`;
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 상세 | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체</title>
+    <meta name="description" content="집꾸미다 블로그에서 누수 관련 유용한 정보와 팁을 확인하세요.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Blog View Page Specific Styles */
+        .page-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 100px 0 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb ol {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 5px;
+        }
+        
+        .breadcrumb li:not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+        }
+        
+        .breadcrumb a {
+            color: var(--accent-color);
+        }
+        
+        .blog-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .blog-main {
+            flex: 0 0 70%;
+        }
+        
+        .blog-sidebar {
+            flex: 0 0 25%;
+        }
+        
+        .post-header {
+            margin-bottom: 30px;
+        }
+        
+        .post-category {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+        
+        .post-title {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        .post-meta {
+            display: flex;
+            margin-bottom: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .post-meta span {
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .post-meta i {
+            margin-right: 5px;
+        }
+        
+        .post-featured-image {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .post-featured-image img {
+            width: 100%;
+            height: auto;
+        }
+        
+        .post-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 40px;
+        }
+        
+        .post-content p, .post-content ul, .post-content ol {
+            margin-bottom: 20px;
+        }
+        
+        .post-content h2 {
+            font-size: 1.8rem;
+            margin: 40px 0 20px;
+            color: var(--primary-color);
+        }
+        
+        .post-content h3 {
+            font-size: 1.5rem;
+            margin: 30px 0 15px;
+            color: var(--primary-color);
+        }
+        
+        .post-tags {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        
+        .post-tags h4 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            background-color: #f5f5f5;
+            color: var(--text-color);
+            padding: 5px 15px;
+            border-radius: 5px;
+            margin: 0 10px 10px 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .post-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+        }
+        
+        .post-nav-link {
+            flex: 0 0 48%;
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .post-nav-link:hover {
+            background-color: #e9e9e9;
+        }
+        
+        .post-nav-label {
+            display: block;
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .post-nav-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        /* Sidebar Styles */
+        .sidebar-widget {
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .widget-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .widget-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+        
+        .search-form {
+            display: flex;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            border-right: none;
+        }
+        
+        .search-button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0 15px;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        
+        .category-list, .recent-posts {
+            list-style: none;
+        }
+        
+        .category-list li, .recent-posts li {
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 10px;
+        }
+        
+        .category-list li:last-child, .recent-posts li:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .category-list a, .recent-posts a {
+            color: var(--text-color);
+            display: flex;
+            justify-content: space-between;
+            transition: color 0.3s ease, padding-left 0.3s ease;
+        }
+        
+        .category-list a:hover, .recent-posts a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .category-list .count {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        @media screen and (max-width: 992px) {
+            .blog-container {
+                flex-direction: column;
+            }
+            
+            .blog-main, .blog-sidebar {
+                flex: 0 0 100%;
+            }
+            
+            .blog-sidebar {
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="집꾸미다 로고">
+            </a>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                    <li class="nav-item"><a href="services.html" class="nav-link">서비스</a></li>
+                    <li class="nav-item"><a href="blog.html" class="nav-link">블로그</a></li>
+                    <li class="nav-item"><a href="qna.html" class="nav-link">묻고답하기</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-link">연락처</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">블로그</h1>
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li>집에서 발견할 수 있는 누수 징후 5가지</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Blog Post Section -->
+    <section class="section blog-post">
+        <div class="container blog-container">
+            <main class="blog-main">
+                <article class="post">
+                    <header class="post-header">
+                        <span class="post-category">누수 탐지</span>
+                        <h1 class="post-title">집에서 발견할 수 있는 누수 징후 5가지</h1>
+                        <div class="post-meta">
+                            <span><i class="fas fa-calendar-alt"></i> 2025.04.15</span>
+                            <span><i class="fas fa-user"></i> 김기술</span>
+                            <span><i class="fas fa-comments"></i> 4 댓글</span>
+                        </div>
+                    </header>
+                    
+                    <div class="post-featured-image">
+                        <img src="images/blog-1.jpg" alt="누수 징후 알아보기">
+                    </div>
+                    
+                    <div class="post-content">
+                        <p>누수는 초기에 발견하기 쉽지 않지만, 몇 가지 징후를 알아두면 더 큰 피해를 예방할 수 있습니다. 이 글에서는 누구나 쉽게 확인할 수 있는 누수 징후 5가지를 소개합니다.</p>
+                        
+                        <h2>1. 수도 요금의 갑작스러운 증가</h2>
+                        <p>매달 비슷한 수준의 수도 요금을 내다가 갑자기 요금이 크게 증가했다면, 이는 주택 내에 숨겨진 누수가 있다는 가장 명확한 징후입니다. 특별히 물 사용량이 늘지 않았는데도 요금이 올랐다면, 즉시 집안 전체를 점검해봐야 합니다.</p>
+                        
+                        <h2>2. 벽이나 천장의 변색</h2>
+                        <p>천장이나 벽에 갑자기 노란색, 갈색 얼룩이 생겼다면 물 누수를 의심해 볼 필요가 있습니다. 페인트가 부풀어 오르거나 벗겨지는 현상도 습기로 인한 손상일 수 있습니다. 특히 화장실, 주방 주변의 벽이나 천장에서 이런 현상이 나타나면 파이프 누수 가능성이 높습니다.</p>
+                        
+                        <h2>3. 곰팡이나 퀴퀴한 냄새</h2>
+                        <p>집 안에 퀴퀴한 냄새가 나거나 곰팡이가 생겼다면, 이는 물기와 관련된 문제의 징후일 수 있습니다. 특히 눈에 보이지 않는 구석에서부터 시작된 누수는 완벽한 환경을 제공합니다. 벽면 아래쪽이나 침대 아래, 옷장 뒤편과 같이 평소에 잘 보지 않는 곳을 확인해 보세요.</p>
+                        
+                        <h2>4. 바닥이나 벽이 따뜻하게 느껴질 때</h2>
+                        <p>온수관에 누수가 발생하면, 바닥이나 벽이 비정상적으로 따뜻하게 느껴질 수 있습니다. 특히 바닥 난방이 없는데도 특정 부분만 따뜻하다면, 그 아래에서 온수관 누수가 발생했을 확률이 높습니다. 이런 경우 열화상 카메라로 점검하면 쉽게 발견할 수 있습니다.</p>
+                        
+                        <h2>5. 물 흐르는 소리</h2>
+                        <p>물을 사용하지 않는 상황에서도 집 안에서 물이 흐르는 소리나 물방울 떨어지는 소리가 들린다면, 이는 분명한 누수 증상입니다. 특히 밤에 집이 조용할 때 이런 소리를 듣게 된다면, 즉시 배관을 점검해야 합니다.</p>
+                        
+                        <h3>누수 발견시 행동 요령</h3>
+                        <p>위의 징후 중 하나라도 발견했다면, 다음과 같은 조치를 취하는 것이 좋습니다:</p>
+                        <ul>
+                            <li>주 밸브를 잠가 추가 피해를 방지합니다.</li>
+                            <li>전자제품이나 중요한 물건을 물에서 멀리 옮겨 놓습니다.</li>
+                            <li>가능하다면 누수 지점 아래에 통이나 수건을 놓아 물을 모읍니다.</li>
+                            <li>즉시 누수 탐지 전문가에게 연락하여 정확한 진단을 받습니다.</li>
+                        </ul>
+                        
+                        <p>정기적인 점검을 통해 누수 징후를 조기에 발견하면, 대규모 수리 비용과 재산 피해를 예방할 수 있습니다. 의심되는 부분이 있다면 전문가에게 문의하여 정확한 진단을 받는 것이 중요합니다.</p>
+                    </div>
+                    
+                    <div class="post-tags">
+                        <h4>태그</h4>
+                        <div class="tag-list">
+                            <a href="tag-view.html?tag=누수탐지" class="tag">누수탐지</a>
+                            <a href="tag-view.html?tag=누수예방" class="tag">누수예방</a>
+                            <a href="tag-view.html?tag=물흐름" class="tag">물흐름</a>
+                            <a href="tag-view.html?tag=수도요금" class="tag">수도요금</a>
+                            <a href="tag-view.html?tag=곰팡이" class="tag">곰팡이</a>
+                        </div>
+                    </div>
+                    
+                    <div class="post-navigation">
+                        <a href="#" class="post-nav-link post-nav-prev">
+                            <span class="post-nav-label"><i class="fas fa-angle-left"></i> 이전 글</span>
+                            <span class="post-nav-title">화장실 누수, 응급 상황에서 할 수 있는 대처법</span>
+                        </a>
+                        <a href="#" class="post-nav-link post-nav-next">
+                            <span class="post-nav-label">다음 글 <i class="fas fa-angle-right"></i></span>
+                            <span class="post-nav-title">겨울철 배관 동파 예방법과 대처 요령</span>
+                        </a>
+                    </div>
+                </article>
+            </main>
+            
+            <aside class="blog-sidebar">
+                <!-- Search Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">검색</h3>
+                    <form class="search-form" action="blog-search.html" method="get">
+                        <input type="text" class="search-input" name="query" placeholder="검색어를 입력하세요...">
+                        <button type="submit" class="search-button"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                
+                <!-- Categories Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">카테고리</h3>
+                    <ul class="category-list">
+                        <li><a href="category-view.html?category=누수탐지">누수 탐지 <span class="count">8</span></a></li>
+                        <li><a href="category-view.html?category=누수수리">누수 수리 <span class="count">12</span></a></li>
+                        <li><a href="category-view.html?category=피해복구">피해 복구 <span class="count">5</span></a></li>
+                        <li><a href="category-view.html?category=예방관리">예방 관리 <span class="count">9</span></a></li>
+                        <li><a href="category-view.html?category=정보">정보 <span class="count">7</span></a></li>
+                        <li><a href="category-view.html?category=기술">기술 <span class="count">4</span></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Recent Posts Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">최근 게시물</h3>
+                    <ul class="recent-posts">
+                        <li><a href="#">집에서 발견할 수 있는 누수 징후 5가지</a></li>
+                        <li><a href="#">화장실 누수, 응급 상황에서 할 수 있는 대처법</a></li>
+                        <li><a href="#">겨울철 배관 동파 예방법과 대처 요령</a></li>
+                        <li><a href="#">누수로 인한 곰팡이, 안전하게 제거하는 방법</a></li>
+                        <li><a href="#">누수 피해, 보험 청구 시 알아야 할 사항들</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Tags Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">태그</h3>
+                    <div class="tag-cloud">
+                        <a href="tag-view.html?tag=누수탐지" class="tag">누수탐지</a>
+                        <a href="tag-view.html?tag=수리" class="tag">수리</a>
+                        <a href="tag-view.html?tag=복구" class="tag">복구</a>
+                        <a href="tag-view.html?tag=예방" class="tag">예방</a>
+                        <a href="tag-view.html?tag=배관" class="tag">배관</a>
+                        <a href="tag-view.html?tag=화장실" class="tag">화장실</a>
+                        <a href="tag-view.html?tag=부엌" class="tag">부엌</a>
+                        <a href="tag-view.html?tag=천장" class="tag">천장</a>
+                        <a href="tag-view.html?tag=벽체" class="tag">벽체</a>
+                        <a href="tag-view.html?tag=곰팡이" class="tag">곰팡이</a>
+                        <a href="tag-view.html?tag=습기" class="tag">습기</a>
+                        <a href="tag-view.html?tag=열화상" class="tag">열화상</a>
+                        <a href="tag-view.html?tag=보험" class="tag">보험</a>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3 class="footer-title">집꾸미다</h3>
+                <p>누수탐지 및 누수피해복구 전문업체로서 최신 기술과 풍부한 경험을 바탕으로 고객 만족을 최우선으로 합니다.</p>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-blog"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">서비스</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">누수 탐지</a></li>
+                    <li><a href="services.html">누수 수리</a></li>
+                    <li><a href="services.html">피해 복구</a></li>
+                    <li><a href="services.html">예방 점검</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="services.html">서비스</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="qna.html">묻고답하기</a></li>
+                    <li><a href="contact.html">연락처</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">연락처</h3>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> 서울특별시 강남구 테헤란로 123</li>
+                    <li><i class="fas fa-phone"></i> 02-123-4567</li>
+                    <li><i class="fas fa-mobile-alt"></i> 010-1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> info@jipkkumida.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <p>&copy; 2025 집꾸미다. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+</body>
+</html> 

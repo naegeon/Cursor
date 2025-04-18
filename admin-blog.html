@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 관리 | 관리자 대시보드</title>
+    <meta name="description" content="블로그 게시물을 관리할 수 있는 관리자 페이지입니다.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #4e73df;
+            --primary-dark: #3a56b0;
+            --secondary-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --light-gray: #eaecf4;
+            --dark-gray: #858796;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: fixed;
+            transition: all 0.3s;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-admin {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: block;
+            background-color: #fff;
+        }
+        
+        .admin-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .admin-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            width: calc(100% - 250px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .main-header {
+            background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .user-dropdown img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .page-content {
+            padding: 25px;
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+        }
+        
+        /* Blog Management Specific Styles */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        th {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-btn {
+            background-color: rgba(54, 185, 204, 0.1);
+            color: var(--info);
+        }
+        
+        .edit-btn {
+            background-color: rgba(246, 194, 62, 0.1);
+            color: var(--warning);
+        }
+        
+        .delete-btn {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--danger);
+        }
+        
+        .action-icon:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .blog-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-published {
+            background-color: rgba(28, 200, 138, 0.1);
+            color: var(--success);
+        }
+        
+        .status-draft {
+            background-color: rgba(133, 135, 150, 0.1);
+            color: var(--dark-gray);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .page-item {
+            list-style: none;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--light-gray);
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        .page-link:hover, .page-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .blog-search {
+            display: flex;
+            max-width: 400px;
+            margin-left: auto;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+        
+        .blog-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar.active {
+                width: 250px;
+                overflow-y: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .blog-search {
+                max-width: 100%;
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 15px;
+            }
+            
+            .page-content {
+                padding: 15px;
+            }
+            
+            .blog-filter {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>707 Admin</h3>
+        </div>
+        
+        <div class="sidebar-admin">
+            <div class="admin-avatar">
+                <i class="fas fa-user" style="font-size: 30px; color: #4e73df; line-height: 60px;"></i>
+            </div>
+            <div class="admin-name">관리자</div>
+            <div class="admin-role">최고 관리자</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>대시보드</span>
+            </a>
+            <a href="admin-blog.html" class="menu-item active">
+                <i class="fas fa-blog"></i>
+                <span>블로그 관리</span>
+            </a>
+            <a href="admin-qna.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Q&A 관리</span>
+            </a>
+            <a href="admin-users.html" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>사용자 관리</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>문의 관리</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+            </a>
+            <a href="#" class="menu-item" id="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>로그아웃</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <div class="main-header">
+            <button class="toggle-sidebar" id="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <button class="dropdown-toggle">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="dropdown-toggle user-dropdown">
+                        <img src="https://via.placeholder.com/32" alt="Admin">
+                        <span>관리자</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="page-title">
+                <h1>블로그 관리</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> 새 글 작성
+                    </button>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-file-export"></i> 내보내기
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>블로그 게시물 목록</h2>
+                    <div class="blog-search">
+                        <input type="text" class="search-input" placeholder="검색어를 입력하세요...">
+                        <button class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="blog-filter">
+                        <select class="filter-select">
+                            <option>모든 카테고리</option>
+                            <option>기술</option>
+                            <option>여행</option>
+                            <option>음식</option>
+                            <option>패션</option>
+                            <option>라이프스타일</option>
+                        </select>
+                        
+                        <select class="filter-select">
+                            <option>모든 상태</option>
+                            <option>게시됨</option>
+                            <option>임시저장</option>
+                        </select>
+                        
+                        <select class="filter-select">
+                            <option>최신순</option>
+                            <option>오래된순</option>
+                            <option>조회수 높은순</option>
+                            <option>댓글 많은순</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>카테고리</th>
+                                    <th>작성자</th>
+                                    <th>작성일</th>
+                                    <th>상태</th>
+                                    <th>조회수</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>최신 웹 개발 트렌드 2023</td>
+                                    <td>기술</td>
+                                    <td>관리자</td>
+                                    <td>2023-06-15</td>
+                                    <td><span class="blog-status status-published">게시됨</span></td>
+                                    <td>1,245</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <div class="action-icon view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="action-icon edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                            <div class="action-icon delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>파이썬 vs 자바스크립트: 어떤 언어가 좋을까?</td>
+                                    <td>기술</td>
+                                    <td>관리자</td>
+                                    <td>2023-06-10</td>
+                                    <td><span class="blog-status status-published">게시됨</span></td>
+                                    <td>987</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <div class="action-icon view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="action-icon edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                            <div class="action-icon delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>유럽 여행 꿀팁 10가지</td>
+                                    <td>여행</td>
+                                    <td>editor01</td>
+                                    <td>2023-06-05</td>
+                                    <td><span class="blog-status status-published">게시됨</span></td>
+                                    <td>1,520</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <div class="action-icon view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="action-icon edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                            <div class="action-icon delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>웹사이트 성능 최적화하기</td>
+                                    <td>기술</td>
+                                    <td>관리자</td>
+                                    <td>2023-06-01</td>
+                                    <td><span class="blog-status status-draft">임시저장</span></td>
+                                    <td>0</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <div class="action-icon view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="action-icon edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                            <div class="action-icon delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>여름 건강 관리법</td>
+                                    <td>라이프스타일</td>
+                                    <td>editor02</td>
+                                    <td>2023-05-28</td>
+                                    <td><span class="blog-status status-published">게시됨</span></td>
+                                    <td>763</td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <div class="action-icon view-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </div>
+                                            <div class="action-icon edit-btn">
+                                                <i class="fas fa-edit"></i>
+                                            </div>
+                                            <div class="action-icon delete-btn">
+                                                <i class="fas fa-trash"></i>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <ul class="pagination">
+                        <li class="page-item">
+                            <a href="#" class="page-link">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link active">1</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">2</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">3</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">4</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">5</a>
+                        </li>
+                        <li class="page-item">
+                            <a href="#" class="page-link">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in as admin
+        document.addEventListener('DOMContentLoaded', function() {
+            const isAdmin = localStorage.getItem('adminLoggedIn');
+            if (!isAdmin) {
+                window.location.href = 'admin-login.html';
+            }
+            
+            // Toggle sidebar
+            const toggleButton = document.getElementById('toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            toggleButton.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+            
+            // Logout functionality
+            const logoutButton = document.getElementById('logout-button');
+            logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            });
+            
+            // Blog table row actions
+            const viewButtons = document.querySelectorAll('.view-btn');
+            const editButtons = document.querySelectorAll('.edit-btn');
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Redirect to view blog post
+                    alert('게시물 보기 기능 구현 예정');
+                });
+            });
+            
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Redirect to edit blog post
+                    alert('게시물 수정 기능 구현 예정');
+                });
+            });
+            
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (confirm('이 게시물을 삭제하시겠습니까?')) {
+                        // Delete blog post
+                        alert('게시물 삭제 기능 구현 예정');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

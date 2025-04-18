@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>연락처 | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체</title>
+    <meta name="description" content="집꾸미다에 문의하세요. 누수 관련 문제에 대한 전문적인 상담과 서비스를 제공합니다.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Contact Page Specific Styles */
+        .page-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 100px 0 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb ol {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 5px;
+        }
+        
+        .breadcrumb li:not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+        }
+        
+        .breadcrumb a {
+            color: var(--accent-color);
+        }
+        
+        .contact-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+        
+        .contact-info {
+            flex: 0 0 40%;
+        }
+        
+        .contact-form-container {
+            flex: 0 0 55%;
+        }
+        
+        .contact-info-card {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info-card h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .contact-info-card h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+        
+        .contact-info-list {
+            list-style: none;
+        }
+        
+        .contact-info-list li {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .contact-info-list i {
+            color: var(--primary-color);
+            margin-right: 15px;
+            margin-top: 5px;
+            flex: 0 0 20px;
+        }
+        
+        .contact-info-content {
+            flex: 1;
+        }
+        
+        .contact-info-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        
+        .contact-social {
+            display: flex;
+            margin-top: 20px;
+        }
+        
+        .contact-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--light-bg);
+            border-radius: 50%;
+            margin-right: 10px;
+            color: var(--primary-color);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        .contact-social a:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .contact-form {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        .contact-form h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .contact-form h3:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background-color: var(--accent-color);
+        }
+        
+        .form-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        /* Map Section */
+        .map-section {
+            margin-bottom: 50px;
+        }
+        
+        .map-container {
+            height: 450px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        @media screen and (max-width: 992px) {
+            .contact-container {
+                flex-direction: column;
+            }
+            
+            .contact-info, .contact-form-container {
+                flex: 0 0 100%;
+            }
+            
+            .contact-info {
+                margin-bottom: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="집꾸미다 로고">
+            </a>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                    <li class="nav-item"><a href="services.html" class="nav-link">서비스</a></li>
+                    <li class="nav-item"><a href="blog.html" class="nav-link">블로그</a></li>
+                    <li class="nav-item"><a href="qna.html" class="nav-link">묻고답하기</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-link">연락처</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">연락처</h1>
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="index.html">홈</a></li>
+                    <li>연락처</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact">
+        <div class="container">
+            <div class="contact-container">
+                <div class="contact-info">
+                    <div class="contact-info-card">
+                        <h3>연락처 정보</h3>
+                        <ul class="contact-info-list">
+                            <li>
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div class="contact-info-content">
+                                    <h4>주소</h4>
+                                    <p>서울특별시 강남구 테헤란로 123</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-phone"></i>
+                                <div class="contact-info-content">
+                                    <h4>전화번호</h4>
+                                    <p>02-123-4567</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-mobile-alt"></i>
+                                <div class="contact-info-content">
+                                    <h4>휴대전화</h4>
+                                    <p>010-1234-5678</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-envelope"></i>
+                                <div class="contact-info-content">
+                                    <h4>이메일</h4>
+                                    <p>info@jipkkumida.com</p>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fas fa-clock"></i>
+                                <div class="contact-info-content">
+                                    <h4>영업시간</h4>
+                                    <p>평일: 09:00 - 18:00<br>주말/공휴일: 10:00 - 16:00<br>(긴급 누수는 24시간 대응)</p>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="contact-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                            <a href="#"><i class="fab fa-youtube"></i></a>
+                            <a href="#"><i class="fab fa-blog"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info-card">
+                        <h3>긴급 누수 대응</h3>
+                        <p>심각한 누수 상황으로 긴급 조치가 필요하신가요?</p>
+                        <p><strong>24시간 긴급 대응 핫라인</strong></p>
+                        <p style="font-size: 1.5rem; color: var(--primary-color); margin: 15px 0;"><i class="fas fa-phone"></i> 010-1234-5678</p>
+                        <p>* 긴급 상황에 한해 24시간 연중무휴 출동 가능</p>
+                    </div>
+                </div>
+                
+                <div class="contact-form-container">
+                    <div class="contact-form">
+                        <h3>문의하기</h3>
+                        <div id="form-success" class="form-success">
+                            메시지가 성공적으로 전송되었습니다. 빠른 시일 내에 답변 드리겠습니다.
+                        </div>
+                        <form id="contact-form">
+                            <div class="form-group">
+                                <label for="name" class="form-label">이름</label>
+                                <input type="text" id="name" name="name" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email" class="form-label">이메일</label>
+                                <input type="email" id="email" name="email" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone" class="form-label">연락처</label>
+                                <input type="tel" id="phone" name="phone" class="form-control">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="subject" class="form-label">제목</label>
+                                <input type="text" id="subject" name="subject" class="form-control" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="message" class="form-label">문의 내용</label>
+                                <textarea id="message" name="message" class="form-control" rows="5" required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-check">
+                                    <input type="checkbox" name="agree" required>
+                                    개인정보 수집 및 이용에 동의합니다.
+                                </label>
+                            </div>
+                            
+                            <button type="submit" class="btn">문의하기</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="section map-section">
+        <div class="container">
+            <h2 class="section-title">찾아오시는 길</h2>
+            <div class="map-container">
+                <!-- 카카오맵 API를 사용한 지도 -->
+                <div id="map" style="width:100%;height:100%;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3 class="footer-title">집꾸미다</h3>
+                <p>누수탐지 및 누수피해복구 전문업체로서 최신 기술과 풍부한 경험을 바탕으로 고객 만족을 최우선으로 합니다.</p>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-blog"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">서비스</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">누수 탐지</a></li>
+                    <li><a href="services.html">누수 수리</a></li>
+                    <li><a href="services.html">피해 복구</a></li>
+                    <li><a href="services.html">예방 점검</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="services.html">서비스</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="qna.html">묻고답하기</a></li>
+                    <li><a href="contact.html">연락처</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">연락처</h3>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> 서울특별시 강남구 테헤란로 123</li>
+                    <li><i class="fas fa-phone"></i> 02-123-4567</li>
+                    <li><i class="fas fa-mobile-alt"></i> 010-1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> info@jipkkumida.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <p>&copy; 2025 집꾸미다. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Kakao Maps API -->
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=YOUR_KAKAO_MAP_API_KEY"></script>
+    <script>
+        // 카카오맵 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            var container = document.getElementById('map');
+            var options = {
+                center: new kakao.maps.LatLng(37.5012, 127.0396), // 강남구 테헤란로 기준 좌표
+                level: 3 // 지도 확대 레벨
+            };
+            
+            var map = new kakao.maps.Map(container, options);
+            
+            // 마커 생성
+            var markerPosition = new kakao.maps.LatLng(37.5012, 127.0396);
+            var marker = new kakao.maps.Marker({
+                position: markerPosition
+            });
+            marker.setMap(map);
+            
+            // 커스텀 오버레이 생성
+            var content = '<div style="padding:5px; background:#fff; border:1px solid #ddd; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.1);">' +
+                            '<p style="margin:5px; color:#0056b3; font-weight:bold;">집꾸미다</p>' +
+                          '</div>';
+            var position = new kakao.maps.LatLng(37.5012, 127.0396);
+            var customOverlay = new kakao.maps.CustomOverlay({
+                position: position,
+                content: content,
+                yAnchor: 1
+            });
+            customOverlay.setMap(map);
+        });
+    </script>
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+</body>
+</html> 
