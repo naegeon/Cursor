@@ -646,56 +646,102 @@
     <!-- Page Specific Script -->
     <script>
         $(document).ready(function() {
-            // 에디터 초기화
-            $('#post-content').summernote({
-                placeholder: '블로그 내용을 작성하세요...',
-                tabsize: 2,
-                height: 300,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                callbacks: {
-                    onImageUpload: function(files) {
-                        // 이미지 업로드 로직 구현
-                        for(let i = 0; i < files.length; i++) {
-                            // 실제 구현에서는 서버에 업로드하고 URL을 받아와야 함
-                            const reader = new FileReader();
-                            reader.onloadend = function() {
-                                const img = document.createElement('img');
-                                img.src = reader.result;
-                                $('#post-content').summernote('insertNode', img);
-                            }
-                            reader.readAsDataURL(files[i]);
-                        }
-                    }
-                }
-            });
+            let isEditing = false;
+            let editingId = null;
             
-            // 상태에 따라 예약 일시 표시/숨김
-            $('#post-status').change(function() {
-                if($(this).val() === 'scheduled') {
-                    $('#schedule-date-group').show();
-                } else {
-                    $('#schedule-date-group').hide();
-                }
-            });
+            // URL에서 id 파라미터 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
             
-            // 대표 이미지 미리보기
+            // 이미지 미리보기 기능
             $('#featured-image').change(function() {
                 const file = this.files[0];
-                if(file) {
+                if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         $('#image-preview').html('<img src="' + e.target.result + '" alt="미리보기">');
                     }
                     reader.readAsDataURL(file);
                 }
+            });
+            
+            // 게시물 수정 모드인 경우 데이터 로드
+            if (postId) {
+                isEditing = true;
+                editingId = parseInt(postId);
+                loadPostData(editingId);
+                $('.page-title h1').text('블로그 글 수정');
+            }
+            
+            // 로컬 스토리지에서 게시물 데이터 가져오기
+            function loadPostData(id) {
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const post = blogPosts.find(post => post.id === id);
+                
+                if (post) {
+                    $('#post-title').val(post.title);
+                    $('#post-category').val(post.category);
+                    $('#post-content').summernote('code', post.content);
+                    $('#post-excerpt').val(post.excerpt);
+                    $('#post-status').val(post.status);
+                    $('#schedule-date').val(post.scheduledDate);
+                    
+                    if (post.thumbnailSrc) {
+                        $('#image-preview').html('<img src="' + post.thumbnailSrc + '" alt="썸네일 미리보기">');
+                    }
+                    
+                    // 태그 설정
+                    $('#post-tags').val(post.tags.join(', '));
+                    
+                    // 상태에 따라 예약 일시 표시/숨김
+                    if (post.status === 'scheduled') {
+                        $('#schedule-date-group').show();
+                    } else {
+                        $('#schedule-date-group').hide();
+                    }
+                } else {
+                    alert('게시물을 찾을 수 없습니다.');
+                    window.location.href = 'admin-blog.html';
+                }
+            }
+            
+            // 폼 제출 처리
+            $('#blog-post-form').submit(function(e) {
+                e.preventDefault();
+                
+                // 폼 데이터 수집
+                const postData = {
+                    id: isEditing ? editingId : Date.now(), // 수정 모드면 기존 ID 사용, 아니면 새 ID 생성
+                    title: $('#post-title').val(),
+                    content: $('#post-content').summernote('code'),
+                    excerpt: $('#post-excerpt').val(),
+                    status: $('#post-status').val(),
+                    category: $('#post-category').val(),
+                    tags: $('#post-tags').val().split(',').map(tag => tag.trim()).filter(tag => tag),
+                    date: isEditing ? getCurrentPost().date : new Date().toISOString().split('T')[0],
+                    scheduledDate: $('#schedule-date').val(),
+                    author: '관리자',
+                    views: isEditing ? getCurrentPost().views : 0
+                };
+                
+                // 현재 수정 중인 게시물 가져오기
+                function getCurrentPost() {
+                    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                    return blogPosts.find(post => post.id === editingId) || { date: new Date().toISOString().split('T')[0], views: 0 };
+                }
+                
+                // 로컬 스토리지에 저장
+                savePostToLocalStorage(postData);
+                
+                // 저장 완료 후 블로그 관리 페이지로 이동
+                alert(isEditing ? '게시물이 수정되었습니다.' : '게시물이 저장되었습니다.');
+                window.location.href = 'admin-blog.html';
+            });
+            
+            // 임시저장 버튼
+            $('#save-draft').click(function() {
+                $('#post-status').val('draft');
+                $('#blog-post-form').submit();
             });
             
             // 태그 처리
@@ -726,60 +772,34 @@
                 $('#tags-container').append(tag);
             }
             
-            // 폼 제출
-            $('#blog-post-form').submit(function(e) {
-                e.preventDefault();
+            // 로컬 스토리지에 게시물 저장
+            function savePostToLocalStorage(postData) {
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
                 
-                // 폼 데이터 수집
-                const postData = {
-                    title: $('#post-title').val(),
-                    content: $('#post-content').summernote('code'),
-                    excerpt: $('#post-excerpt').val(),
-                    status: $('#post-status').val(),
-                    category: $('#post-category').val(),
-                    tags: getTags(),
-                    scheduledDate: $('#schedule-date').val(),
-                    // featured image는 실제 구현에서 파일 업로드 후 URL을 저장
-                };
-                
-                // 데이터 검증
-                if(!postData.title) {
-                    alert('제목을 입력해주세요.');
-                    return;
+                if (isEditing) {
+                    // 수정 모드: 기존 게시물 업데이트
+                    const index = blogPosts.findIndex(post => post.id === editingId);
+                    if (index !== -1) {
+                        blogPosts[index] = postData;
+                    } else {
+                        blogPosts.push(postData);
+                    }
+                } else {
+                    // 새 게시물 추가
+                    blogPosts.push(postData);
                 }
                 
-                if(!postData.content) {
-                    alert('내용을 입력해주세요.');
-                    return;
-                }
-                
-                if(!postData.category) {
-                    alert('카테고리를 선택해주세요.');
-                    return;
-                }
-                
-                // 서버에 데이터 전송 (실제 구현 필요)
-                console.log('저장할 데이터:', postData);
-                alert('글이 저장되었습니다.');
-                
-                // 저장 후 블로그 관리 페이지로 이동
-                window.location.href = 'admin-blog.html';
-            });
-            
-            // 임시저장 버튼
-            $('#save-draft').click(function() {
-                $('#post-status').val('draft');
-                $('#blog-post-form').submit();
-            });
-            
-            // 태그 배열 가져오기
-            function getTags() {
-                const tags = [];
-                $('#tags-container .tag').each(function() {
-                    tags.push($(this).text().replace('×', '').trim());
-                });
-                return tags;
+                localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
             }
+            
+            // 상태에 따라 예약 일시 표시/숨김
+            $('#post-status').change(function() {
+                if($(this).val() === 'scheduled') {
+                    $('#schedule-date-group').show();
+                } else {
+                    $('#schedule-date-group').hide();
+                }
+            });
         });
     </script>
 </body>

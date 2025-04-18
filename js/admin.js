@@ -753,4 +753,250 @@ function initWysiwygEditor() {
 document.addEventListener('DOMContentLoaded', function() {
     loadDashboardStats();
     initWysiwygEditor();
-}); 
+});
+
+// 관리자 공통 JavaScript 기능
+$(document).ready(function() {
+    // 사이드바 토글 기능
+    $('#toggle-sidebar').click(function() {
+        $('#sidebar').toggleClass('collapsed');
+        $('#main-content').toggleClass('expanded');
+    });
+    
+    // 로그인 상태 확인
+    checkLoginStatus();
+    
+    // 로그아웃 버튼 이벤트
+    $('#logout-button').click(function(e) {
+        e.preventDefault();
+        if (confirm('로그아웃 하시겠습니까?')) {
+            // 로그인 정보 삭제 및 로그인 페이지로 리디렉션
+            localStorage.removeItem('isAdminLoggedIn');
+            localStorage.removeItem('adminUsername');
+            window.location.href = 'admin-login.html';
+        }
+    });
+    
+    // 카테고리 관리 관련 기능
+    if ($('#category-form').length > 0) {
+        setupCategoryFunctions();
+    }
+});
+
+// 로그인 상태 확인 함수
+function checkLoginStatus() {
+    const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+    
+    // 현재 페이지가 로그인 페이지인지 확인
+    const isLoginPage = window.location.href.includes('admin-login.html');
+    
+    if (!isLoggedIn && !isLoginPage) {
+        // 로그인되지 않았고 로그인 페이지가 아니면 로그인 페이지로 리디렉션
+        window.location.href = 'admin-login.html';
+    } else if (isLoggedIn && isLoginPage) {
+        // 이미 로그인된 상태에서 로그인 페이지에 접근하면 대시보드로 리디렉션
+        window.location.href = 'admin-dashboard.html';
+    }
+    
+    // 로그인된 경우 사용자 이름 표시
+    if (isLoggedIn) {
+        const username = localStorage.getItem('adminUsername') || '관리자';
+        $('.admin-name').text(username);
+        $('.user-dropdown span').text(username);
+    }
+}
+
+// 카테고리 관리 함수 설정
+function setupCategoryFunctions() {
+    // 블로그 카테고리 로드
+    const storageKey = window.location.href.includes('admin-blog-category.html') ? 'blogCategories' : 'qnaCategories';
+    
+    // 초기 데이터 로드
+    loadCategories(storageKey);
+    
+    // 카테고리 추가 폼 제출
+    $('#category-form').submit(function(e) {
+        e.preventDefault();
+        
+        const categoryName = $('#category-name').val().trim();
+        if (!categoryName) {
+            alert('카테고리 이름을 입력해주세요.');
+            return;
+        }
+        
+        addCategory(categoryName, storageKey);
+        $('#category-name').val(''); // 입력창 초기화
+    });
+    
+    // 태그 추가 폼 제출
+    $('#tag-form').submit(function(e) {
+        e.preventDefault();
+        
+        const tagName = $('#tag-name').val().trim();
+        if (!tagName) {
+            alert('태그 이름을 입력해주세요.');
+            return;
+        }
+        
+        const storageTagKey = storageKey === 'blogCategories' ? 'blogTags' : 'qnaTags';
+        addTag(tagName, storageTagKey);
+        $('#tag-name').val(''); // 입력창 초기화
+    });
+}
+
+// 카테고리 로드 함수
+function loadCategories(storageKey) {
+    // 카테고리 로드
+    const categories = JSON.parse(localStorage.getItem(storageKey)) || [];
+    const categoryList = $('#category-list');
+    
+    // 리스트 초기화
+    categoryList.empty();
+    
+    if (categories.length === 0) {
+        categoryList.append('<tr><td colspan="3" class="text-center">등록된 카테고리가 없습니다.</td></tr>');
+    } else {
+        categories.forEach((category, index) => {
+            categoryList.append(`
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${category.name}</td>
+                    <td>
+                        <div class="table-actions">
+                            <div class="action-icon edit-btn" onclick="editCategory(${index}, '${storageKey}')">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="action-icon delete-btn" onclick="deleteCategory(${index}, '${storageKey}')">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+    
+    // 태그 로드
+    const tagStorageKey = storageKey === 'blogCategories' ? 'blogTags' : 'qnaTags';
+    const tags = JSON.parse(localStorage.getItem(tagStorageKey)) || [];
+    const tagList = $('#tag-list');
+    
+    // 리스트 초기화
+    tagList.empty();
+    
+    if (tags.length === 0) {
+        tagList.append('<tr><td colspan="3" class="text-center">등록된 태그가 없습니다.</td></tr>');
+    } else {
+        tags.forEach((tag, index) => {
+            tagList.append(`
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${tag.name}</td>
+                    <td>
+                        <div class="table-actions">
+                            <div class="action-icon edit-btn" onclick="editTag(${index}, '${tagStorageKey}')">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="action-icon delete-btn" onclick="deleteTag(${index}, '${tagStorageKey}')">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `);
+        });
+    }
+}
+
+// 카테고리 추가 함수
+function addCategory(name, storageKey) {
+    const categories = JSON.parse(localStorage.getItem(storageKey)) || [];
+    
+    // 중복 체크
+    if (categories.some(cat => cat.name === name)) {
+        alert('이미 존재하는 카테고리입니다.');
+        return;
+    }
+    
+    categories.push({
+        id: Date.now(),
+        name: name
+    });
+    
+    localStorage.setItem(storageKey, JSON.stringify(categories));
+    loadCategories(storageKey);
+}
+
+// 카테고리 수정 함수
+function editCategory(index, storageKey) {
+    const categories = JSON.parse(localStorage.getItem(storageKey)) || [];
+    const category = categories[index];
+    
+    const newName = prompt('카테고리 이름을 수정하세요:', category.name);
+    if (newName !== null && newName.trim() !== '') {
+        categories[index].name = newName.trim();
+        localStorage.setItem(storageKey, JSON.stringify(categories));
+        loadCategories(storageKey);
+    }
+}
+
+// 카테고리 삭제 함수
+function deleteCategory(index, storageKey) {
+    if (confirm('이 카테고리를 삭제하시겠습니까?')) {
+        const categories = JSON.parse(localStorage.getItem(storageKey)) || [];
+        categories.splice(index, 1);
+        localStorage.setItem(storageKey, JSON.stringify(categories));
+        loadCategories(storageKey);
+    }
+}
+
+// 태그 추가 함수
+function addTag(name, storageKey) {
+    const tags = JSON.parse(localStorage.getItem(storageKey)) || [];
+    
+    // 중복 체크
+    if (tags.some(tag => tag.name === name)) {
+        alert('이미 존재하는 태그입니다.');
+        return;
+    }
+    
+    tags.push({
+        id: Date.now(),
+        name: name
+    });
+    
+    localStorage.setItem(storageKey, JSON.stringify(tags));
+    
+    // 카테고리 스토리지 키 기반으로 태그 로드에 필요한 스토리지 키 결정
+    const categoryStorageKey = storageKey === 'blogTags' ? 'blogCategories' : 'qnaCategories';
+    loadCategories(categoryStorageKey);
+}
+
+// 태그 수정 함수
+function editTag(index, storageKey) {
+    const tags = JSON.parse(localStorage.getItem(storageKey)) || [];
+    const tag = tags[index];
+    
+    const newName = prompt('태그 이름을 수정하세요:', tag.name);
+    if (newName !== null && newName.trim() !== '') {
+        tags[index].name = newName.trim();
+        localStorage.setItem(storageKey, JSON.stringify(tags));
+        
+        // 카테고리 스토리지 키 기반으로 태그 로드에 필요한 스토리지 키 결정
+        const categoryStorageKey = storageKey === 'blogTags' ? 'blogCategories' : 'qnaCategories';
+        loadCategories(categoryStorageKey);
+    }
+}
+
+// 태그 삭제 함수
+function deleteTag(index, storageKey) {
+    if (confirm('이 태그를 삭제하시겠습니까?')) {
+        const tags = JSON.parse(localStorage.getItem(storageKey)) || [];
+        tags.splice(index, 1);
+        localStorage.setItem(storageKey, JSON.stringify(tags));
+        
+        // 카테고리 스토리지 키 기반으로 태그 로드에 필요한 스토리지 키 결정
+        const categoryStorageKey = storageKey === 'blogTags' ? 'blogCategories' : 'qnaCategories';
+        loadCategories(categoryStorageKey);
+    }
+} 

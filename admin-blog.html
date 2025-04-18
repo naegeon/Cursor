@@ -533,54 +533,6 @@
                 </div>
             </div>
             
-            <!-- Create/Edit Post Form -->
-            <div class="card" id="blog-post-form-card">
-                <div class="card-header">
-                    <h2>블로그 글 작성</h2>
-                </div>
-                <div class="card-body">
-                    <form id="blog-form">
-                        <div class="form-group">
-                            <label for="blog-title">제목</label>
-                            <input type="text" id="blog-title" name="title" class="form-control" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="blog-category">카테고리</label>
-                            <select id="blog-category" name="category" class="form-control" required>
-                                <option value="">카테고리 선택</option>
-                                <option value="누수 탐지">누수 탐지</option>
-                                <option value="누수 수리">누수 수리</option>
-                                <option value="피해 복구">피해 복구</option>
-                                <option value="비용 문의">비용 문의</option>
-                                <option value="누수 대처">누수 대처</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="blog-content">내용</label>
-                            <textarea id="blog-content" name="content" class="form-control" rows="10" required></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="blog-tags">태그 (쉼표로 구분)</label>
-                            <input type="text" id="blog-tags" name="tags" class="form-control" placeholder="예: 누수, 화장실, 배관">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="blog-thumbnail">썸네일 이미지</label>
-                            <input type="file" id="blog-thumbnail" name="thumbnail" class="form-control" accept="image/*">
-                            <div id="thumbnail-preview" class="img-preview"></div>
-                        </div>
-                        
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">저장하기</button>
-                            <button type="button" class="btn btn-outline" id="cancel-post-btn">취소</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
             <div class="card">
                 <div class="card-header">
                     <h2>블로그 게시물 목록</h2>
@@ -776,5 +728,151 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Admin JS -->
     <script src="js/admin.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 로컬 스토리지에서 블로그 게시물 데이터 가져오기
+            function loadBlogPosts() {
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const tableBody = $('tbody');
+                
+                // 테이블 초기화
+                tableBody.empty();
+                
+                if (blogPosts.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="7" style="text-align: center;">게시물이 없습니다.</td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                // 최신순으로 정렬
+                blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 게시물 목록 생성
+                blogPosts.forEach(post => {
+                    const statusClass = post.status === 'published' ? 'status-published' : 'status-draft';
+                    const statusText = post.status === 'published' ? '게시됨' : '임시저장';
+                    
+                    tableBody.append(`
+                        <tr data-id="${post.id}">
+                            <td>${post.title}</td>
+                            <td>${post.category}</td>
+                            <td>${post.author}</td>
+                            <td>${post.date}</td>
+                            <td><span class="blog-status ${statusClass}">${statusText}</span></td>
+                            <td>${post.views}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <div class="action-icon view-btn" onclick="viewPost(${post.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div class="action-icon edit-btn" onclick="editPost(${post.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </div>
+                                    <div class="action-icon delete-btn" onclick="deletePost(${post.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+            
+            // 게시물 보기 함수
+            window.viewPost = function(id) {
+                alert('게시물 보기: ' + id);
+                // 실제 구현에서는 게시물 상세 페이지로 이동
+            };
+            
+            // 게시물 수정 함수
+            window.editPost = function(id) {
+                window.location.href = `admin-blog-write.html?id=${id}`;
+            };
+            
+            // 게시물 삭제 함수
+            window.deletePost = function(id) {
+                if (confirm('정말 이 게시물을 삭제하시겠습니까?')) {
+                    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                    const updatedPosts = blogPosts.filter(post => post.id !== id);
+                    localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
+                    loadBlogPosts(); // 목록 새로고침
+                }
+            };
+            
+            // 초기 데이터 로드
+            loadBlogPosts();
+            
+            // 검색 기능
+            $('.search-btn').click(function() {
+                const searchTerm = $('.search-input').val().toLowerCase();
+                if (!searchTerm) {
+                    loadBlogPosts();
+                    return;
+                }
+                
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const filteredPosts = blogPosts.filter(post => 
+                    post.title.toLowerCase().includes(searchTerm) || 
+                    post.content.toLowerCase().includes(searchTerm)
+                );
+                
+                displayFilteredPosts(filteredPosts);
+            });
+            
+            // 필터링된 게시물 표시
+            function displayFilteredPosts(posts) {
+                const tableBody = $('tbody');
+                tableBody.empty();
+                
+                if (posts.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="7" style="text-align: center;">검색 결과가 없습니다.</td>
+                        </tr>
+                    `);
+                    return;
+                }
+                
+                posts.forEach(post => {
+                    const statusClass = post.status === 'published' ? 'status-published' : 'status-draft';
+                    const statusText = post.status === 'published' ? '게시됨' : '임시저장';
+                    
+                    tableBody.append(`
+                        <tr data-id="${post.id}">
+                            <td>${post.title}</td>
+                            <td>${post.category}</td>
+                            <td>${post.author}</td>
+                            <td>${post.date}</td>
+                            <td><span class="blog-status ${statusClass}">${statusText}</span></td>
+                            <td>${post.views}</td>
+                            <td>
+                                <div class="table-actions">
+                                    <div class="action-icon view-btn" onclick="viewPost(${post.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div class="action-icon edit-btn" onclick="editPost(${post.id})">
+                                        <i class="fas fa-edit"></i>
+                                    </div>
+                                    <div class="action-icon delete-btn" onclick="deletePost(${post.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                });
+            }
+            
+            // 카테고리, 상태, 정렬 필터 이벤트 리스너
+            $('.filter-select').change(function() {
+                // 필터링 로직 구현
+                // TODO: 필터링 기능 구현
+            });
+        });
+    </script>
 </body>
 </html> 
