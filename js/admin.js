@@ -1079,6 +1079,39 @@ function initInquiryManagement() {
         if (refreshBtn) {
             refreshBtn.addEventListener('click', loadInquiries);
         }
+        
+        // 모달 닫기 버튼 이벤트 리스너 추가
+        const closeModalBtn = document.getElementById('close-modal');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeModal);
+        }
+        
+        // 응답 저장 버튼 이벤트 리스너 추가
+        const saveResponseBtn = document.getElementById('save-response-btn');
+        if (saveResponseBtn) {
+            saveResponseBtn.addEventListener('click', function() {
+                const inquiryId = this.getAttribute('data-id');
+                if (inquiryId) {
+                    saveInquiryResponse(inquiryId);
+                }
+            });
+        }
+        
+        // 상태 선택 드롭다운이 없을 경우 추가
+        const responseSection = document.querySelector('.response-section');
+        if (responseSection && !document.getElementById('inquiry-status-select')) {
+            const statusSelectDiv = document.createElement('div');
+            statusSelectDiv.className = 'form-group';
+            statusSelectDiv.innerHTML = `
+                <label for="inquiry-status-select">상태 변경:</label>
+                <select id="inquiry-status-select" class="form-control">
+                    <option value="new">신규</option>
+                    <option value="in-progress">처리중</option>
+                    <option value="completed">완료</option>
+                </select>
+            `;
+            responseSection.insertBefore(statusSelectDiv, document.getElementById('save-response-btn'));
+        }
     }
 }
 
@@ -1129,8 +1162,8 @@ function loadInquiries() {
         
         row.innerHTML = `
             <td>${inquiries.length - index}</td>
-            <td>${inquiry.name}</td>
-            <td>${inquiry.title || inquiry.subject || '제목 없음'}</td>
+            <td>${inquiry.name || '이름 없음'}</td>
+            <td>${inquiry.subject || inquiry.title || '제목 없음'}</td>
             <td>${formattedDate}</td>
             <td>${statusBadge}</td>
             <td>
@@ -1192,12 +1225,12 @@ function openInquiryModal(inquiryId) {
     }
     
     // 모달 내용 업데이트
-    document.getElementById('inquiry-name').textContent = inquiry.name;
-    document.getElementById('inquiry-phone').textContent = inquiry.phone;
+    document.getElementById('inquiry-name').textContent = inquiry.name || '이름 없음';
+    document.getElementById('inquiry-phone').textContent = inquiry.phone || '연락처 없음';
     document.getElementById('inquiry-date').textContent = formattedDate;
     document.getElementById('inquiry-status').innerHTML = statusBadge;
-    document.getElementById('modal-title').textContent = '무료 상담 신청 상세 정보: ' + (inquiry.subject || '제목 없음');
-    document.getElementById('inquiry-message').textContent = inquiry.message || inquiry.content;
+    document.getElementById('modal-title').textContent = '무료 상담 신청 상세 정보: ' + (inquiry.subject || inquiry.title || '제목 없음');
+    document.getElementById('inquiry-message').textContent = inquiry.message || '';
     
     // 이미지 표시
     const imageContainer = document.getElementById('inquiry-images');

@@ -96,6 +96,14 @@
                 <div class="response-section">
                     <label>답변:</label>
                     <textarea id="inquiry-response" placeholder="여기에 답변을 입력하세요..." class="form-control"></textarea>
+                    <div class="form-group">
+                        <label for="inquiry-status-select">상태 변경:</label>
+                        <select id="inquiry-status-select" class="form-control">
+                            <option value="new">신규</option>
+                            <option value="in-progress">처리중</option>
+                            <option value="completed">완료</option>
+                        </select>
+                    </div>
                     <button id="save-response-btn" class="btn btn-success">답변 저장</button>
                 </div>
             </div>

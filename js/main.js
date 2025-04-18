@@ -193,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 name: name,
                 phone: phone,
                 subject: subject,
-                title: subject,
                 message: message,
                 status: 'new',
                 images: images,
