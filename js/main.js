@@ -127,4 +127,91 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
+});
+
+// Main JS
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 스크롤 탑 버튼
+    const scrollTopBtn = document.querySelector('.scroll-top');
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('show');
+            } else {
+                scrollTopBtn.classList.remove('show');
+            }
+        });
+        
+        scrollTopBtn.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    }
+    
+    // 모바일 메뉴 토글
+    const menuToggle = document.querySelector('.menu-toggle');
+    const mobileMenu = document.querySelector('.mobile-menu');
+    
+    if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function() {
+            menuToggle.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
+        });
+    }
+    
+    // 문의하기 폼 제출 처리
+    const contactForm = document.getElementById('contact-form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 폼 데이터 수집
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            // 이미지 처리
+            const imagePreview = document.getElementById('image-preview');
+            const images = [];
+            
+            if (imagePreview && imagePreview.querySelectorAll('.preview-image')) {
+                imagePreview.querySelectorAll('.preview-image').forEach(img => {
+                    images.push(img.src);
+                });
+            }
+            
+            // 문의 객체 생성
+            const inquiry = {
+                id: 'inq_' + Date.now(),
+                date: new Date().toISOString().slice(0, 10),
+                name: name,
+                phone: phone,
+                title: subject,
+                content: message,
+                status: 'new',
+                images: images,
+                response: ''
+            };
+            
+            // localStorage에 저장
+            let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+            inquiries.push(inquiry);
+            localStorage.setItem('inquiries', JSON.stringify(inquiries));
+            
+            // 폼 초기화 및 성공 메시지 표시
+            contactForm.reset();
+            document.getElementById('image-preview').innerHTML = '';
+            document.getElementById('form-success').style.display = 'block';
+            
+            // 성공 메시지 5초 후 숨김
+            setTimeout(function() {
+                document.getElementById('form-success').style.display = 'none';
+            }, 5000);
+        });
+    }
 }); 
