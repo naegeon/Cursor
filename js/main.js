@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 문의 폼 제출 처리
+    // 무료 상담 신청 폼 제출 처리
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // 문의 객체 생성
+            // 상담 신청 객체 생성
             const inquiry = {
                 id: 'inq_' + Date.now(),
                 date: new Date().toISOString(),
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 response: ''
             };
             
-            // localStorage에 문의 저장
+            // localStorage에 상담 신청 저장
             saveInquiry(inquiry);
             
             // 성공 메시지 표시
@@ -225,12 +225,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// 문의 저장 함수
+// 상담 신청 저장 함수
 function saveInquiry(inquiry) {
-    // localStorage에서 기존 문의 목록 가져오기
+    // localStorage에서 기존 상담 신청 목록 가져오기
     let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     
-    // 새 문의 추가
+    // 새 상담 신청 추가
     inquiries.push(inquiry);
     
     // localStorage에 저장

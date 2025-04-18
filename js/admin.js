@@ -1011,7 +1011,7 @@ function deleteTag(index, storageKey) {
     }
 }
 
-// 문의 폼 초기화 함수
+// 무료 상담 신청 폼 초기화 함수
 function initContactForm() {
     const contactForm = document.getElementById('contact-form');
     contactForm.addEventListener('submit', function(e) {
@@ -1033,7 +1033,7 @@ function initContactForm() {
             });
         }
         
-        // 문의 객체 생성
+        // 상담 신청 객체 생성
         const inquiry = {
             id: 'inq_' + Date.now(),
             date: new Date().toISOString().slice(0, 10),
@@ -1061,14 +1061,14 @@ function initContactForm() {
     });
 }
 
-// 문의 저장 함수
+// 상담 신청 저장 함수
 function saveInquiry(inquiry) {
     let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     inquiries.push(inquiry);
     localStorage.setItem('inquiries', JSON.stringify(inquiries));
 }
 
-// 문의 관리 초기화 함수
+// 무료 상담 신청 관리 초기화 함수
 function initInquiryManagement() {
     const inquiryTable = document.getElementById('inquiry-table');
     const refreshBtn = document.getElementById('refresh-btn');
@@ -1082,7 +1082,7 @@ function initInquiryManagement() {
     }
 }
 
-// 문의 불러오기 및 표시
+// 상담 신청 불러오기 및 표시
 function loadInquiries() {
     const tableBody = document.querySelector('#inquiry-table tbody');
     if (!tableBody) return;
@@ -1090,7 +1090,7 @@ function loadInquiries() {
     // 테이블 내용 초기화
     tableBody.innerHTML = '';
     
-    // localStorage에서 문의 목록 가져오기
+    // localStorage에서 상담 신청 목록 가져오기
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     
     // 날짜 내림차순으로 정렬 (최신순)
@@ -1098,12 +1098,12 @@ function loadInquiries() {
     
     if (inquiries.length === 0) {
         const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = '<td colspan="6" class="text-center">접수된 문의가 없습니다.</td>';
+        emptyRow.innerHTML = '<td colspan="6" class="text-center">접수된 상담 신청이 없습니다.</td>';
         tableBody.appendChild(emptyRow);
         return;
     }
     
-    // 문의 목록 표시
+    // 상담 신청 목록 표시
     inquiries.forEach((inquiry, index) => {
         const row = document.createElement('tr');
         
@@ -1156,14 +1156,14 @@ function loadInquiries() {
     deleteButtons.forEach(button => {
         button.addEventListener('click', function() {
             const inquiryId = this.getAttribute('data-id');
-            if (confirm('정말로 이 문의를 삭제하시겠습니까?')) {
+            if (confirm('정말로 이 상담 신청을 삭제하시겠습니까?')) {
                 deleteInquiry(inquiryId);
             }
         });
     });
 }
 
-// 문의 모달 열기
+// 상담 신청 모달 열기
 function openInquiryModal(inquiryId) {
     const modal = document.getElementById('inquiry-modal');
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
@@ -1197,7 +1197,7 @@ function openInquiryModal(inquiryId) {
     document.getElementById('inquiry-date').textContent = formattedDate;
     document.getElementById('inquiry-status').innerHTML = statusBadge;
     document.getElementById('inquiry-title').textContent = inquiry.title || inquiry.subject || '제목 없음';
-    document.getElementById('inquiry-message').textContent = inquiry.message;
+    document.getElementById('inquiry-message').textContent = inquiry.message || inquiry.content;
     
     // 이미지 표시
     const imageContainer = document.getElementById('inquiry-images');
@@ -1234,18 +1234,18 @@ function openInquiryModal(inquiryId) {
     modal.style.display = 'block';
 }
 
-// 문의 응답 저장
+// 상담 신청 응답 저장
 function saveInquiryResponse(inquiryId) {
     const responseText = document.getElementById('inquiry-response').value;
     const statusSelect = document.getElementById('inquiry-status-select');
     const status = statusSelect ? statusSelect.value : 'in-progress';
     
-    // localStorage에서 문의 목록 가져오기
+    // localStorage에서 상담 신청 목록 가져오기
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     const index = inquiries.findIndex(item => item.id === inquiryId);
     
     if (index !== -1) {
-        // 문의 정보 업데이트
+        // 상담 신청 정보 업데이트
         inquiries[index].response = responseText;
         inquiries[index].status = status;
         inquiries[index].updatedAt = new Date().toISOString();
@@ -1261,17 +1261,19 @@ function saveInquiryResponse(inquiryId) {
     }
 }
 
-// 문의 삭제
+// 상담 신청 삭제
 function deleteInquiry(inquiryId) {
-    if (!confirm('정말 이 문의를 삭제하시겠습니까?')) return;
+    if (!confirm('정말 이 상담 신청을 삭제하시겠습니까?')) return;
     
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     const filteredInquiries = inquiries.filter(item => item.id !== inquiryId);
     
     localStorage.setItem('inquiries', JSON.stringify(filteredInquiries));
     
-    // 문의 목록 새로고침
+    // 상담 신청 목록 새로고침
     loadInquiries();
+    
+    alert('상담 신청이 삭제되었습니다.');
 }
 
 // 모달 닫기
@@ -1286,7 +1288,7 @@ function closeModal() {
 document.addEventListener('DOMContentLoaded', function() {
     // ... existing code ...
     
-    // 문의 관리 초기화
+    // 무료 상담 신청 관리 초기화
     initInquiryManagement();
     
     // 모바일 사이드바 토글

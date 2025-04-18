@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>문의 관리 - 관리자</title>
-    <meta name="description" content="문의 관리 관리자 페이지">
+    <title>무료 상담 신청 관리 - 관리자</title>
+    <meta name="description" content="무료 상담 신청 관리 관리자 페이지">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
@@ -26,7 +26,7 @@
                 <li><a href="admin-blog-category.html"><i class="fas fa-tags"></i> <span>카테고리 관리</span></a></li>
                 <li><a href="admin-qna.html"><i class="fas fa-question-circle"></i> <span>Q&A 관리</span></a></li>
                 <li><a href="admin-qna-category.html"><i class="fas fa-list"></i> <span>Q&A 카테고리</span></a></li>
-                <li><a href="admin-inquiry.html" class="active"><i class="fas fa-envelope"></i> <span>문의 관리</span></a></li>
+                <li><a href="admin-inquiry.html" class="active"><i class="fas fa-envelope"></i> <span>무료 상담 신청 관리</span></a></li>
                 <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
             </ul>
         </div>
@@ -34,7 +34,7 @@
 
     <div class="main-content" id="main-content">
         <div class="main-header">
-            <h1 class="page-title">문의 관리</h1>
+            <h1 class="page-title">무료 상담 신청 관리</h1>
             <div class="action-buttons">
                 <button id="refresh-btn" class="btn btn-primary">
                     <i class="fas fa-sync-alt"></i> 새로고침
@@ -55,7 +55,7 @@
                     </tr>
                 </thead>
                 <tbody id="inquiry-list">
-                    <!-- 문의 목록이 여기에 동적으로 로드됩니다 -->
+                    <!-- 상담 신청 목록이 여기에 동적으로 로드됩니다 -->
                 </tbody>
             </table>
         </div>
@@ -65,7 +65,7 @@
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
             <div class="modal-header">
-                <h2 id="modal-title">문의 상세 정보</h2>
+                <h2 id="modal-title">무료 상담 신청 상세 정보</h2>
             </div>
             <div class="modal-body">
                 <div class="inquiry-info">
@@ -87,7 +87,7 @@
                     </div>
                 </div>
                 <div class="inquiry-content">
-                    <label>문의 내용:</label>
+                    <label>상담 내용:</label>
                     <p id="inquiry-message"></p>
                 </div>
                 <div class="inquiry-images" id="inquiry-images">
@@ -115,7 +115,7 @@
             // 로그아웃 초기화
             initLogout();
             
-            // 문의 관리 초기화
+            // 무료 상담 신청 관리 초기화
             initInquiryManagement();
             
             // 새로고침 버튼 이벤트
