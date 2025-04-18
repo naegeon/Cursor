@@ -882,169 +882,23 @@
             // 로그인 상태 확인
             const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
             if (!isLoggedIn) {
-                // 로그인되지 않았으면 로그인 페이지로 리디렉션
                 window.location.href = 'admin-login.html';
                 return;
             }
-            
-            // 페이지당 게시물 수
-            const postsPerPage = 10;
-            let currentPage = 1;
-            let totalPages = 1;
-            
-            // 로컬 스토리지에서 블로그 게시물 데이터 가져오기
-            function loadBlogPosts(page = 1) {
-                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                const tableBody = $('tbody');
-                
-                // 테이블 초기화
-                tableBody.empty();
-                
-                if (blogPosts.length === 0) {
-                    tableBody.append(`
-                        <tr>
-                            <td colspan="7" style="text-align: center;">게시물이 없습니다.</td>
-                        </tr>
-                    `);
-                    
-                    // 페이지네이션 숨기기
-                    $('.pagination').hide();
-                    return;
-                }
-                
-                // 페이지네이션 표시
-                $('.pagination').show();
-                
-                // 최신순으로 정렬
-                blogPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                // 총 페이지 수 계산
-                totalPages = Math.ceil(blogPosts.length / postsPerPage);
-                currentPage = page;
-                
-                // 현재 페이지의 게시물만 표시
-                const startIndex = (page - 1) * postsPerPage;
-                const endIndex = Math.min(startIndex + postsPerPage, blogPosts.length);
-                const currentPagePosts = blogPosts.slice(startIndex, endIndex);
-                
-                // 게시물 목록 생성
-                currentPagePosts.forEach(post => {
-                    const statusClass = post.status === 'published' ? 'status-published' : 'status-draft';
-                    const statusText = post.status === 'published' ? '게시됨' : '임시저장';
-                    
-                    tableBody.append(`
-                        <tr data-id="${post.id}">
-                            <td><a href="#" onclick="viewPost(${post.id}); return false;">${post.title}</a></td>
-                            <td>${post.category}</td>
-                            <td>${post.author}</td>
-                            <td>${post.date}</td>
-                            <td><span class="blog-status ${statusClass}">${statusText}</span></td>
-                            <td>${post.views || 0}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <div class="action-icon edit-btn" onclick="editPost(${post.id})">
-                                        <i class="fas fa-edit"></i>
-                                    </div>
-                                    <div class="action-icon delete-btn" onclick="deletePost(${post.id})">
-                                        <i class="fas fa-trash"></i>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    `);
-                });
-                
-                // 페이지네이션 업데이트
-                updatePagination();
-            }
-            
-            // 페이지네이션 업데이트
-            function updatePagination() {
-                const paginationElement = $('.pagination');
-                paginationElement.empty();
-                
-                // 이전 페이지 버튼
-                paginationElement.append(`
-                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-                        <a href="#" class="page-link" data-page="${currentPage - 1}">
-                            <i class="fas fa-angle-left"></i>
-                        </a>
-                    </li>
-                `);
-                
-                // 페이지 번호
-                const startPage = Math.max(1, currentPage - 2);
-                const endPage = Math.min(totalPages, startPage + 4);
-                
-                for (let i = startPage; i <= endPage; i++) {
-                    paginationElement.append(`
-                        <li class="page-item">
-                            <a href="#" class="page-link ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</a>
-                        </li>
-                    `);
-                }
-                
-                // 다음 페이지 버튼
-                paginationElement.append(`
-                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-                        <a href="#" class="page-link" data-page="${currentPage + 1}">
-                            <i class="fas fa-angle-right"></i>
-                        </a>
-                    </li>
-                `);
-                
-                // 페이지 클릭 이벤트
-                $('.page-link').click(function(e) {
-                    e.preventDefault();
-                    const page = parseInt($(this).data('page'));
-                    
-                    // 유효한 페이지 확인
-                    if (page >= 1 && page <= totalPages && page !== currentPage) {
-                        loadBlogPosts(page);
-                    }
-                });
-            }
-            
-            // 게시물 보기 함수
-            function viewPost(postId) {
-                // Redirect to the view page instead of showing a modal
-                window.location.href = `admin-blog-view.html?id=${postId}`;
-            }
-            
-            // 모달 닫기
-            $('.close, #modal-close').click(function() {
-                $('#post-view-modal').fadeOut();
+
+            // 블로그 데이터 불러오기
+            loadBlogPosts();
+
+            // 사이드바 토글 기능
+            $('.toggle-sidebar').click(function() {
+                $('.sidebar').toggleClass('active');
             });
-            
-            // 모달 외부 클릭시 닫기
-            $(window).click(function(e) {
-                if ($(e.target).is('#post-view-modal')) {
-                    $('#post-view-modal').fadeOut();
-                }
-            });
-            
-            // 게시물 수정 함수
-            window.editPost = function(id) {
-                window.location.href = `admin-blog-write.html?id=${id}`;
-            };
-            
-            // 게시물 삭제 함수
-            window.deletePost = function(id) {
-                if (confirm('정말 이 게시물을 삭제하시겠습니까?')) {
-                    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                    const updatedPosts = blogPosts.filter(post => post.id !== id);
-                    localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
-                    loadBlogPosts(); // 목록 새로고침
-                }
-            };
-            
+
             // 검색 기능
-            $('.search-btn').click(function() {
-                const searchTerm = $('.search-input').val().toLowerCase();
-                if (!searchTerm) {
+            $('#search-form').on('submit', function(e) {
+                e.preventDefault();
+                const searchTerm = $('#search-input').val().toLowerCase().trim();
+                if (searchTerm === '') {
                     loadBlogPosts();
                     return;
                 }
@@ -1052,131 +906,148 @@
                 const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
                 const filteredPosts = blogPosts.filter(post => 
                     post.title.toLowerCase().includes(searchTerm) || 
-                    post.content.toLowerCase().includes(searchTerm) ||
-                    (post.excerpt && post.excerpt.toLowerCase().includes(searchTerm)) ||
-                    (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                    post.content.toLowerCase().includes(searchTerm)
                 );
                 
-                displayFilteredPosts(filteredPosts);
+                displayBlogPosts(filteredPosts);
             });
-            
-            // 필터링된 게시물 표시
-            function displayFilteredPosts(posts) {
-                const tableBody = $('tbody');
-                tableBody.empty();
-                
-                if (posts.length === 0) {
-                    tableBody.append(`
-                        <tr>
-                            <td colspan="7" style="text-align: center;">검색 결과가 없습니다.</td>
-                        </tr>
-                    `);
-                    // 페이지네이션 숨기기
-                    $('.pagination').hide();
-                    return;
-                }
-                
-                // 페이지네이션 표시
-                $('.pagination').show();
-                
-                // 최신순으로 정렬
-                posts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                
-                // 총 페이지 수 계산
-                totalPages = Math.ceil(posts.length / postsPerPage);
-                currentPage = 1;
-                
-                // 현재 페이지의 게시물만 표시
-                const currentPagePosts = posts.slice(0, postsPerPage);
-                
-                currentPagePosts.forEach(post => {
-                    const statusClass = post.status === 'published' ? 'status-published' : 'status-draft';
-                    const statusText = post.status === 'published' ? '게시됨' : '임시저장';
-                    
-                    tableBody.append(`
-                        <tr data-id="${post.id}">
-                            <td><a href="#" onclick="viewPost(${post.id}); return false;">${post.title}</a></td>
-                            <td>${post.category}</td>
-                            <td>${post.author}</td>
-                            <td>${post.date}</td>
-                            <td><span class="blog-status ${statusClass}">${statusText}</span></td>
-                            <td>${post.views || 0}</td>
-                            <td>
-                                <div class="table-actions">
-                                    <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <div class="action-icon edit-btn" onclick="editPost(${post.id})">
-                                        <i class="fas fa-edit"></i>
-                                    </div>
-                                    <div class="action-icon delete-btn" onclick="deletePost(${post.id})">
-                                        <i class="fas fa-trash"></i>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    `);
-                });
-                
-                // 페이지네이션 업데이트
-                updatePagination();
-            }
-            
-            // 카테고리, 상태, 정렬 필터 이벤트 리스너
-            $('.filter-select').change(function() {
-                applyFilters();
+
+            // 카테고리 필터
+            $('#category-filter').on('change', function() {
+                filterBlogPosts();
             });
-            
-            // 필터 적용 함수
-            function applyFilters() {
-                const categoryFilter = $('.filter-select:eq(0)').val();
-                const statusFilter = $('.filter-select:eq(1)').val();
-                const sortFilter = $('.filter-select:eq(2)').val();
+
+            // 상태 필터
+            $('#status-filter').on('change', function() {
+                filterBlogPosts();
+            });
+
+            // 필터링 함수
+            function filterBlogPosts() {
+                const selectedCategory = $('#category-filter').val();
+                const selectedStatus = $('#status-filter').val();
                 
                 const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                
-                // 필터링
                 let filteredPosts = [...blogPosts];
                 
-                // 카테고리 필터
-                if (categoryFilter && categoryFilter !== '모든 카테고리') {
-                    filteredPosts = filteredPosts.filter(post => post.category === categoryFilter);
+                if (selectedCategory !== 'all') {
+                    filteredPosts = filteredPosts.filter(post => post.category === selectedCategory);
                 }
                 
-                // 상태 필터
-                if (statusFilter && statusFilter !== '모든 상태') {
-                    const status = statusFilter === '게시됨' ? 'published' : 'draft';
-                    filteredPosts = filteredPosts.filter(post => post.status === status);
+                if (selectedStatus !== 'all') {
+                    filteredPosts = filteredPosts.filter(post => post.status === selectedStatus);
                 }
                 
-                // 정렬
-                switch (sortFilter) {
-                    case '최신순':
-                        filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                        break;
-                    case '오래된순':
-                        filteredPosts.sort((a, b) => new Date(a.date) - new Date(b.date));
-                        break;
-                    case '조회수 높은순':
-                        filteredPosts.sort((a, b) => (b.views || 0) - (a.views || 0));
-                        break;
-                    default:
-                        filteredPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-                }
-                
-                displayFilteredPosts(filteredPosts);
+                displayBlogPosts(filteredPosts);
             }
-            
-            // Enter 키로 검색
-            $('.search-input').on('keypress', function(e) {
-                if (e.which === 13) {
-                    $('.search-btn').click();
+
+            // 로그아웃 버튼 이벤트
+            $('#logout-btn').click(function(e) {
+                e.preventDefault();
+                if (confirm('로그아웃 하시겠습니까?')) {
+                    localStorage.removeItem('isAdminLoggedIn');
+                    localStorage.removeItem('adminUsername');
+                    window.location.href = 'admin-login.html';
                 }
             });
-            
-            // 초기 데이터 로드
-            loadBlogPosts();
         });
+
+        // 블로그 데이터 불러오기
+        function loadBlogPosts() {
+            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            displayBlogPosts(blogPosts);
+            
+            // 카테고리 옵션 로드
+            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
+            const categoryFilter = document.getElementById('category-filter');
+            categoryFilter.innerHTML = '<option value="all">모든 카테고리</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                categoryFilter.appendChild(option);
+            });
+        }
+
+        // 블로그 게시물 표시
+        function displayBlogPosts(posts) {
+            const tableBody = document.getElementById('blog-table-body');
+            tableBody.innerHTML = '';
+            
+            if (posts.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td colspan="7" class="text-center">등록된 게시물이 없습니다.</td>';
+                tableBody.appendChild(row);
+                return;
+            }
+
+            posts.forEach((post, index) => {
+                const row = document.createElement('tr');
+                
+                // 게시물 ID
+                const idCell = document.createElement('td');
+                idCell.textContent = post.id;
+                row.appendChild(idCell);
+                
+                // 제목
+                const titleCell = document.createElement('td');
+                titleCell.className = 'title-cell';
+                titleCell.textContent = post.title;
+                row.appendChild(titleCell);
+                
+                // 카테고리
+                const categoryCell = document.createElement('td');
+                categoryCell.textContent = post.category;
+                row.appendChild(categoryCell);
+                
+                // 작성일
+                const dateCell = document.createElement('td');
+                dateCell.textContent = post.date;
+                row.appendChild(dateCell);
+                
+                // 조회수
+                const viewsCell = document.createElement('td');
+                viewsCell.textContent = post.views || 0;
+                row.appendChild(viewsCell);
+                
+                // 상태
+                const statusCell = document.createElement('td');
+                statusCell.innerHTML = `<span class="status ${post.status}">${post.status}</span>`;
+                row.appendChild(statusCell);
+                
+                // 액션 버튼
+                const actionCell = document.createElement('td');
+                actionCell.className = 'action-cell';
+                actionCell.innerHTML = `
+                    <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn"><i class="fas fa-eye"></i></a>
+                    <a href="admin-blog-write.html?id=${post.id}" class="btn edit-btn"><i class="fas fa-edit"></i></a>
+                    <button class="btn delete-btn" data-id="${post.id}"><i class="fas fa-trash-alt"></i></button>
+                `;
+                row.appendChild(actionCell);
+                
+                tableBody.appendChild(row);
+            });
+            
+            // 삭제 버튼 이벤트 추가
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const postId = parseInt(this.getAttribute('data-id'));
+                    if (confirm('이 게시물을 정말 삭제하시겠습니까?')) {
+                        deletePost(postId);
+                    }
+                });
+            });
+        }
+
+        // 게시물 삭제 함수
+        function deletePost(postId) {
+            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            const updatedPosts = blogPosts.filter(post => post.id !== postId);
+            localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
+            alert('게시물이 삭제되었습니다.');
+            loadBlogPosts();
+        }
     </script>
 </body>
 </html> 

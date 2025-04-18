@@ -31,6 +31,16 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.qna-category-management')) {
         initQnACategoryManagement();
     }
+    
+    // Initialize inquiry management if on inquiry page
+    if (document.querySelector('.inquiry-management')) {
+        loadInquiries();
+    }
+    
+    // Initialize contact form submission if on contact page
+    if (document.getElementById('contact-form')) {
+        initContactForm();
+    }
 });
 
 function initSidebar() {
@@ -999,4 +1009,244 @@ function deleteTag(index, storageKey) {
         const categoryStorageKey = storageKey === 'blogTags' ? 'blogCategories' : 'qnaCategories';
         loadCategories(categoryStorageKey);
     }
+}
+
+// 문의 폼 초기화 함수
+function initContactForm() {
+    const contactForm = document.getElementById('contact-form');
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // 폼 데이터 수집
+        const name = document.getElementById('name').value;
+        const phone = document.getElementById('phone').value;
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        
+        // 이미지 처리
+        const imagePreview = document.getElementById('image-preview');
+        const images = [];
+        
+        if (imagePreview && imagePreview.querySelectorAll('.preview-image')) {
+            imagePreview.querySelectorAll('.preview-image').forEach(img => {
+                images.push(img.src);
+            });
+        }
+        
+        // 문의 객체 생성
+        const inquiry = {
+            id: 'inq_' + Date.now(),
+            date: new Date().toISOString().slice(0, 10),
+            name: name,
+            phone: phone,
+            title: subject,
+            content: message,
+            status: 'new',
+            images: images,
+            response: ''
+        };
+        
+        // 로컬 스토리지에 저장
+        saveInquiry(inquiry);
+        
+        // 폼 초기화 및 성공 메시지 표시
+        contactForm.reset();
+        document.getElementById('image-preview').innerHTML = '';
+        document.getElementById('form-success').style.display = 'block';
+        
+        // 성공 메시지 5초 후 숨김
+        setTimeout(function() {
+            document.getElementById('form-success').style.display = 'none';
+        }, 5000);
+    });
+}
+
+// 문의 저장 함수
+function saveInquiry(inquiry) {
+    let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    inquiries.push(inquiry);
+    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+}
+
+// 문의 불러오기 함수
+function loadInquiries() {
+    const inquiryList = document.getElementById('inquiry-list');
+    if (!inquiryList) return;
+    
+    const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    
+    // 테이블 초기화
+    inquiryList.innerHTML = '';
+    
+    // 문의가 없는 경우
+    if (inquiries.length === 0) {
+        inquiryList.innerHTML = '<tr><td colspan="6" class="text-center">등록된 문의가 없습니다.</td></tr>';
+        return;
+    }
+    
+    // 문의 목록 표시 (최신순)
+    inquiries.slice().reverse().forEach((inquiry, index) => {
+        const row = document.createElement('tr');
+        
+        // 상태에 따른 배지 클래스 결정
+        let statusClass = '';
+        let statusText = '';
+        
+        switch(inquiry.status) {
+            case 'new':
+                statusClass = 'status-new';
+                statusText = '신규';
+                break;
+            case 'inprogress':
+                statusClass = 'status-inprogress';
+                statusText = '처리중';
+                break;
+            case 'resolved':
+                statusClass = 'status-resolved';
+                statusText = '해결됨';
+                break;
+            default:
+                statusClass = 'status-new';
+                statusText = '신규';
+        }
+        
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${inquiry.date}</td>
+            <td>${inquiry.name}</td>
+            <td>${inquiry.title}</td>
+            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            <td class="table-action">
+                <button class="btn view-btn" data-id="${inquiry.id}"><i class="fas fa-eye"></i> 보기</button>
+                <button class="btn delete-btn" data-id="${inquiry.id}"><i class="fas fa-trash"></i> 삭제</button>
+            </td>
+        `;
+        inquiryList.appendChild(row);
+    });
+    
+    // 보기 버튼 이벤트 연결
+    const viewButtons = document.querySelectorAll('.view-btn');
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const inquiryId = this.getAttribute('data-id');
+            openInquiryModal(inquiryId);
+        });
+    });
+    
+    // 삭제 버튼 이벤트 연결
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const inquiryId = this.getAttribute('data-id');
+            if (confirm('정말 이 문의를 삭제하시겠습니까?')) {
+                deleteInquiry(inquiryId);
+            }
+        });
+    });
+}
+
+// 문의 모달 열기 함수
+function openInquiryModal(inquiryId) {
+    const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    const inquiry = inquiries.find(i => i.id === inquiryId);
+    
+    if (!inquiry) return;
+    
+    // 모달 데이터 업데이트
+    document.getElementById('inquiry-date').textContent = inquiry.date;
+    document.getElementById('inquiry-name').textContent = inquiry.name;
+    document.getElementById('inquiry-phone').textContent = inquiry.phone || '연락처 없음';
+    document.getElementById('inquiry-title').textContent = inquiry.title;
+    document.getElementById('inquiry-content').textContent = inquiry.content;
+    
+    // 이미지 표시
+    const imagesContainer = document.getElementById('inquiry-images');
+    imagesContainer.innerHTML = '';
+    
+    if (inquiry.images && inquiry.images.length > 0) {
+        inquiry.images.forEach(imgSrc => {
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.alt = '첨부 이미지';
+            img.className = 'inquiry-image';
+            imagesContainer.appendChild(img);
+        });
+    } else {
+        imagesContainer.innerHTML = '<p>첨부된 이미지가 없습니다.</p>';
+    }
+    
+    // 응답 표시
+    if (document.getElementById('response-text')) {
+        document.getElementById('response-text').value = inquiry.response || '';
+    }
+    
+    // 상태에 따른 UI 조정
+    const statusDisplay = document.getElementById('inquiry-status');
+    if (statusDisplay) {
+        let statusClass = '';
+        let statusText = '';
+        
+        switch(inquiry.status) {
+            case 'new':
+                statusClass = 'status-new';
+                statusText = '신규';
+                break;
+            case 'inprogress':
+                statusClass = 'status-inprogress';
+                statusText = '처리중';
+                break;
+            case 'resolved':
+                statusClass = 'status-resolved';
+                statusText = '해결됨';
+                break;
+            default:
+                statusClass = 'status-new';
+                statusText = '신규';
+        }
+        
+        statusDisplay.className = `status-badge ${statusClass}`;
+        statusDisplay.textContent = statusText;
+    }
+    
+    // 저장 버튼 이벤트 연결
+    const saveButton = document.getElementById('save-response');
+    if (saveButton) {
+        saveButton.onclick = function() {
+            saveInquiryResponse(inquiryId);
+        };
+    }
+    
+    // 모달 표시
+    document.getElementById('inquiry-modal').style.display = 'block';
+}
+
+// 문의 응답 저장 함수
+function saveInquiryResponse(inquiryId) {
+    const response = document.getElementById('response-text').value;
+    
+    let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    const index = inquiries.findIndex(i => i.id === inquiryId);
+    
+    if (index !== -1) {
+        inquiries[index].response = response;
+        inquiries[index].status = 'resolved';
+        localStorage.setItem('inquiries', JSON.stringify(inquiries));
+        
+        alert('응답이 저장되었습니다.');
+        closeModal();
+        loadInquiries();
+    }
+}
+
+// 문의 삭제 함수
+function deleteInquiry(inquiryId) {
+    let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    inquiries = inquiries.filter(i => i.id !== inquiryId);
+    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+    loadInquiries();
+}
+
+// 모달 닫기 함수
+function closeModal() {
+    document.getElementById('inquiry-modal').style.display = 'none';
 } 

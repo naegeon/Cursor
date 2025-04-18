@@ -391,10 +391,13 @@
     <script src="js/admin.js"></script>
     <script>
         // 페이지 로드 시 실행
-        document.addEventListener('DOMContentLoaded', function() {
-            // 관리자 인증 확인
-            if (typeof checkAdminAuth === 'function') {
-                checkAdminAuth();
+        $(document).ready(function() {
+            // 로그인 상태 확인
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                // 로그인되지 않았으면 로그인 페이지로 리디렉션
+                window.location.href = 'admin-login.html';
+                return;
             }
             
             // URL에서 게시물 ID 가져오기
@@ -421,6 +424,21 @@
                 e.preventDefault();
                 if (confirm('이 게시물을 정말 삭제하시겠습니까?')) {
                     deletePost(postId);
+                }
+            });
+
+            // 사이드바 토글 기능
+            $('.toggle-sidebar').click(function() {
+                $('.sidebar').toggleClass('active');
+            });
+            
+            // 로그아웃 버튼 이벤트
+            $('#logout-btn').click(function(e) {
+                e.preventDefault();
+                if (confirm('로그아웃 하시겠습니까?')) {
+                    localStorage.removeItem('isAdminLoggedIn');
+                    localStorage.removeItem('adminUsername');
+                    window.location.href = 'admin-login.html';
                 }
             });
         });

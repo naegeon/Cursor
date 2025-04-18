@@ -747,5 +747,290 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Admin JS -->
     <script src="js/admin.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 로그인 상태 확인
+            checkAdminAuth();
+            
+            // 카테고리 및 태그 로드
+            loadCategories();
+            loadTags();
+            
+            // 카테고리 폼 제출
+            $('#category-form').on('submit', function(e) {
+                e.preventDefault();
+                addCategory();
+            });
+            
+            // 태그 폼 제출
+            $('#tag-form').on('submit', function(e) {
+                e.preventDefault();
+                addTag();
+            });
+            
+            // 사이드바 토글 이벤트
+            $('.toggle-sidebar').on('click', function() {
+                $('.sidebar').toggleClass('active');
+            });
+            
+            // 로그아웃 이벤트
+            $('#logout-btn').on('click', function(e) {
+                e.preventDefault();
+                adminLogout();
+            });
+        });
+        
+        // 카테고리 로드 함수
+        function loadCategories() {
+            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
+            const categoryList = $('#category-list');
+            categoryList.empty();
+            
+            if (categories.length === 0) {
+                categoryList.append('<tr><td colspan="3" class="text-center">등록된 카테고리가 없습니다.</td></tr>');
+                return;
+            }
+            
+            categories.forEach((category, index) => {
+                categoryList.append(`
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${category.name}</td>
+                        <td>
+                            <button class="btn edit-btn" onclick="editCategory(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn delete-btn" onclick="deleteCategory(${index})"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+        
+        // 카테고리 추가 함수
+        function addCategory() {
+            const categoryName = $('#category-name').val().trim();
+            
+            if (!categoryName) {
+                alert('카테고리 이름을 입력해주세요.');
+                return;
+            }
+            
+            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
+            
+            // 중복 확인
+            if (categories.some(cat => cat.name === categoryName)) {
+                alert('이미 등록된 카테고리입니다.');
+                return;
+            }
+            
+            categories.push({
+                id: new Date().getTime(),
+                name: categoryName
+            });
+            
+            localStorage.setItem('blogCategories', JSON.stringify(categories));
+            $('#category-name').val('');
+            loadCategories();
+            
+            alert('카테고리가 추가되었습니다.');
+        }
+        
+        // 카테고리 수정 함수
+        function editCategory(index) {
+            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
+            const category = categories[index];
+            
+            const newName = prompt('카테고리 이름을 수정해주세요:', category.name);
+            
+            if (newName && newName.trim() !== '') {
+                // 중복 확인 (자기 자신 제외)
+                if (categories.some((cat, idx) => idx !== index && cat.name === newName.trim())) {
+                    alert('이미 등록된 카테고리입니다.');
+                    return;
+                }
+                
+                categories[index].name = newName.trim();
+                localStorage.setItem('blogCategories', JSON.stringify(categories));
+                loadCategories();
+                
+                // 관련 포스트 업데이트
+                updatePostCategories(category.name, newName.trim());
+                
+                alert('카테고리가 수정되었습니다.');
+            }
+        }
+        
+        // 카테고리 삭제 함수
+        function deleteCategory(index) {
+            if (!confirm('이 카테고리를 삭제하시겠습니까?\n관련 포스트는 기본 카테고리로 이동됩니다.')) {
+                return;
+            }
+            
+            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
+            const deletedCategory = categories[index].name;
+            
+            categories.splice(index, 1);
+            localStorage.setItem('blogCategories', JSON.stringify(categories));
+            
+            // 관련 포스트 업데이트
+            updateDeletedCategoryPosts(deletedCategory);
+            
+            loadCategories();
+            alert('카테고리가 삭제되었습니다.');
+        }
+        
+        // 포스트 카테고리 업데이트 함수
+        function updatePostCategories(oldName, newName) {
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            
+            posts.forEach(post => {
+                if (post.category === oldName) {
+                    post.category = newName;
+                }
+            });
+            
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+        }
+        
+        // 삭제된 카테고리 포스트 업데이트
+        function updateDeletedCategoryPosts(deletedCategory) {
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            
+            posts.forEach(post => {
+                if (post.category === deletedCategory) {
+                    post.category = '미분류';
+                }
+            });
+            
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+        }
+        
+        // 태그 로드 함수
+        function loadTags() {
+            const tags = JSON.parse(localStorage.getItem('blogTags')) || [];
+            const tagList = $('#tag-list');
+            tagList.empty();
+            
+            if (tags.length === 0) {
+                tagList.append('<tr><td colspan="3" class="text-center">등록된 태그가 없습니다.</td></tr>');
+                return;
+            }
+            
+            tags.forEach((tag, index) => {
+                tagList.append(`
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${tag.name}</td>
+                        <td>
+                            <button class="btn edit-btn" onclick="editTag(${index})"><i class="fas fa-edit"></i></button>
+                            <button class="btn delete-btn" onclick="deleteTag(${index})"><i class="fas fa-trash-alt"></i></button>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+        
+        // 태그 추가 함수
+        function addTag() {
+            const tagName = $('#tag-name').val().trim();
+            
+            if (!tagName) {
+                alert('태그 이름을 입력해주세요.');
+                return;
+            }
+            
+            const tags = JSON.parse(localStorage.getItem('blogTags')) || [];
+            
+            // 중복 확인
+            if (tags.some(t => t.name === tagName)) {
+                alert('이미 등록된 태그입니다.');
+                return;
+            }
+            
+            tags.push({
+                id: new Date().getTime(),
+                name: tagName
+            });
+            
+            localStorage.setItem('blogTags', JSON.stringify(tags));
+            $('#tag-name').val('');
+            loadTags();
+            
+            alert('태그가 추가되었습니다.');
+        }
+        
+        // 태그 수정 함수
+        function editTag(index) {
+            const tags = JSON.parse(localStorage.getItem('blogTags')) || [];
+            const tag = tags[index];
+            
+            const newName = prompt('태그 이름을 수정해주세요:', tag.name);
+            
+            if (newName && newName.trim() !== '') {
+                // 중복 확인 (자기 자신 제외)
+                if (tags.some((t, idx) => idx !== index && t.name === newName.trim())) {
+                    alert('이미 등록된 태그입니다.');
+                    return;
+                }
+                
+                const oldName = tag.name;
+                tags[index].name = newName.trim();
+                localStorage.setItem('blogTags', JSON.stringify(tags));
+                loadTags();
+                
+                // 관련 포스트 업데이트
+                updatePostTags(oldName, newName.trim());
+                
+                alert('태그가 수정되었습니다.');
+            }
+        }
+        
+        // 태그 삭제 함수
+        function deleteTag(index) {
+            if (!confirm('이 태그를 삭제하시겠습니까?\n관련 포스트에서도 이 태그가 제거됩니다.')) {
+                return;
+            }
+            
+            const tags = JSON.parse(localStorage.getItem('blogTags')) || [];
+            const deletedTag = tags[index].name;
+            
+            tags.splice(index, 1);
+            localStorage.setItem('blogTags', JSON.stringify(tags));
+            
+            // 관련 포스트 업데이트
+            removeTagFromPosts(deletedTag);
+            
+            loadTags();
+            alert('태그가 삭제되었습니다.');
+        }
+        
+        // 포스트 태그 업데이트 함수
+        function updatePostTags(oldName, newName) {
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            
+            posts.forEach(post => {
+                if (post.tags && Array.isArray(post.tags)) {
+                    const tagIndex = post.tags.indexOf(oldName);
+                    if (tagIndex !== -1) {
+                        post.tags[tagIndex] = newName;
+                    }
+                }
+            });
+            
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+        }
+        
+        // 삭제된 태그를 포스트에서 제거
+        function removeTagFromPosts(deletedTag) {
+            const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            
+            posts.forEach(post => {
+                if (post.tags && Array.isArray(post.tags)) {
+                    post.tags = post.tags.filter(tag => tag !== deletedTag);
+                }
+            });
+            
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+        }
+    </script>
 </body>
 </html> 

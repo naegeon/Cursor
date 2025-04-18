@@ -3,460 +3,473 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>블로그 게시물 작성/수정 - 관리자</title>
-    <meta name="description" content="블로그 게시물 작성 및 수정 관리자 페이지">
+    <title>블로그 글 작성 - 관리자</title>
+    <meta name="description" content="블로그 글 작성 관리자 페이지">
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Summernote 에디터 CSS -->
+    <!-- Summernote Editor -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <style>
-        /* 전체 스타일 */
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --dark-color: #5a5c69;
+            --light-color: #f8f9fc;
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f8f9fc;
             color: #333;
-            display: flex;
             min-height: 100vh;
+            display: flex;
         }
         
-        /* 사이드바 스타일 */
         .sidebar {
             width: 250px;
-            background-color: #343a40;
-            color: #fff;
-            position: fixed;
-            height: 100%;
-            left: 0;
-            top: 0;
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+            color: white;
+            min-height: 100vh;
             transition: all 0.3s;
-            z-index: 1000;
         }
-        .sidebar-brand {
-            padding: 20px 15px;
-            font-size: 22px;
-            font-weight: 700;
+        
+        .sidebar.active {
+            margin-left: -250px;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
             text-align: center;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .sidebar-menu {
-            padding: 20px 0;
+        
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            margin: 0;
         }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
         .sidebar-menu ul {
             list-style: none;
         }
-        .sidebar-menu li {
-            margin-bottom: 5px;
+        
+        .sidebar-menu ul li {
+            margin: 5px 0;
         }
-        .sidebar-menu a {
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
+        
+        .sidebar-menu ul li a {
             display: block;
             padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
             transition: all 0.3s;
         }
-        .sidebar-menu a:hover,
-        .sidebar-menu a.active {
+        
+        .sidebar-menu ul li a:hover, 
+        .sidebar-menu ul li a.active {
             background-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
+            color: white;
+            border-left: 4px solid white;
         }
-        .sidebar-menu a i {
+        
+        .sidebar-menu ul li a i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
         }
         
-        /* 메인 콘텐츠 스타일 */
         .main-content {
             flex: 1;
             padding: 30px;
-            margin-left: 250px;
-            transition: margin-left 0.3s;
+            transition: all 0.3s;
         }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            color: #4e73df;
+            font-size: 20px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
         .main-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
+        
         .page-title {
-            font-size: 24px;
-            font-weight: 500;
+            font-size: 1.8rem;
+            color: #5a5c69;
+            margin: 0;
         }
+        
         .action-buttons {
             display: flex;
             gap: 10px;
         }
+        
         .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
         }
+        
         .btn i {
             margin-right: 5px;
         }
-        .btn-primary {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background-color: #0069d9;
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: #fff;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        .btn-success {
-            background-color: #28a745;
-            color: #fff;
-        }
-        .btn-success:hover {
-            background-color: #218838;
+        
+        .primary-btn {
+            background-color: var(--primary-color);
+            color: white;
         }
         
-        /* 폼 스타일 */
-        .post-form {
-            background-color: #fff;
-            border-radius: 5px;
-            padding: 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        .primary-btn:hover {
+            background-color: #2e59d9;
         }
+        
+        .secondary-btn {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #717384;
+        }
+        
+        .success-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .success-btn:hover {
+            background-color: #169b6b;
+        }
+        
+        .danger-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .danger-btn:hover {
+            background-color: #d52a1a;
+        }
+        
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
-        .form-group:last-child {
-            margin-bottom: 0;
-        }
-        .form-label {
+        
+        .form-group label {
             display: block;
-            margin-bottom: 8px;
             font-weight: 500;
-        }
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        .form-control:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-        .form-row {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        .form-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
+            margin-bottom: 8px;
         }
         
-        /* 태그 입력 스타일 */
-        .tags-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 8px;
-            border: 1px solid #ced4da;
+        .form-control {
+            width: 100%;
+            padding: 10px;
             border-radius: 4px;
-            min-height: 45px;
-        }
-        .tag {
-            display: flex;
-            align-items: center;
-            background-color: #e9ecef;
-            padding: 5px 10px;
-            border-radius: 3px;
-        }
-        .tag-text {
-            margin-right: 5px;
-        }
-        .tag-close {
-            cursor: pointer;
+            border: 1px solid #d1d3e2;
             font-size: 14px;
         }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #4e73df;
+            box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+        }
+        
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col-md-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 10px;
+        }
+        
+        .tags-input-container {
+            border: 1px solid #d1d3e2;
+            border-radius: 4px;
+            padding: 5px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        #tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: #e9ecef;
+            color: #333;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .tag .close {
+            margin-left: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+        
+        .tag .close:hover {
+            opacity: 1;
+        }
+        
         .tags-input {
             flex: 1;
             border: none;
             outline: none;
-            padding: 5px;
-            font-size: 16px;
+            padding: 10px 5px;
+            font-size: 14px;
         }
         
-        /* 썸네일 업로드 스타일 */
         .thumbnail-preview {
             margin-top: 10px;
-            max-width: 300px;
-            max-height: 200px;
-            border-radius: 5px;
-            display: none;
-        }
-        .thumbnail-container {
-            margin-top: 10px;
-        }
-        
-        /* 에디터 스타일 */
-        .note-editor {
-            margin-top: 10px;
-        }
-        .note-editable {
-            min-height: 300px;
-        }
-        
-        /* 모바일 반응형 */
-        @media (max-width: 992px) {
-            .sidebar {
-                width: 70px;
-            }
-            .sidebar.active {
-                width: 250px;
-            }
-            .sidebar-brand {
-                display: none;
-            }
-            .sidebar.active .sidebar-brand {
-                display: block;
-            }
-            .sidebar-menu a span {
-                display: none;
-            }
-            .sidebar.active .sidebar-menu a span {
-                display: inline;
-            }
-            .main-content {
-                margin-left: 70px;
-            }
-            .sidebar.active + .main-content {
-                margin-left: 250px;
-            }
-        }
-        @media (max-width: 768px) {
-            .sidebar {
-                left: -250px;
-                width: 250px;
-            }
-            .sidebar.active {
-                left: 0;
-            }
-            .sidebar-brand {
-                display: block;
-            }
-            .sidebar-menu a span {
-                display: inline;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .sidebar.active + .main-content {
-                margin-left: 0;
-            }
-            .main-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .action-buttons {
-                margin-top: 15px;
-            }
-            .form-row {
-                flex-direction: column;
-                gap: 20px;
-            }
-        }
-        
-        /* 토글 버튼 */
-        .toggle-sidebar {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1001;
-            background-color: #343a40;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            width: 40px;
-            height: 40px;
+            width: 100%;
+            height: 200px;
+            border: 1px dashed #d1d3e2;
+            border-radius: 4px;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            display: none;
         }
-        @media (max-width: 768px) {
+        
+        .thumbnail-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .thumbnail-preview .placeholder {
+            color: #858796;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 992px) {
             .toggle-sidebar {
-                display: flex;
+                display: block;
+            }
+            
+            .sidebar {
+                position: fixed;
+                z-index: 999;
+                margin-left: -250px;
+            }
+            
+            .sidebar.active {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                width: 100%;
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px;
+            }
+            
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .col-md-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .form-container {
+                padding: 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 사이드바 토글 버튼 (모바일) -->
-    <button class="toggle-sidebar">
-        <i class="fas fa-bars"></i>
-    </button>
-    
     <!-- 사이드바 -->
-    <aside class="sidebar">
-        <div class="sidebar-brand">
-            관리자 대시보드
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>관리자 페이지</h3>
         </div>
         <div class="sidebar-menu">
             <ul>
-                <li>
-                    <a href="admin-dashboard.html">
-                        <i class="fas fa-tachometer-alt"></i>
-                        <span>대시보드</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="admin-blog.html" class="active">
-                        <i class="fas fa-blog"></i>
-                        <span>블로그 관리</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="admin-blog-category.html">
-                        <i class="fas fa-tags"></i>
-                        <span>블로그 카테고리/태그</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="admin-qna.html">
-                        <i class="fas fa-question-circle"></i>
-                        <span>질문 관리</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="admin-qna-category.html">
-                        <i class="fas fa-folder"></i>
-                        <span>질문 카테고리/태그</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="#" id="logout-btn">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>로그아웃</span>
-                    </a>
-                </li>
+                <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> 대시보드</a></li>
+                <li><a href="admin-blog.html" class="active"><i class="fas fa-blog"></i> 블로그 관리</a></li>
+                <li><a href="admin-blog-category.html"><i class="fas fa-tags"></i> 카테고리 관리</a></li>
+                <li><a href="admin-qna.html"><i class="fas fa-question-circle"></i> Q&A 관리</a></li>
+                <li><a href="admin-qna-category.html"><i class="fas fa-list"></i> Q&A 카테고리</a></li>
+                <li><a href="admin-contact.html"><i class="fas fa-envelope"></i> 문의 관리</a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
             </ul>
         </div>
-    </aside>
-    
-    <!-- 메인 콘텐츠 -->
-    <main class="main-content">
+    </div>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="main-content">
+        <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
+        
         <div class="main-header">
-            <h1 class="page-title" id="page-title">새 블로그 게시물 작성</h1>
+            <h1 class="page-title">블로그 글 작성</h1>
             <div class="action-buttons">
-                <a href="admin-blog.html" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> 목록으로
-                </a>
-                <button type="button" id="save-draft-btn" class="btn btn-secondary">
-                    <i class="fas fa-save"></i> 임시저장
-                </button>
-                <button type="button" id="publish-btn" class="btn btn-primary">
-                    <i class="fas fa-paper-plane"></i> 게시하기
-                </button>
+                <button id="save-draft-btn" class="btn secondary-btn"><i class="fas fa-save"></i> 임시저장</button>
+                <button id="preview-btn" class="btn primary-btn"><i class="fas fa-eye"></i> 미리보기</button>
+                <button id="publish-btn" class="btn success-btn"><i class="fas fa-check"></i> 발행하기</button>
             </div>
         </div>
         
-        <div class="post-form">
-            <form id="blog-post-form">
+        <div class="form-container">
+            <form id="blog-form">
                 <div class="form-group">
-                    <label for="post-title" class="form-label">제목</label>
-                    <input type="text" id="post-title" name="title" class="form-control" placeholder="게시물 제목을 입력하세요" required>
+                    <label for="title">제목</label>
+                    <input type="text" id="title" name="title" class="form-control" placeholder="블로그 글 제목을 입력하세요" required>
                 </div>
                 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="post-category" class="form-label">카테고리</label>
-                        <select id="post-category" name="category" class="form-control">
-                            <option value="">카테고리 선택</option>
-                            <!-- 카테고리는 JavaScript로 동적 생성됩니다 -->
-                        </select>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="category">카테고리</label>
+                            <select id="category" name="category" class="form-control">
+                                <option value="미분류">카테고리 선택</option>
+                                <!-- 카테고리는 JavaScript로 로드됨 -->
+                            </select>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="post-author" class="form-label">작성자</label>
-                        <input type="text" id="post-author" name="author" class="form-control" placeholder="작성자 이름">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="post-tags" class="form-label">태그</label>
-                    <div class="tags-input-container" id="tags-container">
-                        <input type="text" id="post-tags" class="tags-input" placeholder="태그 입력 후 Enter">
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="post-thumbnail" class="form-label">썸네일 이미지</label>
-                    <input type="file" id="post-thumbnail" name="thumbnail" class="form-control" accept="image/*">
-                    <div class="thumbnail-container">
-                        <img id="thumbnail-preview" class="thumbnail-preview" src="" alt="썸네일 미리보기">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="status">상태</label>
+                            <select id="status" name="status" class="form-control">
+                                <option value="공개">공개</option>
+                                <option value="비공개">비공개</option>
+                                <option value="임시저장">임시저장</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="post-content" class="form-label">내용</label>
-                    <textarea id="post-content" name="content"></textarea>
+                    <label for="summernote">내용</label>
+                    <textarea id="summernote" name="content"></textarea>
                 </div>
                 
-                <input type="hidden" id="post-id" name="id">
-                <input type="hidden" id="post-status" name="status" value="published">
+                <div class="form-group">
+                    <label>태그</label>
+                    <div class="tags-input-container">
+                        <div id="tags-container">
+                            <!-- 태그는 JavaScript로 추가됨 -->
+                        </div>
+                        <input type="text" id="tag-input" class="tags-input" placeholder="태그 입력 후 엔터(최대 5개)">
+                    </div>
+                    <input type="hidden" id="tags" name="tags">
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="thumbnail">썸네일 이미지</label>
+                            <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
+                            <div class="thumbnail-preview" id="thumbnail-preview">
+                                <div class="placeholder">이미지 미리보기</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="excerpt">요약 (선택사항)</label>
+                            <textarea id="excerpt" name="excerpt" class="form-control" rows="4" placeholder="블로그 글 요약을 입력하세요 (최대 150자)"></textarea>
+                            <small>글 목록에서 표시되는 미리보기 텍스트입니다. 입력하지 않으면 자동으로 생성됩니다.</small>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
-    </main>
-    
+    </div>
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
-    <!-- Summernote 에디터 JS -->
+    <!-- Summernote Editor -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/lang/summernote-ko-KR.min.js"></script>
-    
     <!-- Admin JS -->
     <script src="js/admin.js"></script>
-    
     <script>
-        // 페이지 로드 시 실행
-        document.addEventListener('DOMContentLoaded', function() {
-            // 관리자 인증 확인
-            if (typeof checkAdminAuth === 'function') {
-                checkAdminAuth();
-            }
+        $(document).ready(function() {
+            // 로그인 상태 확인
+            checkAdminAuth();
             
-            // URL에서 게시물 ID 가져오기
-            const urlParams = new URLSearchParams(window.location.search);
-            const postId = Number(urlParams.get('id'));
+            // 사이드바 토글 이벤트
+            $('.toggle-sidebar').on('click', function() {
+                $('.sidebar').toggleClass('active');
+            });
+            
+            // 로그아웃 이벤트
+            $('#logout-btn').on('click', function(e) {
+                e.preventDefault();
+                adminLogout();
+            });
             
             // Summernote 에디터 초기화
-            $('#post-content').summernote({
-                placeholder: '내용을 입력하세요',
+            $('#summernote').summernote({
+                placeholder: '블로그 내용을 작성하세요',
                 tabsize: 2,
-                height: 400,
+                height: 300,
                 lang: 'ko-KR',
                 toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
+                    ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
                     ['color', ['color']],
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['table', ['table']],
@@ -465,234 +478,171 @@
                 ],
                 callbacks: {
                     onImageUpload: function(files) {
-                        // 이미지 업로드 처리
                         for (let i = 0; i < files.length; i++) {
-                            const reader = new FileReader();
-                            reader.onloadend = function() {
-                                const img = document.createElement('img');
-                                img.src = reader.result;
-                                $('#post-content').summernote('insertNode', img);
-                            }
-                            reader.readAsDataURL(files[i]);
+                            uploadImage(files[i], this);
                         }
                     }
                 }
             });
             
-            // 카테고리 목록 로드
-            loadCategories();
-            
-            // 게시물 데이터 로드 (수정 모드)
-            if (postId) {
-                $('#page-title').text('블로그 게시물 수정');
-                loadPostData(postId);
+            // 이미지 업로드 함수 (로컬 스토리지에 Base64 형태로 저장)
+            function uploadImage(file, editor) {
+                const reader = new FileReader();
+                reader.onloadend = function() {
+                    const image = $('<img>').attr('src', reader.result);
+                    $(editor).summernote('insertNode', image[0]);
+                };
+                reader.readAsDataURL(file);
             }
             
-            // 썸네일 이미지 미리보기
-            document.getElementById('post-thumbnail').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    const preview = document.getElementById('thumbnail-preview');
+            // 카테고리 로드
+            loadBlogCategories('#category');
+            
+            // 태그 입력 이벤트
+            $('#tag-input').on('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const tagText = $(this).val().trim();
                     
-                    reader.onload = function(e) {
-                        preview.src = e.target.result;
-                        preview.style.display = 'block';
+                    if (tagText && $('#tags-container .tag').length < 5) {
+                        addTag(tagText);
+                        $(this).val('');
                     }
-                    
-                    reader.readAsDataURL(file);
                 }
             });
             
-            // 태그 입력 처리
-            document.getElementById('post-tags').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    const tagValue = this.value.trim();
-                    if (tagValue) {
-                        addTag(tagValue);
-                        this.value = '';
-                    }
+            function addTag(text) {
+                const tag = $('<div class="tag"></div>').text(text);
+                const closeBtn = $('<span class="close"><i class="fas fa-times"></i></span>');
+                
+                closeBtn.on('click', function() {
+                    $(this).parent().remove();
+                    updateTagsField();
+                });
+                
+                tag.append(closeBtn);
+                $('#tags-container').append(tag);
+                updateTagsField();
+            }
+            
+            function updateTagsField() {
+                const tags = [];
+                $('#tags-container .tag').each(function() {
+                    tags.push($(this).text().trim());
+                });
+                $('#tags').val(JSON.stringify(tags));
+            }
+            
+            // 썸네일 미리보기
+            $('#thumbnail').on('change', function(e) {
+                const file = this.files[0];
+                if (file && file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        $('#thumbnail-preview').html(`<img src="${e.target.result}" alt="썸네일 미리보기">`);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                } else {
+                    $('#thumbnail-preview').html('<div class="placeholder">이미지 미리보기</div>');
                 }
             });
             
             // 임시저장 버튼 클릭 이벤트
-            document.getElementById('save-draft-btn').addEventListener('click', function() {
-                document.getElementById('post-status').value = 'draft';
-                savePost();
+            $('#save-draft-btn').on('click', function(e) {
+                e.preventDefault();
+                savePost('임시저장');
             });
             
-            // 게시하기 버튼 클릭 이벤트
-            document.getElementById('publish-btn').addEventListener('click', function() {
-                document.getElementById('post-status').value = 'published';
-                savePost();
+            // 미리보기 버튼 클릭 이벤트
+            $('#preview-btn').on('click', function(e) {
+                e.preventDefault();
+                savePost('미리보기');
             });
-        });
-        
-        // 카테고리 목록 로드 함수
-        function loadCategories() {
-            // localStorage에서 카테고리 데이터 가져오기
-            const categories = JSON.parse(localStorage.getItem('blogCategories')) || [];
-            const categorySelect = document.getElementById('post-category');
             
-            // 기본 옵션 외 모두 제거
-            while (categorySelect.options.length > 1) {
-                categorySelect.remove(1);
-            }
-            
-            // 카테고리 추가
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.name;
-                option.textContent = category.name;
-                categorySelect.appendChild(option);
+            // 발행하기 버튼 클릭 이벤트
+            $('#publish-btn').on('click', function(e) {
+                e.preventDefault();
+                savePost('공개');
             });
-        }
-        
-        // 게시물 데이터 로드 함수 (수정 모드)
-        function loadPostData(postId) {
-            // localStorage에서 게시물 데이터 가져오기
-            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-            const post = blogPosts.find(post => post.id === postId);
             
-            if (!post) {
-                alert('게시물을 찾을 수 없습니다.');
-                window.location.href = 'admin-blog.html';
-                return;
-            }
-            
-            // 폼에 데이터 설정
-            document.getElementById('post-id').value = post.id;
-            document.getElementById('post-title').value = post.title;
-            document.getElementById('post-author').value = post.author;
-            document.getElementById('post-category').value = post.category;
-            document.getElementById('post-status').value = post.status || 'published';
-            
-            // 에디터에 내용 설정
-            $('#post-content').summernote('code', post.content);
-            
-            // 태그 추가
-            if (post.tags && post.tags.length > 0) {
-                post.tags.forEach(tag => addTag(tag));
-            }
-            
-            // 썸네일 미리보기 설정
-            if (post.thumbnailSrc) {
-                const preview = document.getElementById('thumbnail-preview');
-                preview.src = post.thumbnailSrc;
-                preview.style.display = 'block';
-            }
-        }
-        
-        // 태그 추가 함수
-        function addTag(tagValue) {
-            const tagsContainer = document.getElementById('tags-container');
-            const existingTags = tagsContainer.querySelectorAll('.tag');
-            
-            // 중복 태그 체크
-            for (let i = 0; i < existingTags.length; i++) {
-                if (existingTags[i].querySelector('.tag-text').textContent === tagValue) {
+            // 포스트 저장 함수
+            function savePost(status) {
+                const title = $('#title').val().trim();
+                
+                if (!title) {
+                    alert('제목을 입력해주세요.');
                     return;
                 }
-            }
-            
-            // 태그 요소 생성
-            const tag = document.createElement('div');
-            tag.className = 'tag';
-            
-            const tagText = document.createElement('span');
-            tagText.className = 'tag-text';
-            tagText.textContent = tagValue;
-            
-            const closeBtn = document.createElement('span');
-            closeBtn.className = 'tag-close';
-            closeBtn.innerHTML = '&times;';
-            closeBtn.addEventListener('click', function() {
-                tagsContainer.removeChild(tag);
-            });
-            
-            tag.appendChild(tagText);
-            tag.appendChild(closeBtn);
-            
-            // 입력 필드 앞에 태그 추가
-            tagsContainer.insertBefore(tag, document.getElementById('post-tags'));
-        }
-        
-        // 게시물 저장 함수
-        function savePost() {
-            // 폼 데이터 가져오기
-            const form = document.getElementById('blog-post-form');
-            const title = document.getElementById('post-title').value;
-            const category = document.getElementById('post-category').value;
-            const author = document.getElementById('post-author').value;
-            const content = $('#post-content').summernote('code');
-            const status = document.getElementById('post-status').value;
-            const id = document.getElementById('post-id').value;
-            
-            // 필수 입력 검증
-            if (!title) {
-                alert('제목을 입력해주세요.');
-                return;
-            }
-            
-            if (!content) {
-                alert('내용을 입력해주세요.');
-                return;
-            }
-            
-            // 태그 가져오기
-            const tagElements = document.querySelectorAll('.tag-text');
-            const tags = Array.from(tagElements).map(el => el.textContent);
-            
-            // 썸네일 이미지
-            const thumbnailPreview = document.getElementById('thumbnail-preview');
-            const thumbnailSrc = thumbnailPreview.style.display === 'block' ? thumbnailPreview.src : '';
-            
-            // 게시물 데이터 객체 생성
-            const currentDate = new Date().toLocaleDateString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-            
-            const post = {
-                id: id ? Number(id) : Date.now(),
-                title: title,
-                author: author || '관리자',
-                category: category || '미분류',
-                content: content,
-                tags: tags,
-                thumbnailSrc: thumbnailSrc,
-                date: currentDate,
-                status: status,
-                views: id ? undefined : 0, // 조회수는 새 게시물만 초기화
-                comments: id ? undefined : [] // 댓글은 새 게시물만 초기화
-            };
-            
-            // localStorage에 게시물 저장
-            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-            
-            if (id) {
-                // 기존 게시물 수정
-                const index = blogPosts.findIndex(p => p.id === Number(id));
-                if (index !== -1) {
-                    // 기존 데이터 유지를 위해 views와 comments 값 보존
-                    post.views = blogPosts[index].views;
-                    post.comments = blogPosts[index].comments;
-                    blogPosts[index] = post;
-                } else {
-                    blogPosts.push(post);
+                
+                const form = document.getElementById('blog-form');
+                const formData = new FormData(form);
+                
+                const content = $('#summernote').summernote('code');
+                if (!content || content === '<p><br></p>') {
+                    alert('내용을 입력해주세요.');
+                    return;
                 }
-            } else {
-                // 새 게시물 추가
-                blogPosts.push(post);
+                
+                const post = {
+                    id: generateUniqueId(),
+                    title: title,
+                    content: content,
+                    category: $('#category').val(),
+                    status: status === '미리보기' ? $('#status').val() : status,
+                    tags: JSON.parse($('#tags').val() || '[]'),
+                    excerpt: $('#excerpt').val().trim() || generateExcerpt(content),
+                    author: '관리자',
+                    date: new Date().toISOString(),
+                    views: 0,
+                    comments: 0
+                };
+                
+                // 썸네일 이미지 처리
+                const thumbnailFile = $('#thumbnail')[0].files[0];
+                if (thumbnailFile) {
+                    const reader = new FileReader();
+                    reader.onloadend = function() {
+                        post.thumbnailSrc = reader.result;
+                        finalizePost(post, status);
+                    };
+                    reader.readAsDataURL(thumbnailFile);
+                } else {
+                    finalizePost(post, status);
+                }
             }
             
-            localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+            function finalizePost(post, status) {
+                // 로컬 스토리지에 포스트 저장
+                let posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+                posts.push(post);
+                localStorage.setItem('blogPosts', JSON.stringify(posts));
+                
+                if (status === '미리보기') {
+                    // 미리보기 창 열기 (새 창)
+                    localStorage.setItem('previewPost', JSON.stringify(post));
+                    window.open('blog-preview.html', '_blank');
+                } else {
+                    // 블로그 관리 페이지로 이동
+                    alert(status === '임시저장' ? '임시저장 되었습니다.' : '블로그 글이 발행되었습니다.');
+                    window.location.href = 'admin-blog.html';
+                }
+            }
             
-            alert(status === 'published' ? '게시물이 발행되었습니다.' : '게시물이 임시저장되었습니다.');
-            window.location.href = 'admin-blog.html';
-        }
+            // 고유 ID 생성 함수
+            function generateUniqueId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+            }
+            
+            // 요약 자동 생성 함수
+            function generateExcerpt(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                const text = div.textContent || div.innerText || '';
+                return text.substr(0, 150) + (text.length > 150 ? '...' : '');
+            }
+        });
     </script>
 </body>
 </html> 
