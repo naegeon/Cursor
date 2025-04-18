@@ -170,17 +170,17 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // 폼 데이터 수집
-            const name = document.getElementById('name').value.trim();
-            const phone = document.getElementById('phone').value.trim();
-            const subject = document.getElementById('subject').value.trim();
-            const message = document.getElementById('message').value.trim();
+            const name = document.getElementById('name').value;
+            const phone = document.getElementById('phone').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
             
-            // 이미지 수집
-            const imagePreviewContainer = document.querySelector('.image-preview-container');
-            let images = [];
+            // 이미지 데이터 수집 (미리보기 이미지)
+            const previewContainer = document.getElementById('image-preview');
+            const images = [];
             
-            if (imagePreviewContainer) {
-                const previewImages = imagePreviewContainer.querySelectorAll('img');
+            if (previewContainer) {
+                const previewImages = previewContainer.querySelectorAll('img');
                 previewImages.forEach(img => {
                     images.push(img.src);
                 });
@@ -188,40 +188,50 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 문의 객체 생성
             const inquiry = {
-                id: Date.now().toString(), // 고유 ID 생성
-                date: new Date().toISOString(), // 현재 날짜 및 시간
+                id: Date.now().toString(),
+                date: new Date().toISOString(),
                 name: name,
                 phone: phone,
                 subject: subject,
                 message: message,
-                status: '대기중', // 초기 상태
+                status: 'new',
                 images: images,
-                response: '' // 응답 초기화
+                response: ''
             };
             
-            // 로컬 스토리지에 저장
-            let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
-            inquiries.push(inquiry);
-            localStorage.setItem('inquiries', JSON.stringify(inquiries));
-            
-            // 폼 초기화
-            this.reset();
-            
-            // 이미지 미리보기 초기화
-            if (imagePreviewContainer) {
-                imagePreviewContainer.innerHTML = '';
-            }
+            // localStorage에 문의 저장
+            saveInquiry(inquiry);
             
             // 성공 메시지 표시
-            const successMessage = document.querySelector('.form-success-message');
+            const successMessage = document.getElementById('success-message');
             if (successMessage) {
                 successMessage.style.display = 'block';
                 
-                // 5초 후 메시지 숨기기
-                setTimeout(function() {
+                // 5초 후 성공 메시지 숨기기
+                setTimeout(() => {
                     successMessage.style.display = 'none';
                 }, 5000);
             }
+            
+            // 폼 리셋
+            this.reset();
+            
+            // 이미지 미리보기 초기화
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
         });
     }
-}); 
+});
+
+// 문의 저장 함수
+function saveInquiry(inquiry) {
+    // localStorage에서 기존 문의 목록 가져오기
+    let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    
+    // 새 문의 추가
+    inquiries.push(inquiry);
+    
+    // localStorage에 저장
+    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+} 
