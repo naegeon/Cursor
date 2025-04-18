@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A 관리 | 관리자 대시보드</title>
+    <meta name="description" content="Q&A 질문과 답변을 관리할 수 있는 관리자 페이지입니다.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #4e73df;
+            --primary-dark: #3a56b0;
+            --secondary-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --light-gray: #eaecf4;
+            --dark-gray: #858796;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: fixed;
+            transition: all 0.3s;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-admin {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: block;
+            background-color: #fff;
+        }
+        
+        .admin-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .admin-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            width: calc(100% - 250px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .main-header {
+            background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .user-dropdown img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .page-content {
+            padding: 25px;
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+        }
+        
+        /* Q&A Management Specific Styles */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        th {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-btn {
+            background-color: rgba(54, 185, 204, 0.1);
+            color: var(--info);
+        }
+        
+        .edit-btn {
+            background-color: rgba(246, 194, 62, 0.1);
+            color: var(--warning);
+        }
+        
+        .delete-btn {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--danger);
+        }
+        
+        .action-icon:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .qna-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-answered {
+            background-color: rgba(28, 200, 138, 0.1);
+            color: var(--success);
+        }
+        
+        .status-pending {
+            background-color: rgba(133, 135, 150, 0.1);
+            color: var(--dark-gray);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 5px;
+        }
+        
+        .page-item {
+            list-style: none;
+        }
+        
+        .page-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 4px;
+            border: 1px solid var(--light-gray);
+            text-decoration: none;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        .page-link:hover, .page-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .qna-search {
+            display: flex;
+            max-width: 400px;
+            margin-left: auto;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px 0 0 4px;
+            outline: none;
+        }
+        
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 0 15px;
+            cursor: pointer;
+        }
+        
+        .qna-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            outline: none;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar.active {
+                width: 250px;
+                overflow-y: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .qna-search {
+                max-width: 100%;
+                margin-left: 0;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 15px;
+            }
+            
+            .page-content {
+                padding: 15px;
+            }
+            
+            .qna-filter {
+                flex-direction: column;
+            }
+        }
+        
+        /* 모달 스타일 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 50px auto;
+            width: 80%;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-gray);
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .question-meta {
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .question-category {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .question-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            overflow-wrap: break-word;
+        }
+        
+        .answer-form {
+            margin-top: 20px;
+            border-top: 1px solid var(--light-gray);
+            padding-top: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            outline: none;
+            font-family: inherit;
+            font-size: 16px;
+        }
+        
+        textarea.form-control {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>707 Admin</h3>
+        </div>
+        
+        <div class="sidebar-admin">
+            <div class="admin-avatar">
+                <i class="fas fa-user" style="font-size: 30px; color: #4e73df; line-height: 60px;"></i>
+            </div>
+            <div class="admin-name">관리자</div>
+            <div class="admin-role">최고 관리자</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>대시보드</span>
+            </a>
+            <a href="admin-blog.html" class="menu-item">
+                <i class="fas fa-blog"></i>
+                <span>블로그 관리</span>
+            </a>
+            <a href="admin-blog-category.html" class="menu-item">
+                <i class="fas fa-tags"></i>
+                <span>블로그 카테고리/태그</span>
+            </a>
+            <a href="admin-qna.html" class="menu-item active">
+                <i class="fas fa-question-circle"></i>
+                <span>Q&A 관리</span>
+            </a>
+            <a href="admin-qna-category.html" class="menu-item">
+                <i class="fas fa-folder"></i>
+                <span>Q&A 카테고리/태그</span>
+            </a>
+            <a href="admin-users.html" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>사용자 관리</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>문의 관리</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+            </a>
+            <a href="#" class="menu-item" id="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>로그아웃</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <div class="main-header">
+            <button class="toggle-sidebar" id="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <button class="dropdown-toggle">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="dropdown-toggle user-dropdown">
+                        <img src="https://via.placeholder.com/32" alt="Admin">
+                        <span>관리자</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="page-title">
+                <h1>Q&A 관리</h1>
+                <div class="action-buttons">
+                    <button class="btn btn-outline" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> 새로고침
+                    </button>
+                    <button class="btn btn-outline">
+                        <i class="fas fa-file-export"></i> 내보내기
+                    </button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2>Q&A 목록</h2>
+                    <div class="qna-search">
+                        <input type="text" class="search-input" id="search-input" placeholder="검색어를 입력하세요...">
+                        <button class="search-btn" id="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="qna-filter">
+                        <select class="filter-select" id="category-filter">
+                            <option value="">모든 카테고리</option>
+                            <!-- 카테고리가 동적으로 추가됩니다 -->
+                        </select>
+                        
+                        <select class="filter-select" id="status-filter">
+                            <option value="">모든 상태</option>
+                            <option value="pending">답변 대기</option>
+                            <option value="answered">답변 완료</option>
+                        </select>
+                        
+                        <select class="filter-select" id="sort-filter">
+                            <option value="latest">최신순</option>
+                            <option value="oldest">오래된순</option>
+                        </select>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>제목</th>
+                                    <th>카테고리</th>
+                                    <th>작성자</th>
+                                    <th>작성일</th>
+                                    <th>상태</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody id="qna-table-body">
+                                <!-- Q&A 항목이 여기에 동적으로 표시됩니다 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <ul class="pagination" id="pagination">
+                        <!-- 페이지네이션이 여기에 동적으로 표시됩니다 -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 질문 보기 모달 -->
+    <div id="question-view-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">질문 제목</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="question-meta">
+                    <span id="modal-category" class="question-category">카테고리</span>
+                    <span id="modal-author" class="question-author">작성자</span>
+                    <span id="modal-date" class="question-date">날짜</span>
+                    <span id="modal-contact" class="question-contact">연락처</span>
+                </div>
+                <div id="modal-content" class="question-content">
+                    질문 내용이 여기에 표시됩니다.
+                </div>
+                
+                <div id="modal-images" class="question-images">
+                    <!-- 이미지가 있으면 여기에 표시됩니다 -->
+                </div>
+                
+                <div id="answer-container" class="answer-container">
+                    <!-- 답변이 있으면 여기에 표시됩니다 -->
+                </div>
+                
+                <div class="answer-form" id="answer-form">
+                    <h3>답변 작성</h3>
+                    <div class="form-group">
+                        <label for="answer-content">답변 내용</label>
+                        <textarea id="answer-content" class="form-control" placeholder="답변을 작성하세요..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="answer-author">답변자</label>
+                        <input type="text" id="answer-author" class="form-control" value="관리자" placeholder="이름 또는 직책">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-save" class="btn btn-primary">
+                    <i class="fas fa-save"></i> 답변 저장
+                </button>
+                <button id="modal-close" class="btn btn-outline">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Admin JS -->
+    <script src="js/admin.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // 로그인 상태 확인
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                // 로그인되지 않았으면 로그인 페이지로 리디렉션
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
+            // 페이지당 질문 수
+            const questionsPerPage = 10;
+            let currentPage = 1;
+            let totalPages = 1;
+            let filteredQuestions = [];
+            
+            // 사이드바 토글 버튼
+            $('#toggle-sidebar').click(function() {
+                $('#sidebar').toggleClass('collapsed');
+                $('#main-content').toggleClass('expanded');
+            });
+            
+            // 로그아웃 버튼
+            $('#logout-button').click(function() {
+                localStorage.removeItem('isAdminLoggedIn');
+                window.location.href = 'admin-login.html';
+            });
+            
+            // 로컬 스토리지에서 Q&A 카테고리 가져오기
+            function loadCategories() {
+                const categories = JSON.parse(localStorage.getItem('qnaCategories')) || [];
+                const categoryFilter = $('#category-filter');
+                
+                // 카테고리 필터 옵션 추가
+                categoryFilter.find('option:not(:first)').remove();
+                
+                categories.forEach(category => {
+                    categoryFilter.append(`<option value="${category.name}">${category.name}</option>`);
+                });
+            }
+            
+            // 로컬 스토리지에서 Q&A 데이터 가져오기
+            function loadQnaData(page = 1) {
+                const questions = JSON.parse(localStorage.getItem('qnas')) || [];
+                const tableBody = $('#qna-table-body');
+                
+                // 테이블 초기화
+                tableBody.empty();
+                
+                if (questions.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="6" style="text-align: center;">질문이 없습니다.</td>
+                        </tr>
+                    `);
+                    
+                    // 페이지네이션 숨기기
+                    $('#pagination').hide();
+                    return;
+                }
+                
+                // 페이지네이션 표시
+                $('#pagination').show();
+                
+                // 최신순으로 정렬
+                questions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 총 페이지 수 계산
+                totalPages = Math.ceil(questions.length / questionsPerPage);
+                currentPage = page;
+                
+                // 현재 페이지의 질문만 표시
+                const startIndex = (page - 1) * questionsPerPage;
+                const endIndex = Math.min(startIndex + questionsPerPage, questions.length);
+                const currentPageQuestions = questions.slice(startIndex, endIndex);
+                
+                // 전역 변수에 저장
+                filteredQuestions = questions;
+                
+                // 질문 목록 생성
+                currentPageQuestions.forEach(question => {
+                    const statusClass = question.answered ? 'status-answered' : 'status-pending';
+                    const statusText = question.answered ? '답변 완료' : '답변 대기';
+                    
+                    tableBody.append(`
+                        <tr data-id="${question.id}">
+                            <td><a href="#" onclick="viewQuestion(${question.id}); return false;">${question.title}</a></td>
+                            <td>${question.category}</td>
+                            <td>${question.name}</td>
+                            <td>${question.date}</td>
+                            <td><span class="qna-status ${statusClass}">${statusText}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <div class="action-icon view-btn" onclick="viewQuestion(${question.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div class="action-icon delete-btn" onclick="deleteQuestion(${question.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                });
+                
+                // 페이지네이션 업데이트
+                updatePagination();
+            }
+            
+            // 페이지네이션 업데이트
+            function updatePagination() {
+                const paginationElement = $('#pagination');
+                paginationElement.empty();
+                
+                // 이전 페이지 버튼
+                paginationElement.append(`
+                    <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                        <a href="#" class="page-link" data-page="${currentPage - 1}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                `);
+                
+                // 페이지 번호
+                const startPage = Math.max(1, currentPage - 2);
+                const endPage = Math.min(totalPages, startPage + 4);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                    paginationElement.append(`
+                        <li class="page-item">
+                            <a href="#" class="page-link ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</a>
+                        </li>
+                    `);
+                }
+                
+                // 다음 페이지 버튼
+                paginationElement.append(`
+                    <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                        <a href="#" class="page-link" data-page="${currentPage + 1}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                `);
+                
+                // 페이지 클릭 이벤트
+                $('.page-link').click(function(e) {
+                    e.preventDefault();
+                    const page = parseInt($(this).data('page'));
+                    
+                    // 유효한 페이지 확인
+                    if (page >= 1 && page <= totalPages && page !== currentPage) {
+                        loadFilteredQnas(page);
+                    }
+                });
+            }
+            
+            // 질문 보기 함수
+            window.viewQuestion = function(id) {
+                const questions = JSON.parse(localStorage.getItem('qnas')) || [];
+                const question = questions.find(q => q.id === id);
+                
+                if (question) {
+                    // 모달에 데이터 채우기
+                    $('#modal-title').text(question.title);
+                    $('#modal-category').text(question.category);
+                    $('#modal-author').text(question.name);
+                    $('#modal-date').text(question.date);
+                    $('#modal-contact').text(question.phone ? question.phone : '연락처 없음');
+                    $('#modal-content').text(question.question);
+                    
+                    // 이미지가 있으면 표시
+                    const imagesContainer = $('#modal-images');
+                    imagesContainer.empty();
+                    
+                    if (question.images && question.images.length > 0) {
+                        const imagesHtml = question.images.map(img => 
+                            `<img src="${img}" alt="질문 이미지" style="max-width: 200px; margin-right: 10px; margin-bottom: 10px;">`
+                        ).join('');
+                        
+                        imagesContainer.html(`
+                            <h4 style="margin-top: 20px; margin-bottom: 10px;">첨부 이미지</h4>
+                            <div>${imagesHtml}</div>
+                        `);
+                    }
+                    
+                    // 답변이 있으면 표시, 없으면 폼 표시
+                    const answerContainer = $('#answer-container');
+                    const answerForm = $('#answer-form');
+                    
+                    if (question.answered && question.answer) {
+                        answerContainer.html(`
+                            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;">
+                                <h4 style="margin-bottom: 10px;">답변</h4>
+                                <p>${question.answer}</p>
+                                <div style="text-align: right; margin-top: 10px; font-weight: 500; color: var(--primary-color);">
+                                    ${question.answerAuthor} | ${question.answerDate}
+                                </div>
+                            </div>
+                        `);
+                        answerForm.hide();
+                    } else {
+                        answerContainer.empty();
+                        answerForm.show();
+                        $('#answer-content').val('');
+                    }
+                    
+                    // 답변 저장 버튼 이벤트
+                    $('#modal-save').off('click').on('click', function() {
+                        const answerContent = $('#answer-content').val().trim();
+                        const answerAuthor = $('#answer-author').val().trim();
+                        
+                        if (!answerContent) {
+                            alert('답변 내용을 입력해주세요.');
+                            return;
+                        }
+                        
+                        if (!answerAuthor) {
+                            alert('답변자 이름을 입력해주세요.');
+                            return;
+                        }
+                        
+                        // 질문에 답변 추가
+                        const questions = JSON.parse(localStorage.getItem('qnas')) || [];
+                        const questionIndex = questions.findIndex(q => q.id === id);
+                        
+                        if (questionIndex !== -1) {
+                            questions[questionIndex].answered = true;
+                            questions[questionIndex].answer = answerContent;
+                            questions[questionIndex].answerAuthor = answerAuthor;
+                            questions[questionIndex].answerDate = new Date().toISOString().split('T')[0];
+                            
+                            // 로컬 스토리지에 저장
+                            localStorage.setItem('qnas', JSON.stringify(questions));
+                            
+                            // 모달 닫고 목록 새로고침
+                            $('#question-view-modal').hide();
+                            loadFilteredQnas(currentPage);
+                        }
+                    });
+                    
+                    // 모달 표시
+                    $('#question-view-modal').show();
+                } else {
+                    alert('질문을 찾을 수 없습니다.');
+                }
+            };
+            
+            // 질문 삭제 함수
+            window.deleteQuestion = function(id) {
+                if (confirm('정말 이 질문을 삭제하시겠습니까?')) {
+                    const questions = JSON.parse(localStorage.getItem('qnas')) || [];
+                    const updatedQuestions = questions.filter(q => q.id !== id);
+                    localStorage.setItem('qnas', JSON.stringify(updatedQuestions));
+                    loadFilteredQnas(currentPage);
+                }
+            };
+            
+            // 모달 닫기
+            $('.close, #modal-close').click(function() {
+                $('#question-view-modal').hide();
+            });
+            
+            // 모달 외부 클릭시 닫기
+            $(window).click(function(e) {
+                if ($(e.target).is('#question-view-modal')) {
+                    $('#question-view-modal').hide();
+                }
+            });
+            
+            // 필터링된 Q&A 로드
+            function loadFilteredQnas(page = 1) {
+                const categoryFilter = $('#category-filter').val();
+                const statusFilter = $('#status-filter').val();
+                const sortFilter = $('#sort-filter').val();
+                const searchTerm = $('#search-input').val().toLowerCase();
+                
+                let questions = JSON.parse(localStorage.getItem('qnas')) || [];
+                
+                // 카테고리 필터링
+                if (categoryFilter) {
+                    questions = questions.filter(q => q.category === categoryFilter);
+                }
+                
+                // 상태 필터링
+                if (statusFilter) {
+                    if (statusFilter === 'answered') {
+                        questions = questions.filter(q => q.answered);
+                    } else if (statusFilter === 'pending') {
+                        questions = questions.filter(q => !q.answered);
+                    }
+                }
+                
+                // 검색어 필터링
+                if (searchTerm) {
+                    questions = questions.filter(q => 
+                        q.title.toLowerCase().includes(searchTerm) || 
+                        q.question.toLowerCase().includes(searchTerm) ||
+                        q.name.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                // 정렬
+                if (sortFilter === 'oldest') {
+                    questions.sort((a, b) => new Date(a.date) - new Date(b.date));
+                } else {
+                    questions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                }
+                
+                // 전역 변수에 저장
+                filteredQuestions = questions;
+                
+                // 테이블 초기화
+                const tableBody = $('#qna-table-body');
+                tableBody.empty();
+                
+                if (questions.length === 0) {
+                    tableBody.append(`
+                        <tr>
+                            <td colspan="6" style="text-align: center;">검색 결과가 없습니다.</td>
+                        </tr>
+                    `);
+                    
+                    // 페이지네이션 숨기기
+                    $('#pagination').hide();
+                    return;
+                }
+                
+                // 페이지네이션 표시
+                $('#pagination').show();
+                
+                // 총 페이지 수 계산
+                totalPages = Math.ceil(questions.length / questionsPerPage);
+                currentPage = page > totalPages ? 1 : page;
+                
+                // 현재 페이지의 질문만 표시
+                const startIndex = (currentPage - 1) * questionsPerPage;
+                const endIndex = Math.min(startIndex + questionsPerPage, questions.length);
+                const currentPageQuestions = questions.slice(startIndex, endIndex);
+                
+                // 질문 목록 생성
+                currentPageQuestions.forEach(question => {
+                    const statusClass = question.answered ? 'status-answered' : 'status-pending';
+                    const statusText = question.answered ? '답변 완료' : '답변 대기';
+                    
+                    tableBody.append(`
+                        <tr data-id="${question.id}">
+                            <td><a href="#" onclick="viewQuestion(${question.id}); return false;">${question.title}</a></td>
+                            <td>${question.category}</td>
+                            <td>${question.name}</td>
+                            <td>${question.date}</td>
+                            <td><span class="qna-status ${statusClass}">${statusText}</span></td>
+                            <td>
+                                <div class="table-actions">
+                                    <div class="action-icon view-btn" onclick="viewQuestion(${question.id})">
+                                        <i class="fas fa-eye"></i>
+                                    </div>
+                                    <div class="action-icon delete-btn" onclick="deleteQuestion(${question.id})">
+                                        <i class="fas fa-trash"></i>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    `);
+                });
+                
+                // 페이지네이션 업데이트
+                updatePagination();
+            }
+            
+            // 필터 이벤트 리스너
+            $('#category-filter, #status-filter, #sort-filter').change(function() {
+                loadFilteredQnas(1);
+            });
+            
+            // 검색 버튼 클릭
+            $('#search-btn').click(function() {
+                loadFilteredQnas(1);
+            });
+            
+            // 엔터 키로 검색
+            $('#search-input').keypress(function(e) {
+                if (e.which === 13) {
+                    loadFilteredQnas(1);
+                }
+            });
+            
+            // 새로고침 버튼
+            $('#refresh-btn').click(function() {
+                $('#search-input').val('');
+                $('#category-filter').val('');
+                $('#status-filter').val('');
+                $('#sort-filter').val('latest');
+                loadQnaData(1);
+            });
+            
+            // 초기 데이터 로드
+            loadCategories();
+            loadQnaData();
+        });
+    </script>
+</body>
+</html> 
