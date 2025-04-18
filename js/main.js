@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 문의하기 폼 제출 처리
+    // 문의 폼 제출 처리
     const contactForm = document.getElementById('contact-form');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
@@ -188,11 +188,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // 문의 객체 생성
             const inquiry = {
-                id: Date.now().toString(),
-                date: new Date().toISOString(),
+                id: 'inq_' + Date.now(),
+                date: new Date().toISOString().slice(0, 10),
                 name: name,
                 phone: phone,
-                subject: subject,
+                title: subject,
                 message: message,
                 status: 'new',
                 images: images,
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
             saveInquiry(inquiry);
             
             // 성공 메시지 표시
-            const successMessage = document.getElementById('success-message');
+            const successMessage = document.getElementById('form-success');
             if (successMessage) {
                 successMessage.style.display = 'block';
                 

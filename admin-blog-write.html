@@ -3,646 +3,622 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>블로그 글 작성 - 관리자</title>
-    <meta name="description" content="블로그 관리자 글 작성 페이지">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
+    <title>블로그 게시물 작성 - 관리자</title>
+    <meta name="description" content="블로그 게시물 작성 관리자 페이지">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- Summernote Editor -->
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #4e73df;
-            --secondary-color: #858796;
-            --success-color: #1cc88a;
-            --danger-color: #e74a3b;
-            --warning-color: #f6c23e;
-            --dark-color: #5a5c69;
-            --light-color: #f8f9fc;
-        }
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #f8f9fc;
-            color: #333;
-            min-height: 100vh;
+            background-color: #f8f9fa;
             display: flex;
+            min-height: 100vh;
+            color: #333;
         }
-        
         .sidebar {
             width: 250px;
-            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
-            color: white;
-            min-height: 100vh;
-            transition: all 0.3s;
+            background-color: #343a40;
+            padding: 20px 0;
+            color: #fff;
+            transition: all 0.3s ease;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 100;
         }
-        
-        .sidebar.active {
-            margin-left: -250px;
-        }
-        
         .sidebar-header {
-            padding: 20px;
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #495057;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
         .sidebar-header h3 {
-            font-size: 1.5rem;
-            margin: 0;
+            margin-bottom: 10px;
         }
-        
         .sidebar-menu {
-            padding: 15px 0;
+            padding: 20px 0;
         }
-        
         .sidebar-menu ul {
             list-style: none;
         }
-        
-        .sidebar-menu ul li {
-            margin: 5px 0;
+        .sidebar-menu li {
+            margin-bottom: 5px;
         }
-        
-        .sidebar-menu ul li a {
+        .sidebar-menu a {
             display: block;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            color: #adb5bd;
             text-decoration: none;
             transition: all 0.3s;
         }
-        
-        .sidebar-menu ul li a:hover, 
-        .sidebar-menu ul li a.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left: 4px solid white;
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            color: #fff;
+            background-color: #495057;
         }
-        
-        .sidebar-menu ul li a i {
+        .sidebar-menu i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
         }
-        
         .main-content {
             flex: 1;
-            padding: 30px;
-            transition: all 0.3s;
+            padding: 20px;
+            margin-left: 250px;
+            transition: all 0.3s ease;
         }
-        
-        .toggle-sidebar {
-            background: none;
-            border: none;
-            color: #4e73df;
-            font-size: 20px;
-            cursor: pointer;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
         .main-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        
         .page-title {
-            font-size: 1.8rem;
-            color: #5a5c69;
-            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
         }
-        
         .action-buttons {
             display: flex;
             gap: 10px;
         }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: 4px;
-            border: none;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
+        .content-container {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            overflow-x: auto;
         }
-        
-        .btn i {
-            margin-right: 5px;
-        }
-        
-        .primary-btn {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .primary-btn:hover {
-            background-color: #2e59d9;
-        }
-        
-        .secondary-btn {
-            background-color: var(--secondary-color);
-            color: white;
-        }
-        
-        .secondary-btn:hover {
-            background-color: #717384;
-        }
-        
-        .success-btn {
-            background-color: var(--success-color);
-            color: white;
-        }
-        
-        .success-btn:hover {
-            background-color: #169b6b;
-        }
-        
-        .danger-btn {
-            background-color: var(--danger-color);
-            color: white;
-        }
-        
-        .danger-btn:hover {
-            background-color: #d52a1a;
-        }
-        
-        .form-container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            padding: 30px;
-        }
-        
         .form-group {
             margin-bottom: 20px;
         }
-        
         .form-group label {
             display: block;
-            font-weight: 500;
             margin-bottom: 8px;
+            font-weight: 600;
         }
-        
         .form-control {
             width: 100%;
             padding: 10px;
+            border: 1px solid #ced4da;
             border-radius: 4px;
-            border: 1px solid #d1d3e2;
-            font-size: 14px;
+            font-size: 16px;
         }
-        
         .form-control:focus {
-            outline: none;
-            border-color: #4e73df;
-            box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
+            border-color: #80bdff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
-        
-        .row {
-            display: flex;
-            flex-wrap: wrap;
-            margin: 0 -10px;
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath fill='%23333' d='M0 0h8L4 6z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 8px 6px;
         }
-        
-        .col-md-6 {
-            flex: 0 0 50%;
-            max-width: 50%;
-            padding: 0 10px;
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
         }
-        
-        .tags-input-container {
-            border: 1px solid #d1d3e2;
+        .btn {
+            padding: 8px 15px;
+            border: none;
             border-radius: 4px;
-            padding: 5px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
         }
-        
-        #tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-        
-        .tag {
-            display: inline-flex;
-            align-items: center;
-            background-color: #e9ecef;
-            color: #333;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
+        .btn i {
             margin-right: 5px;
         }
-        
-        .tag .close {
-            margin-left: 5px;
-            cursor: pointer;
-            font-size: 12px;
-            opacity: 0.6;
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
         }
-        
-        .tag .close:hover {
-            opacity: 1;
+        .btn-primary:hover {
+            background-color: #0069d9;
         }
-        
-        .tags-input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 10px 5px;
-            font-size: 14px;
+        .btn-success {
+            background-color: #28a745;
+            color: #fff;
         }
-        
+        .btn-success:hover {
+            background-color: #218838;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-outline-primary {
+            background-color: transparent;
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
         .thumbnail-preview {
+            max-width: 200px;
+            max-height: 200px;
             margin-top: 10px;
-            width: 100%;
-            height: 200px;
-            border: 1px dashed #d1d3e2;
-            border-radius: 4px;
-            overflow: hidden;
+            border-radius: 5px;
+            display: none;
+        }
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .tag {
             display: flex;
             align-items: center;
-            justify-content: center;
-        }
-        
-        .thumbnail-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .thumbnail-preview .placeholder {
-            color: #858796;
+            padding: 5px 10px;
+            background-color: #e9ecef;
+            border-radius: 3px;
             font-size: 14px;
         }
-        
+        .tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #6c757d;
+        }
+        .tag .remove-tag:hover {
+            color: #dc3545;
+        }
+        .tag-input {
+            flex: 1;
+            min-width: 150px;
+            border: none;
+            outline: none;
+            padding: 5px 0;
+            font-size: 14px;
+        }
+        .summernote-container {
+            margin-bottom: 20px;
+        }
+        .note-editor .note-editable {
+            min-height: 300px;
+        }
+        .toggle-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 200;
+            background-color: #343a40;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+        }
         @media (max-width: 992px) {
-            .toggle-sidebar {
+            .sidebar {
+                width: 70px;
+                padding: 20px 0;
+            }
+            .sidebar-header h3, .sidebar span, .sidebar-header p {
+                display: none;
+            }
+            .sidebar-menu a {
+                padding: 15px 0;
+                text-align: center;
+            }
+            .sidebar-menu i {
+                margin-right: 0;
+                font-size: 18px;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .toggle-btn {
                 display: block;
             }
-            
-            .sidebar {
-                position: fixed;
-                z-index: 999;
-                margin-left: -250px;
-            }
-            
             .sidebar.active {
-                margin-left: 0;
+                width: 250px;
             }
-            
-            .main-content {
-                width: 100%;
-                margin-left: 0;
+            .sidebar.active .sidebar-header h3, 
+            .sidebar.active .sidebar span, 
+            .sidebar.active .sidebar-header p {
+                display: block;
+            }
+            .sidebar.active .sidebar-menu a {
+                padding: 10px 20px;
+                text-align: left;
+            }
+            .sidebar.active .sidebar-menu i {
+                margin-right: 10px;
+                font-size: 16px;
+            }
+            .main-content.active {
+                margin-left: 250px;
             }
         }
-        
         @media (max-width: 768px) {
-            .main-content {
-                padding: 20px;
+            .sidebar {
+                position: fixed;
+                left: -250px;
+                width: 250px;
             }
-            
+            .sidebar.active {
+                left: 0;
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .main-content.active {
+                margin-left: 0;
+                opacity: 0.7;
+            }
             .main-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
             }
-            
             .action-buttons {
                 width: 100%;
-                justify-content: flex-end;
-            }
-            
-            .col-md-6 {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .form-container {
-                padding: 20px;
+                justify-content: space-between;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 사이드바 -->
-    <div class="sidebar">
+    <button class="toggle-btn" id="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>관리자 페이지</h3>
+            <p>안녕하세요, <span id="admin-name">Admin</span>님</p>
         </div>
         <div class="sidebar-menu">
             <ul>
-                <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> 대시보드</a></li>
-                <li><a href="admin-blog.html" class="active"><i class="fas fa-blog"></i> 블로그 관리</a></li>
-                <li><a href="admin-blog-category.html"><i class="fas fa-tags"></i> 카테고리 관리</a></li>
-                <li><a href="admin-qna.html"><i class="fas fa-question-circle"></i> Q&A 관리</a></li>
-                <li><a href="admin-qna-category.html"><i class="fas fa-list"></i> Q&A 카테고리</a></li>
-                <li><a href="admin-inquiry.html"><i class="fas fa-envelope"></i> 문의 관리</a></li>
-                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
+                <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>대시보드</span></a></li>
+                <li><a href="admin-blog.html" class="active"><i class="fas fa-blog"></i> <span>블로그 관리</span></a></li>
+                <li><a href="admin-blog-category.html"><i class="fas fa-tags"></i> <span>카테고리 관리</span></a></li>
+                <li><a href="admin-qna.html"><i class="fas fa-question-circle"></i> <span>Q&A 관리</span></a></li>
+                <li><a href="admin-qna-category.html"><i class="fas fa-list"></i> <span>Q&A 카테고리</span></a></li>
+                <li><a href="admin-inquiry.html"><i class="fas fa-envelope"></i> <span>문의 관리</span></a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
             </ul>
         </div>
-    </div>
+    </nav>
 
-    <!-- 메인 컨텐츠 -->
-    <div class="main-content">
-        <button class="toggle-sidebar"><i class="fas fa-bars"></i></button>
-        
+    <div class="main-content" id="main-content">
         <div class="main-header">
-            <h1 class="page-title">블로그 글 작성</h1>
+            <h1 class="page-title">새 블로그 게시물 작성</h1>
             <div class="action-buttons">
-                <button id="save-draft-btn" class="btn secondary-btn"><i class="fas fa-save"></i> 임시저장</button>
-                <button id="preview-btn" class="btn primary-btn"><i class="fas fa-eye"></i> 미리보기</button>
-                <button id="publish-btn" class="btn success-btn"><i class="fas fa-check"></i> 발행하기</button>
+                <button id="save-draft-btn" class="btn btn-secondary">
+                    <i class="fas fa-save"></i> 임시저장
+                </button>
+                <button id="preview-btn" class="btn btn-outline-primary">
+                    <i class="fas fa-eye"></i> 미리보기
+                </button>
+                <button id="publish-btn" class="btn btn-success">
+                    <i class="fas fa-paper-plane"></i> 게시하기
+                </button>
             </div>
         </div>
-        
-        <div class="form-container">
+
+        <div class="content-container">
             <form id="blog-form">
                 <div class="form-group">
-                    <label for="title">제목</label>
-                    <input type="text" id="title" name="title" class="form-control" placeholder="블로그 글 제목을 입력하세요" required>
+                    <label for="post-title">제목</label>
+                    <input type="text" id="post-title" name="title" class="form-control" placeholder="게시물 제목을 입력하세요" required>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="category">카테고리</label>
-                            <select id="category" name="category" class="form-control">
-                                <option value="미분류">카테고리 선택</option>
-                                <!-- 카테고리는 JavaScript로 로드됨 -->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="status">상태</label>
-                            <select id="status" name="status" class="form-control">
-                                <option value="공개">공개</option>
-                                <option value="비공개">비공개</option>
-                                <option value="임시저장">임시저장</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
+
                 <div class="form-group">
-                    <label for="summernote">내용</label>
-                    <textarea id="summernote" name="content"></textarea>
+                    <label for="post-category">카테고리</label>
+                    <select id="post-category" name="category" class="form-control" required>
+                        <option value="" disabled selected>카테고리 선택</option>
+                        <!-- 카테고리가 동적으로 로드됩니다 -->
+                    </select>
                 </div>
-                
+
                 <div class="form-group">
-                    <label>태그</label>
-                    <div class="tags-input-container">
-                        <div id="tags-container">
-                            <!-- 태그는 JavaScript로 추가됨 -->
-                        </div>
-                        <input type="text" id="tag-input" class="tags-input" placeholder="태그 입력 후 엔터(최대 5개)">
-                    </div>
-                    <input type="hidden" id="tags" name="tags">
+                    <label for="post-status">상태</label>
+                    <select id="post-status" name="status" class="form-control">
+                        <option value="draft">임시저장</option>
+                        <option value="published">게시됨</option>
+                    </select>
                 </div>
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="thumbnail">썸네일 이미지</label>
-                            <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
-                            <div class="thumbnail-preview" id="thumbnail-preview">
-                                <div class="placeholder">이미지 미리보기</div>
-                            </div>
-                        </div>
+
+                <div class="form-group">
+                    <label for="post-content">내용</label>
+                    <div class="summernote-container">
+                        <textarea id="post-content" name="content" class="form-control summernote"></textarea>
                     </div>
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="excerpt">요약 (선택사항)</label>
-                            <textarea id="excerpt" name="excerpt" class="form-control" rows="4" placeholder="블로그 글 요약을 입력하세요 (최대 150자)"></textarea>
-                            <small>글 목록에서 표시되는 미리보기 텍스트입니다. 입력하지 않으면 자동으로 생성됩니다.</small>
-                        </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="post-tags">태그</label>
+                    <div class="tags-container" id="tags-container">
+                        <input type="text" id="tag-input" class="tag-input" placeholder="태그 입력 후 Enter">
                     </div>
+                    <input type="hidden" id="post-tags" name="tags">
+                </div>
+
+                <div class="form-group">
+                    <label for="post-thumbnail">썸네일 이미지</label>
+                    <input type="file" id="post-thumbnail" name="thumbnail" class="form-control" accept="image/*">
+                    <img id="thumbnail-preview" class="thumbnail-preview" src="#" alt="썸네일 미리보기">
+                </div>
+
+                <div class="form-group">
+                    <label for="post-excerpt">발췌 (선택사항)</label>
+                    <textarea id="post-excerpt" name="excerpt" class="form-control" placeholder="게시물 요약을 입력하세요 (블로그 목록에 표시됩니다)"></textarea>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Summernote Editor -->
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-    <!-- Admin JS -->
     <script src="js/admin.js"></script>
     <script>
         $(document).ready(function() {
-            // 로그인 상태 확인
+            // 관리자 인증 확인
             checkAdminAuth();
             
-            // 사이드바 토글 이벤트
-            $('.toggle-sidebar').on('click', function() {
-                $('.sidebar').toggleClass('active');
-            });
+            // 사이드바 초기화
+            initSidebar();
             
-            // 로그아웃 이벤트
-            $('#logout-btn').on('click', function(e) {
-                e.preventDefault();
-                adminLogout();
-            });
+            // 로그아웃 초기화
+            initLogout();
             
-            // Summernote 에디터 초기화
-            $('#summernote').summernote({
-                placeholder: '블로그 내용을 작성하세요',
+            // 에디터 초기화
+            $('.summernote').summernote({
+                placeholder: '블로그 내용을 입력하세요...',
                 tabsize: 2,
-                height: 300,
-                lang: 'ko-KR',
+                height: 400,
                 toolbar: [
-                    ['style', ['style', 'bold', 'italic', 'underline', 'clear']],
-                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
                     ['color', ['color']],
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
+                    ['insert', ['link', 'picture']],
                     ['view', ['fullscreen', 'codeview', 'help']]
                 ],
                 callbacks: {
                     onImageUpload: function(files) {
-                        for (let i = 0; i < files.length; i++) {
+                        // 이미지 업로드 처리
+                        for(let i = 0; i < files.length; i++) {
                             uploadImage(files[i], this);
                         }
                     }
                 }
             });
             
-            // 이미지 업로드 함수 (로컬 스토리지에 Base64 형태로 저장)
-            function uploadImage(file, editor) {
-                const reader = new FileReader();
-                reader.onloadend = function() {
-                    const image = $('<img>').attr('src', reader.result);
-                    $(editor).summernote('insertNode', image[0]);
-                };
-                reader.readAsDataURL(file);
-            }
-            
             // 카테고리 로드
-            loadBlogCategories('#category');
-            
-            // 태그 입력 이벤트
-            $('#tag-input').on('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const tagText = $(this).val().trim();
-                    
-                    if (tagText && $('#tags-container .tag').length < 5) {
-                        addTag(tagText);
-                        $(this).val('');
-                    }
-                }
-            });
-            
-            function addTag(text) {
-                const tag = $('<div class="tag"></div>').text(text);
-                const closeBtn = $('<span class="close"><i class="fas fa-times"></i></span>');
-                
-                closeBtn.on('click', function() {
-                    $(this).parent().remove();
-                    updateTagsField();
-                });
-                
-                tag.append(closeBtn);
-                $('#tags-container').append(tag);
-                updateTagsField();
-            }
-            
-            function updateTagsField() {
-                const tags = [];
-                $('#tags-container .tag').each(function() {
-                    tags.push($(this).text().trim());
-                });
-                $('#tags').val(JSON.stringify(tags));
-            }
+            loadBlogCategories();
             
             // 썸네일 미리보기
-            $('#thumbnail').on('change', function(e) {
-                const file = this.files[0];
-                if (file && file.type.match('image.*')) {
-                    const reader = new FileReader();
-                    
-                    reader.onload = function(e) {
-                        $('#thumbnail-preview').html(`<img src="${e.target.result}" alt="썸네일 미리보기">`);
-                    };
-                    
-                    reader.readAsDataURL(file);
-                } else {
-                    $('#thumbnail-preview').html('<div class="placeholder">이미지 미리보기</div>');
+            $('#post-thumbnail').change(function() {
+                previewThumbnail(this);
+            });
+            
+            // 태그 입력 처리
+            $('#tag-input').keydown(function(e) {
+                if (e.keyCode === 13) {
+                    e.preventDefault();
+                    addTag($(this).val().trim());
+                    $(this).val('');
                 }
             });
             
             // 임시저장 버튼 클릭 이벤트
-            $('#save-draft-btn').on('click', function(e) {
-                e.preventDefault();
-                savePost('임시저장');
+            $('#save-draft-btn').click(function() {
+                $('#post-status').val('draft');
+                savePost();
+            });
+            
+            // 게시 버튼 클릭 이벤트
+            $('#publish-btn').click(function() {
+                $('#post-status').val('published');
+                savePost();
             });
             
             // 미리보기 버튼 클릭 이벤트
-            $('#preview-btn').on('click', function(e) {
-                e.preventDefault();
-                savePost('미리보기');
+            $('#preview-btn').click(function() {
+                previewPost();
             });
             
-            // 발행하기 버튼 클릭 이벤트
-            $('#publish-btn').on('click', function(e) {
-                e.preventDefault();
-                savePost('공개');
-            });
+            // URL 파라미터에서 포스트 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
             
-            // 포스트 저장 함수
-            function savePost(status) {
-                const title = $('#title').val().trim();
-                
-                if (!title) {
-                    alert('제목을 입력해주세요.');
-                    return;
-                }
-                
-                const form = document.getElementById('blog-form');
-                const formData = new FormData(form);
-                
-                const content = $('#summernote').summernote('code');
-                if (!content || content === '<p><br></p>') {
-                    alert('내용을 입력해주세요.');
-                    return;
-                }
-                
-                const post = {
-                    id: generateUniqueId(),
-                    title: title,
-                    content: content,
-                    category: $('#category').val(),
-                    status: status === '미리보기' ? $('#status').val() : status,
-                    tags: JSON.parse($('#tags').val() || '[]'),
-                    excerpt: $('#excerpt').val().trim() || generateExcerpt(content),
-                    author: '관리자',
-                    date: new Date().toISOString(),
-                    views: 0,
-                    comments: 0
-                };
-                
-                // 썸네일 이미지 처리
-                const thumbnailFile = $('#thumbnail')[0].files[0];
-                if (thumbnailFile) {
-                    const reader = new FileReader();
-                    reader.onloadend = function() {
-                        post.thumbnailSrc = reader.result;
-                        finalizePost(post, status);
-                    };
-                    reader.readAsDataURL(thumbnailFile);
-                } else {
-                    finalizePost(post, status);
-                }
-            }
-            
-            function finalizePost(post, status) {
-                // 로컬 스토리지에 포스트 저장
-                let posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
-                posts.push(post);
-                localStorage.setItem('blogPosts', JSON.stringify(posts));
-                
-                if (status === '미리보기') {
-                    // 미리보기 창 열기 (새 창)
-                    localStorage.setItem('previewPost', JSON.stringify(post));
-                    window.open('blog-preview.html', '_blank');
-                } else {
-                    // 블로그 관리 페이지로 이동
-                    alert(status === '임시저장' ? '임시저장 되었습니다.' : '블로그 글이 발행되었습니다.');
-                    window.location.href = 'admin-blog.html';
-                }
-            }
-            
-            // 고유 ID 생성 함수
-            function generateUniqueId() {
-                return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-            }
-            
-            // 요약 자동 생성 함수
-            function generateExcerpt(html) {
-                const div = document.createElement('div');
-                div.innerHTML = html;
-                const text = div.textContent || div.innerText || '';
-                return text.substr(0, 150) + (text.length > 150 ? '...' : '');
+            // 수정 모드인 경우 게시물 불러오기
+            if (postId) {
+                loadPost(postId);
+                $('.page-title').text('블로그 게시물 수정');
             }
         });
+        
+        // 썸네일 미리보기 함수
+        function previewThumbnail(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#thumbnail-preview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        // 태그 추가 함수
+        function addTag(tagName) {
+            if (!tagName) return;
+            
+            // 중복 태그 체크
+            const existingTags = $('.tag').map(function() {
+                return $(this).data('tag');
+            }).get();
+            
+            if (existingTags.includes(tagName)) {
+                return;
+            }
+            
+            const tag = $('<div class="tag" data-tag="' + tagName + '">' + tagName + 
+                          '<span class="remove-tag"><i class="fas fa-times"></i></span></div>');
+            
+            tag.find('.remove-tag').click(function() {
+                $(this).parent().remove();
+                updateTagsField();
+            });
+            
+            $('#tag-input').before(tag);
+            updateTagsField();
+        }
+        
+        // 태그 필드 업데이트
+        function updateTagsField() {
+            const tags = $('.tag').map(function() {
+                return $(this).data('tag');
+            }).get();
+            $('#post-tags').val(JSON.stringify(tags));
+        }
+        
+        // 이미지 업로드 함수
+        function uploadImage(file, editor) {
+            const data = new FormData();
+            data.append('file', file);
+            
+            // 이미지를 서버에 업로드하고 URL을 받아와 에디터에 삽입하는 코드
+            // 실제 구현에서는 적절한 서버 엔드포인트로 요청을 보내야 함
+            // 여기서는 로컬스토리지를 사용한 임시 시뮬레이션
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageUrl = e.target.result;
+                $(editor).summernote('insertImage', imageUrl);
+            }
+            reader.readAsDataURL(file);
+        }
+        
+        // 게시물 저장 함수
+        function savePost() {
+            // 폼 데이터 수집
+            const postData = {
+                id: $('#blog-form').data('post-id') || 'post_' + Date.now(),
+                title: $('#post-title').val(),
+                content: $('#post-content').val(),
+                excerpt: $('#post-excerpt').val(),
+                category: $('#post-category').val(),
+                status: $('#post-status').val(),
+                author: $('#admin-name').text(),
+                date: new Date().toISOString(),
+                tags: JSON.parse($('#post-tags').val() || '[]'),
+                thumbnailSrc: $('#thumbnail-preview').attr('src') || '',
+                views: $('#blog-form').data('views') || 0,
+                comments: $('#blog-form').data('comments') || []
+            };
+            
+            if (!postData.title) {
+                alert('제목을 입력해주세요.');
+                return;
+            }
+            
+            if (!postData.content) {
+                alert('내용을 입력해주세요.');
+                return;
+            }
+            
+            if (!postData.category) {
+                alert('카테고리를 선택해주세요.');
+                return;
+            }
+            
+            // 로컬스토리지에서 기존 게시물 가져오기
+            let posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+            
+            // 기존 게시물 업데이트 또는 새 게시물 추가
+            const existingPostIndex = posts.findIndex(p => p.id === postData.id);
+            if (existingPostIndex >= 0) {
+                posts[existingPostIndex] = { ...posts[existingPostIndex], ...postData };
+            } else {
+                posts.push(postData);
+            }
+            
+            // 로컬스토리지에 저장
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+            
+            alert('게시물이 저장되었습니다.');
+            
+            // 상태가 '게시됨'인 경우 블로그 관리 페이지로 이동
+            if (postData.status === 'published') {
+                window.location.href = 'admin-blog.html';
+            }
+        }
+        
+        // 게시물 불러오기 함수
+        function loadPost(postId) {
+            // 로컬스토리지에서 게시물 가져오기
+            const posts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+            const post = posts.find(p => p.id === postId);
+            
+            if (post) {
+                $('#blog-form').data('post-id', post.id);
+                $('#blog-form').data('views', post.views || 0);
+                $('#blog-form').data('comments', post.comments || []);
+                
+                $('#post-title').val(post.title);
+                $('#post-category').val(post.category);
+                $('#post-status').val(post.status);
+                $('#post-content').summernote('code', post.content);
+                $('#post-excerpt').val(post.excerpt || '');
+                
+                // 태그 로드
+                if (post.tags && post.tags.length) {
+                    post.tags.forEach(tag => addTag(tag));
+                }
+                
+                // 썸네일 로드
+                if (post.thumbnailSrc) {
+                    $('#thumbnail-preview').attr('src', post.thumbnailSrc).show();
+                }
+            }
+        }
+        
+        // 게시물 미리보기 함수
+        function previewPost() {
+            // 현재 입력된 데이터로 미리보기를 보여주는 코드
+            // 실제 구현에서는 새 창이나 모달에 미리보기를 표시할 수 있음
+            alert('미리보기 기능은 추후 구현 예정입니다.');
+        }
     </script>
 </body>
 </html> 
