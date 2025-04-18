@@ -93,11 +93,54 @@ const handleFormSubmit = (formId, successMsgId) => {
             e.preventDefault();
             
             if (validateForm(formId)) {
-                // Here you would normally send the form data via AJAX
-                // For demonstration, we'll just show the success message
+                // 무료 상담 신청 폼인 경우 (contact-form)
+                if (formId === 'contact-form') {
+                    // 폼 데이터 수집
+                    const name = document.getElementById('name').value;
+                    const phone = document.getElementById('phone').value;
+                    const subject = document.getElementById('subject').value;
+                    const message = document.getElementById('message').value;
+                    
+                    // 이미지 데이터 수집 (미리보기 이미지)
+                    const previewContainer = document.getElementById('image-preview');
+                    const images = [];
+                    
+                    if (previewContainer) {
+                        const previewImages = previewContainer.querySelectorAll('img');
+                        previewImages.forEach(img => {
+                            images.push(img.src);
+                        });
+                    }
+                    
+                    // 상담 신청 객체 생성
+                    const inquiry = {
+                        id: 'inq_' + Date.now(),
+                        date: new Date().toISOString(),
+                        name: name,
+                        phone: phone,
+                        subject: subject,
+                        message: message,
+                        status: 'new',
+                        images: images,
+                        response: ''
+                    };
+                    
+                    // localStorage에 상담 신청 저장
+                    saveInquiry(inquiry);
+                    
+                    console.log('상담 신청이 저장되었습니다:', inquiry);
+                }
+                
+                // 성공 메시지 표시
                 if (successMsg) {
                     successMsg.style.display = 'block';
                     form.reset();
+                    
+                    // 이미지 미리보기 초기화
+                    const previewContainer = document.getElementById('image-preview');
+                    if (previewContainer) {
+                        previewContainer.innerHTML = '';
+                    }
                     
                     // Hide success message after 5 seconds
                     setTimeout(() => {
@@ -162,66 +205,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.classList.toggle('menu-open');
         });
     }
-    
-    // 무료 상담 신청 폼 제출 처리
-    const contactForm = document.getElementById('contact-form');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // 폼 데이터 수집
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
-            
-            // 이미지 데이터 수집 (미리보기 이미지)
-            const previewContainer = document.getElementById('image-preview');
-            const images = [];
-            
-            if (previewContainer) {
-                const previewImages = previewContainer.querySelectorAll('img');
-                previewImages.forEach(img => {
-                    images.push(img.src);
-                });
-            }
-            
-            // 상담 신청 객체 생성
-            const inquiry = {
-                id: 'inq_' + Date.now(),
-                date: new Date().toISOString(),
-                name: name,
-                phone: phone,
-                subject: subject,
-                message: message,
-                status: 'new',
-                images: images,
-                response: ''
-            };
-            
-            // localStorage에 상담 신청 저장
-            saveInquiry(inquiry);
-            
-            // 성공 메시지 표시
-            const successMessage = document.getElementById('form-success');
-            if (successMessage) {
-                successMessage.style.display = 'block';
-                
-                // 5초 후 성공 메시지 숨기기
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 5000);
-            }
-            
-            // 폼 리셋
-            this.reset();
-            
-            // 이미지 미리보기 초기화
-            if (previewContainer) {
-                previewContainer.innerHTML = '';
-            }
-        });
-    }
 });
 
 // 상담 신청 저장 함수
@@ -234,4 +217,13 @@ function saveInquiry(inquiry) {
     
     // localStorage에 저장
     localStorage.setItem('inquiries', JSON.stringify(inquiries));
+    
+    // 콘솔에 로그 출력
+    console.log('======= 상담 신청이 저장되었습니다 =======');
+    console.log('이름:', inquiry.name);
+    console.log('연락처:', inquiry.phone);
+    console.log('제목:', inquiry.subject);
+    console.log('내용:', inquiry.message);
+    console.log('상담 신청 시간:', new Date(inquiry.date).toLocaleString());
+    console.log('현재 총 상담 신청 수:', inquiries.length);
 } 

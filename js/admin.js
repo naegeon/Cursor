@@ -856,6 +856,8 @@ function setupCategoryFunctions() {
 
 // 카테고리 로드 함수
 function loadCategories(storageKey) {
+    console.log(`${storageKey} 카테고리 로드 함수 실행...`);
+    
     // 카테고리 로드
     const categories = JSON.parse(localStorage.getItem(storageKey)) || [];
     const categoryList = $('#category-list');
@@ -1070,14 +1072,21 @@ function saveInquiry(inquiry) {
 
 // 무료 상담 신청 관리 초기화 함수
 function initInquiryManagement() {
+    console.log('무료 상담 신청 관리 초기화 중...');
+    
     const inquiryTable = document.getElementById('inquiry-table');
     const refreshBtn = document.getElementById('refresh-btn');
     
     if (inquiryTable) {
+        // 페이지 로드 시 상담 신청 목록 로드
         loadInquiries();
+        console.log('상담 신청 목록을 로드했습니다.');
         
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', loadInquiries);
+            refreshBtn.addEventListener('click', function() {
+                console.log('새로고침 버튼 클릭 - 상담 신청 목록을 다시 로드합니다.');
+                loadInquiries();
+            });
         }
         
         // 모달 닫기 버튼 이벤트 리스너 추가
@@ -1112,24 +1121,33 @@ function initInquiryManagement() {
             `;
             responseSection.insertBefore(statusSelectDiv, document.getElementById('save-response-btn'));
         }
+    } else {
+        console.log('문의 테이블을 찾을 수 없습니다.');
     }
 }
 
 // 상담 신청 불러오기 및 표시
 function loadInquiries() {
+    console.log('상담 신청 목록 불러오기 함수 실행...');
+    
     const tableBody = document.querySelector('#inquiry-table tbody');
-    if (!tableBody) return;
+    if (!tableBody) {
+        console.error('테이블 본문을 찾을 수 없습니다.');
+        return;
+    }
     
     // 테이블 내용 초기화
     tableBody.innerHTML = '';
     
     // localStorage에서 상담 신청 목록 가져오기
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    console.log(`로컬 스토리지에서 ${inquiries.length}개의 상담 신청을 불러왔습니다.`);
     
     // 날짜 내림차순으로 정렬 (최신순)
     inquiries.sort((a, b) => new Date(b.date) - new Date(a.date));
     
     if (inquiries.length === 0) {
+        console.log('상담 신청이 없습니다.');
         const emptyRow = document.createElement('tr');
         emptyRow.innerHTML = '<td colspan="7" class="text-center">접수된 상담 신청이 없습니다.</td>';
         tableBody.appendChild(emptyRow);
