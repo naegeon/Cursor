@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A 카테고리 관리 | 관리자 대시보드</title>
+    <meta name="description" content="Q&A 카테고리와 태그를 관리할 수 있는 관리자 페이지입니다.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #4e73df;
+            --primary-dark: #3a56b0;
+            --secondary-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --light-gray: #eaecf4;
+            --dark-gray: #858796;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: fixed;
+            transition: all 0.3s;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-admin {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: block;
+            background-color: #fff;
+        }
+        
+        .admin-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .admin-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            width: calc(100% - 250px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .main-header {
+            background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .user-dropdown img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .page-content {
+            padding: 25px;
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+        }
+        
+        /* Category/Tag Management Specific Styles */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        th {
+            background-color: var(--secondary-color);
+            font-weight: 500;
+        }
+        
+        tr:hover {
+            background-color: rgba(78, 115, 223, 0.05);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .edit-btn {
+            background-color: rgba(246, 194, 62, 0.1);
+            color: var(--warning);
+        }
+        
+        .delete-btn {
+            background-color: rgba(231, 74, 59, 0.1);
+            color: var(--danger);
+        }
+        
+        .action-icon:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        .category-count, .tag-count {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background-color: rgba(78, 115, 223, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .tag-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--light-gray);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .tag-item .delete-tag {
+            margin-left: 8px;
+            cursor: pointer;
+            color: var(--danger);
+        }
+        
+        .tag-item:hover {
+            background-color: rgba(78, 115, 223, 0.1);
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+            
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar.active {
+                width: 250px;
+                overflow-y: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .action-buttons {
+                width: 100%;
+                justify-content: flex-start;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 15px;
+            }
+            
+            .page-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>707 Admin</h3>
+        </div>
+        
+        <div class="sidebar-admin">
+            <div class="admin-avatar">
+                <i class="fas fa-user" style="font-size: 30px; color: #4e73df; line-height: 60px;"></i>
+            </div>
+            <div class="admin-name">관리자</div>
+            <div class="admin-role">최고 관리자</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>대시보드</span>
+            </a>
+            <a href="admin-blog.html" class="menu-item">
+                <i class="fas fa-blog"></i>
+                <span>블로그 관리</span>
+            </a>
+            <a href="admin-blog-category.html" class="menu-item">
+                <i class="fas fa-tags"></i>
+                <span>블로그 카테고리/태그</span>
+            </a>
+            <a href="admin-qna.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Q&A 관리</span>
+            </a>
+            <a href="admin-qna-category.html" class="menu-item active">
+                <i class="fas fa-folder"></i>
+                <span>Q&A 카테고리/태그</span>
+            </a>
+            <a href="admin-users.html" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>사용자 관리</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>문의 관리</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+            </a>
+            <a href="#" class="menu-item" id="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>로그아웃</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <div class="main-header">
+            <button class="toggle-sidebar" id="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <button class="dropdown-toggle">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="dropdown-toggle user-dropdown">
+                        <img src="https://via.placeholder.com/32" alt="Admin">
+                        <span>관리자</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="page-title">
+                <h1>Q&A 카테고리/태그 관리</h1>
+            </div>
+            
+            <div class="grid-container">
+                <!-- Categories Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>카테고리 관리</h2>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form id="category-form">
+                            <div class="form-group">
+                                <label for="category-name">카테고리 이름</label>
+                                <input type="text" id="category-name" class="form-control" placeholder="카테고리 이름을 입력하세요">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category-desc">설명 (선택사항)</label>
+                                <textarea id="category-desc" class="form-control" rows="3" placeholder="카테고리에 대한 간단한 설명을 입력하세요"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="category-icon">아이콘 (Font Awesome)</label>
+                                <input type="text" id="category-icon" class="form-control" placeholder="예: fa-wrench">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> 카테고리 추가
+                            </button>
+                        </form>
+                        
+                        <div class="table-responsive" style="margin-top: 25px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>카테고리명</th>
+                                        <th>질문 수</th>
+                                        <th>액션</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>누수 탐지</td>
+                                        <td><span class="category-count">12</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>배관 공사</td>
+                                        <td><span class="category-count">8</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>누수 피해복구</td>
+                                        <td><span class="category-count">15</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>비용 및 견적</td>
+                                        <td><span class="category-count">9</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>DIY 수리</td>
+                                        <td><span class="category-count">6</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tags Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>태그 관리</h2>
+                    </div>
+                    
+                    <div class="card-body">
+                        <form id="tag-form">
+                            <div class="form-group">
+                                <label for="tag-name">태그 이름</label>
+                                <input type="text" id="tag-name" class="form-control" placeholder="태그 이름을 입력하세요">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> 태그 추가
+                            </button>
+                        </form>
+                        
+                        <div class="table-responsive" style="margin-top: 25px;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>태그명</th>
+                                        <th>질문 수</th>
+                                        <th>액션</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>화장실</td>
+                                        <td><span class="tag-count">7</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>수도관</td>
+                                        <td><span class="tag-count">9</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>벽면</td>
+                                        <td><span class="tag-count">5</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>곰팡이</td>
+                                        <td><span class="tag-count">6</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>열화상</td>
+                                        <td><span class="tag-count">3</span></td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <div class="action-icon edit-btn">
+                                                    <i class="fas fa-edit"></i>
+                                                </div>
+                                                <div class="action-icon delete-btn">
+                                                    <i class="fas fa-trash"></i>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tag-cloud" style="margin-top: 25px;">
+                            <h3>태그 클라우드</h3>
+                            <div class="tag-list">
+                                <div class="tag-item">화장실 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">수도관 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">벽면 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">곰팡이 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">열화상 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">천장 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">베란다 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">보험 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">타일 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                                <div class="tag-item">누수탐지기 <span class="delete-tag"><i class="fas fa-times"></i></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in as admin
+            const isAdmin = localStorage.getItem('adminLoggedIn');
+            if (!isAdmin) {
+                window.location.href = 'admin-login.html';
+            }
+            
+            // Toggle sidebar
+            const toggleButton = document.getElementById('toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            
+            toggleButton.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+            });
+            
+            // Logout functionality
+            const logoutButton = document.getElementById('logout-button');
+            logoutButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            });
+            
+            // Category form submission
+            const categoryForm = document.getElementById('category-form');
+            categoryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const categoryName = document.getElementById('category-name').value;
+                if (categoryName.trim() !== '') {
+                    alert('카테고리 "' + categoryName + '"가 추가되었습니다.');
+                    document.getElementById('category-name').value = '';
+                    document.getElementById('category-desc').value = '';
+                    document.getElementById('category-icon').value = '';
+                }
+            });
+            
+            // Tag form submission
+            const tagForm = document.getElementById('tag-form');
+            tagForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const tagName = document.getElementById('tag-name').value;
+                if (tagName.trim() !== '') {
+                    alert('태그 "' + tagName + '"가 추가되었습니다.');
+                    document.getElementById('tag-name').value = '';
+                }
+            });
+            
+            // Edit buttons
+            const editButtons = document.querySelectorAll('.edit-btn');
+            editButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const name = row.cells[0].textContent;
+                    alert(name + ' 편집 기능 구현 예정');
+                });
+            });
+            
+            // Delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const name = row.cells[0].textContent;
+                    if (confirm(name + '을(를) 삭제하시겠습니까?')) {
+                        alert('삭제 기능 구현 예정');
+                    }
+                });
+            });
+            
+            // Tag delete in cloud
+            const deleteTagButtons = document.querySelectorAll('.delete-tag');
+            deleteTagButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tagItem = this.closest('.tag-item');
+                    const tagName = tagItem.textContent.split(' ')[0];
+                    if (confirm('태그 "' + tagName + '"을(를) 삭제하시겠습니까?')) {
+                        tagItem.remove();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

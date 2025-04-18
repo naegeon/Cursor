@@ -396,6 +396,53 @@
                 padding: 15px;
             }
         }
+        
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .remove-image:hover {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        
+        input[type="file"] {
+            padding: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -536,53 +583,50 @@
                 <!-- Question Form -->
                 <div class="question-form" id="question-form">
                     <h3>질문하기</h3>
-                    <form id="ask-form">
+                    <form action="#" method="post" enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="name" class="form-label">이름</label>
-                            <input type="text" id="name" name="name" class="form-control" required>
+                            <label for="name">이름</label>
+                            <input type="text" id="name" name="name" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="email" class="form-label">이메일</label>
-                            <input type="email" id="email" name="email" class="form-control" required>
+                            <label for="title">제목</label>
+                            <input type="text" id="title" name="title" required>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="phone" class="form-label">연락처</label>
-                            <input type="tel" id="phone" name="phone" class="form-control">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="category" class="form-label">카테고리</label>
-                            <select id="category" name="category" class="form-control" required>
+                            <label for="category">카테고리</label>
+                            <select id="category" name="category" required>
                                 <option value="">카테고리 선택</option>
-                                <option value="누수 탐지">누수 탐지</option>
-                                <option value="누수 수리">누수 수리</option>
-                                <option value="피해 복구">피해 복구</option>
-                                <option value="비용 문의">비용 문의</option>
-                                <option value="누수 대처">누수 대처</option>
-                                <option value="기타">기타</option>
+                                <option value="leak-detection">누수 탐지</option>
+                                <option value="pipe-repair">배관 공사</option>
+                                <option value="damage-restoration">누수 피해복구</option>
+                                <option value="cost">비용 및 견적</option>
+                                <option value="diy">DIY 수리</option>
                             </select>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="title" class="form-label">제목</label>
-                            <input type="text" id="title" name="title" class="form-control" required>
+                            <label for="content">내용</label>
+                            <textarea id="content" name="content" rows="5" required></textarea>
                         </div>
-                        
                         <div class="form-group">
-                            <label for="question" class="form-label">질문 내용</label>
-                            <textarea id="question" name="question" class="form-control" required></textarea>
+                            <label for="image-upload">이미지 첨부 (선택사항)</label>
+                            <input type="file" id="image-upload" name="image" accept="image/*" multiple>
+                            <div class="image-preview" id="image-preview"></div>
                         </div>
-                        
                         <div class="form-group">
-                            <label class="form-check">
-                                <input type="checkbox" name="agree" required>
-                                개인정보 수집 및 이용에 동의합니다.
-                            </label>
+                            <label for="tags">태그 (쉼표로 구분)</label>
+                            <input type="text" id="tags" name="tags" placeholder="예: 화장실, 누수, 곰팡이">
                         </div>
-                        
-                        <button type="submit" class="btn">질문 등록하기</button>
+                        <div class="form-group">
+                            <label for="password">비밀번호 (게시글 수정/삭제 시 필요)</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox">
+                                <input type="checkbox" id="agree" name="agree" required>
+                                <label for="agree">개인정보 수집 및 이용에 동의합니다</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">질문하기</button>
                     </form>
                 </div>
             </main>
@@ -705,5 +749,45 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Main JS -->
     <script src="js/main.js"></script>
+    <script>
+    // 이미지 미리보기 기능
+    document.getElementById('image-upload').addEventListener('change', function(e) {
+        const preview = document.getElementById('image-preview');
+        preview.innerHTML = '';
+        
+        if (this.files) {
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i];
+                if (!file.type.match('image.*')) {
+                    continue;
+                }
+                
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'preview-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'preview-image';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'remove-image';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.onclick = function() {
+                        imgContainer.remove();
+                    };
+                    
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeBtn);
+                    preview.appendChild(imgContainer);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+    });
+    </script>
 </body>
 </html> 

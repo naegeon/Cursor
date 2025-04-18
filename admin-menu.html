@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 액세스 메뉴</title>
+    <meta name="description" content="관리자 기능에 접근하기 위한 메뉴 페이지입니다.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fc;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 100%;
+            width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            flex: 1;
+        }
+        
+        .admin-menu-container {
+            max-width: 800px;
+            margin: 80px auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .admin-menu-header {
+            background: #4e73df;
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .admin-menu-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .admin-menu-header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .admin-menu-content {
+            padding: 30px;
+        }
+        
+        .admin-menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .admin-menu-item {
+            background-color: #f8f9fc;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #e3e6f0;
+        }
+        
+        .admin-menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #4e73df;
+        }
+        
+        .admin-menu-item i {
+            font-size: 2.5rem;
+            color: #4e73df;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .admin-menu-item h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .admin-menu-item p {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        .footer a {
+            color: #4e73df;
+            text-decoration: none;
+        }
+        
+        .admin-login-notice {
+            background-color: #ffeeba;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .admin-login-notice p {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #856404;
+            font-weight: 500;
+        }
+        
+        .admin-login-notice i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .back-to-site {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: #4e73df;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .back-to-site:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-menu-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .admin-menu-container {
+                margin: 40px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="admin-menu-container">
+            <div class="admin-menu-header">
+                <h1>관리자 액세스 메뉴</h1>
+                <p>웹사이트 관리 기능에 접근하려면 로그인이 필요합니다</p>
+            </div>
+            
+            <div class="admin-menu-content">
+                <div class="admin-login-notice" id="admin-login-notice">
+                    <p><i class="fas fa-exclamation-triangle"></i> 로그인이 필요한 기능입니다. 아래 메뉴를 선택하면 로그인 페이지로 이동합니다.</p>
+                </div>
+                
+                <div class="admin-menu-items">
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <h3>관리자 대시보드</h3>
+                        <p>웹사이트 통계와 주요 정보를 확인합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-blog"></i>
+                        <h3>블로그 관리</h3>
+                        <p>블로그 게시물과 댓글을 관리합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-tags"></i>
+                        <h3>카테고리/태그 관리</h3>
+                        <p>블로그 카테고리와 태그를 관리합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-question-circle"></i>
+                        <h3>Q&A 관리</h3>
+                        <p>질문과 답변을 관리합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-users"></i>
+                        <h3>사용자 관리</h3>
+                        <p>사용자 계정과 권한을 관리합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-envelope"></i>
+                        <h3>문의 관리</h3>
+                        <p>고객 문의와 피드백을 관리합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-cog"></i>
+                        <h3>시스템 설정</h3>
+                        <p>웹사이트 설정을 구성합니다</p>
+                    </a>
+                    
+                    <a href="admin-login.html" class="admin-menu-item">
+                        <i class="fas fa-lock"></i>
+                        <h3>관리자 로그인</h3>
+                        <p>관리자 계정으로 로그인합니다</p>
+                    </a>
+                </div>
+                
+                <a href="index.html" class="back-to-site">
+                    <i class="fas fa-arrow-left"></i> 메인 사이트로 돌아가기
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 집꾸미다. 모든 권리 보유.</p>
+            <p>주소: 서울특별시 강남구 테헤란로 123, 707빌딩</p>
+            <p>전화: 02-1234-5678 | 이메일: info@jipkkumida.com</p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 이미 로그인된 관리자인 경우 처리
+            const isAdmin = localStorage.getItem('adminLoggedIn');
+            
+            if (isAdmin) {
+                // 로그인 알림 메시지 변경
+                const loginNotice = document.getElementById('admin-login-notice');
+                loginNotice.style.backgroundColor = '#d4edda';
+                loginNotice.innerHTML = '<p style="color: #155724;"><i class="fas fa-check-circle"></i> 이미 로그인되어 있습니다. 아래 메뉴를 선택하여 관리자 기능에 접근하세요.</p>';
+                
+                // 링크 대상 변경
+                const menuItems = document.querySelectorAll('.admin-menu-item');
+                menuItems.forEach(item => {
+                    // 경로 패턴 추출 (admin-login.html 앞부분)
+                    const href = item.getAttribute('href');
+                    if (href === 'admin-login.html') {
+                        // 대시보드로 이동
+                        item.setAttribute('href', 'admin-dashboard.html');
+                    } else if (href.includes('login')) {
+                        // 로그인 경로가 포함된 다른 URL이 있을 경우 처리
+                        const newHref = href.replace('login', 'dashboard');
+                        item.setAttribute('href', newHref);
+                    }
+                });
+            }
+            
+            // 각 메뉴 아이템에 클릭 이벤트 리스너 추가
+            const menuItems = document.querySelectorAll('.admin-menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // 이벤트 추적 등 필요한 경우 여기에 추가
+                    console.log('메뉴 선택됨:', item.querySelector('h3').textContent);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
