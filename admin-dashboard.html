@@ -657,7 +657,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Auth Check
-            if (!localStorage.getItem('adminLoggedIn')) {
+            if (!localStorage.getItem('isAdminLoggedIn')) {
                 window.location.href = 'admin-login.html';
             }
             
@@ -675,7 +675,8 @@
             logoutLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    localStorage.removeItem('adminLoggedIn');
+                    localStorage.removeItem('isAdminLoggedIn');
+                    localStorage.removeItem('adminUsername');
                     window.location.href = 'admin-login.html';
                 });
             });

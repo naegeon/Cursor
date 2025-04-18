@@ -181,7 +181,8 @@
                 // 아이디: admin, 비밀번호: admin123
                 if (username === 'admin' && password === 'admin123') {
                     // 로그인 성공 시 관리자 대시보드로 이동
-                    localStorage.setItem('adminLoggedIn', 'true');
+                    localStorage.setItem('isAdminLoggedIn', 'true');
+                    localStorage.setItem('adminUsername', 'admin');
                     window.location.href = 'admin-dashboard.html';
                 } else {
                     // 로그인 실패 시 에러 메시지 표시

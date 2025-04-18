@@ -646,6 +646,14 @@
     <!-- Page Specific Script -->
     <script>
         $(document).ready(function() {
+            // 로그인 상태 확인
+            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+            if (!isLoggedIn) {
+                // 로그인되지 않았으면 로그인 페이지로 리디렉션
+                window.location.href = 'admin-login.html';
+                return;
+            }
+            
             let isEditing = false;
             let editingId = null;
             

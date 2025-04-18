@@ -246,7 +246,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 이미 로그인된 관리자인 경우 처리
-            const isAdmin = localStorage.getItem('adminLoggedIn');
+            const isAdmin = localStorage.getItem('isAdminLoggedIn') === 'true';
             
             if (isAdmin) {
                 // 로그인 알림 메시지 변경
