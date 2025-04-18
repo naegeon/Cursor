@@ -871,6 +871,8 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const categoryParam = urlParams.get('category');
                 const searchParam = urlParams.get('search');
+                const currentPage = parseInt(urlParams.get('page')) || 1;
+                const questionsPerPage = 5;
                 
                 // 기본 샘플 질문 생성 (질문이 없을 경우)
                 let qnas = JSON.parse(localStorage.getItem('qnas')) || [];
@@ -972,8 +974,22 @@
                 // 최신순으로 정렬
                 filteredQnas.sort((a, b) => new Date(b.date) - new Date(a.date));
                 
+                if (filteredQnas.length === 0) {
+                    questionsList.html('<p class="text-center">질문이 없습니다. 첫 번째 질문을 작성해 보세요!</p>');
+                    return;
+                }
+                
+                // 페이지네이션 로직 적용
+                const totalQuestions = filteredQnas.length;
+                const totalPages = Math.ceil(totalQuestions / questionsPerPage);
+                
+                // 현재 페이지에 해당하는 질문만 표시
+                const startIndex = (currentPage - 1) * questionsPerPage;
+                const endIndex = Math.min(startIndex + questionsPerPage, totalQuestions);
+                const currentPageQuestions = filteredQnas.slice(startIndex, endIndex);
+                
                 // 각 질문 표시
-                filteredQnas.forEach(q => {
+                currentPageQuestions.forEach(q => {
                     let answerHtml = '';
                     
                     if (q.answered && q.answer) {
@@ -1005,8 +1021,48 @@
                     `);
                 });
                 
+                // 페이지네이션 추가
+                if (totalPages > 1) {
+                    let paginationHtml = '<div class="pagination">';
+                    
+                    // 이전 페이지
+                    if (currentPage > 1) {
+                        paginationHtml += `<a href="${createPaginationUrl(currentPage - 1)}" class="pagination-link pagination-prev"><i class="fas fa-angle-left"></i> 이전</a>`;
+                    }
+                    
+                    // 페이지 번호
+                    const maxVisiblePages = 5;
+                    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                    
+                    // 표시할 페이지 수 조정
+                    if (endPage - startPage + 1 < maxVisiblePages) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const activeClass = i === currentPage ? 'active' : '';
+                        paginationHtml += `<a href="${createPaginationUrl(i)}" class="pagination-link ${activeClass}">${i}</a>`;
+                    }
+                    
+                    // 다음 페이지
+                    if (currentPage < totalPages) {
+                        paginationHtml += `<a href="${createPaginationUrl(currentPage + 1)}" class="pagination-link pagination-next">다음 <i class="fas fa-angle-right"></i></a>`;
+                    }
+                    
+                    paginationHtml += '</div>';
+                    questionsList.after(paginationHtml);
+                }
+                
                 // 최근 질문 목록 업데이트
                 updateRecentQuestions(qnas);
+            }
+            
+            // 페이지네이션 URL 생성 함수
+            function createPaginationUrl(page) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                return `?${urlParams.toString()}`;
             }
             
             // 최근 질문 목록 업데이트

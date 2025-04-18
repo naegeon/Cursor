@@ -452,6 +452,104 @@
     <!-- Page Specific Script -->
     <script>
         $(document).ready(function() {
+            // 필터링된 게시물 표시 함수
+            function displayFilteredPosts(posts) {
+                const postsContainer = $('#blog-posts-container');
+                const recentPosts = $('#recent-posts');
+                postsContainer.empty();
+                
+                if (posts.length === 0) {
+                    postsContainer.html('<p>검색 결과가 없습니다.</p>');
+                    return;
+                }
+                
+                // 페이지네이션 로직 추가
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentPage = parseInt(urlParams.get('page')) || 1;
+                const postsPerPage = 4;
+                const totalPages = Math.ceil(posts.length / postsPerPage);
+                
+                // 현재 페이지에 해당하는 게시물 필터링
+                const startIndex = (currentPage - 1) * postsPerPage;
+                const endIndex = startIndex + postsPerPage;
+                const currentPagePosts = posts.slice(startIndex, endIndex);
+                
+                // 게시물 표시
+                currentPagePosts.forEach(post => {
+                    const thumbnailSrc = post.thumbnailSrc || 'https://via.placeholder.com/800x500?text=Blog+Image';
+                    
+                    postsContainer.append(`
+                        <article class="blog-post">
+                            <div class="blog-post-image">
+                                <img src="${thumbnailSrc}" alt="${post.title}">
+                            </div>
+                            <div class="blog-post-content">
+                                <span class="blog-post-category">${post.category}</span>
+                                <h2 class="blog-post-title">
+                                    <a href="blog-view.html?id=${post.id}">${post.title}</a>
+                                </h2>
+                                <p class="blog-post-excerpt">${post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                                <div class="blog-post-meta">
+                                    <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> ${post.date}</span>
+                                    <span class="blog-post-author"><i class="fas fa-user"></i> ${post.author}</span>
+                                </div>
+                            </div>
+                        </article>
+                    `);
+                });
+                
+                // 페이지네이션 생성
+                if (totalPages > 1) {
+                    let paginationHtml = '<div class="pagination">';
+                    
+                    // 이전 페이지 링크
+                    if (currentPage > 1) {
+                        const prevPageUrl = createPaginationUrl(currentPage - 1);
+                        paginationHtml += `<a href="${prevPageUrl}" class="pagination-link pagination-prev"><i class="fas fa-angle-left"></i> 이전</a>`;
+                    }
+                    
+                    // 페이지 번호 링크
+                    const maxVisiblePages = 5;
+                    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                    
+                    // 표시할 페이지 수 조정
+                    if (endPage - startPage + 1 < maxVisiblePages) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageUrl = createPaginationUrl(i);
+                        const activeClass = i === currentPage ? 'active' : '';
+                        paginationHtml += `<a href="${pageUrl}" class="pagination-link ${activeClass}">${i}</a>`;
+                    }
+                    
+                    // 다음 페이지 링크
+                    if (currentPage < totalPages) {
+                        const nextPageUrl = createPaginationUrl(currentPage + 1);
+                        paginationHtml += `<a href="${nextPageUrl}" class="pagination-link pagination-next">다음 <i class="fas fa-angle-right"></i></a>`;
+                    }
+                    
+                    paginationHtml += '</div>';
+                    postsContainer.after(paginationHtml);
+                }
+                
+                // 최근 게시물 목록 업데이트 (최대 5개)
+                recentPosts.empty();
+                posts.slice(0, 5).forEach(post => {
+                    recentPosts.append(`
+                        <li><a href="blog-view.html?id=${post.id}">${post.title}</a></li>
+                    `);
+                });
+            }
+            
+            // 페이지네이션 URL 생성 함수
+            function createPaginationUrl(page) {
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('page', page);
+                return `?${urlParams.toString()}`;
+            }
+            
             // 로컬 스토리지에서 블로그 게시물 가져오기
             function loadBlogPosts() {
                 const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
@@ -481,8 +579,19 @@
                 // 게시된 포스트만 필터링
                 const publishedPosts = blogPosts.filter(post => post.status === 'published');
                 
+                // 페이지네이션 로직 추가
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentPage = parseInt(urlParams.get('page')) || 1;
+                const postsPerPage = 4;
+                const totalPages = Math.ceil(publishedPosts.length / postsPerPage);
+                
+                // 현재 페이지에 해당하는 게시물 필터링
+                const startIndex = (currentPage - 1) * postsPerPage;
+                const endIndex = startIndex + postsPerPage;
+                const currentPagePosts = publishedPosts.slice(startIndex, endIndex);
+                
                 // 블로그 게시물 표시
-                publishedPosts.forEach((post, index) => {
+                currentPagePosts.forEach((post, index) => {
                     // 카테고리 집계
                     categories[post.category] = (categories[post.category] || 0) + 1;
                     
@@ -514,6 +623,42 @@
                         </article>
                     `);
                 });
+                
+                // 페이지네이션 생성
+                if (totalPages > 1) {
+                    let paginationHtml = '<div class="pagination">';
+                    
+                    // 이전 페이지 링크
+                    if (currentPage > 1) {
+                        const prevPageUrl = createPaginationUrl(currentPage - 1);
+                        paginationHtml += `<a href="${prevPageUrl}" class="pagination-link pagination-prev"><i class="fas fa-angle-left"></i> 이전</a>`;
+                    }
+                    
+                    // 페이지 번호 링크
+                    const maxVisiblePages = 5;
+                    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+                    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+                    
+                    // 표시할 페이지 수 조정
+                    if (endPage - startPage + 1 < maxVisiblePages) {
+                        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                    }
+                    
+                    for (let i = startPage; i <= endPage; i++) {
+                        const pageUrl = createPaginationUrl(i);
+                        const activeClass = i === currentPage ? 'active' : '';
+                        paginationHtml += `<a href="${pageUrl}" class="pagination-link ${activeClass}">${i}</a>`;
+                    }
+                    
+                    // 다음 페이지 링크
+                    if (currentPage < totalPages) {
+                        const nextPageUrl = createPaginationUrl(currentPage + 1);
+                        paginationHtml += `<a href="${nextPageUrl}" class="pagination-link pagination-next">다음 <i class="fas fa-angle-right"></i></a>`;
+                    }
+                    
+                    paginationHtml += '</div>';
+                    postsContainer.after(paginationHtml);
+                }
                 
                 // 최근 게시물 목록 (최대 5개)
                 // 별도로 최근 게시물 목록 생성 (한번 더 정렬하여 가장 최신글이 상단에 오도록)
@@ -610,50 +755,6 @@
                 }
                 
                 return false;
-            }
-            
-            // 필터링된 게시물 표시 함수
-            function displayFilteredPosts(posts) {
-                const postsContainer = $('#blog-posts-container');
-                const recentPosts = $('#recent-posts');
-                postsContainer.empty();
-                
-                if (posts.length === 0) {
-                    postsContainer.html('<p>검색 결과가 없습니다.</p>');
-                    return;
-                }
-                
-                // 게시물 표시
-                posts.forEach(post => {
-                    const thumbnailSrc = post.thumbnailSrc || 'https://via.placeholder.com/800x500?text=Blog+Image';
-                    
-                    postsContainer.append(`
-                        <article class="blog-post">
-                            <div class="blog-post-image">
-                                <img src="${thumbnailSrc}" alt="${post.title}">
-                            </div>
-                            <div class="blog-post-content">
-                                <span class="blog-post-category">${post.category}</span>
-                                <h2 class="blog-post-title">
-                                    <a href="blog-view.html?id=${post.id}">${post.title}</a>
-                                </h2>
-                                <p class="blog-post-excerpt">${post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
-                                <div class="blog-post-meta">
-                                    <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> ${post.date}</span>
-                                    <span class="blog-post-author"><i class="fas fa-user"></i> ${post.author}</span>
-                                </div>
-                            </div>
-                        </article>
-                    `);
-                });
-                
-                // 최근 게시물 목록 업데이트 (최대 5개)
-                recentPosts.empty();
-                posts.slice(0, 5).forEach(post => {
-                    recentPosts.append(`
-                        <li><a href="blog-view.html?id=${post.id}">${post.title}</a></li>
-                    `);
-                });
             }
             
             // 초기 게시물 로드
