@@ -654,6 +654,37 @@
                 return;
             }
             
+            // Summernote 에디터 초기화
+            $('#post-content').summernote({
+                placeholder: '내용을 입력하세요',
+                height: 300,
+                lang: 'ko-KR',
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['fontname', ['fontname']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        // 이미지 업로드 처리
+                        for (let i = 0; i < files.length; i++) {
+                            const reader = new FileReader();
+                            reader.onloadend = function() {
+                                const img = document.createElement('img');
+                                img.src = reader.result;
+                                $('#post-content').summernote('insertNode', img);
+                            }
+                            reader.readAsDataURL(files[i]);
+                        }
+                    }
+                }
+            });
+            
             let isEditing = false;
             let editingId = null;
             

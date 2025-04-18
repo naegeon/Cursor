@@ -447,6 +447,124 @@
                 flex-direction: column;
             }
         }
+        
+        /* 모달 스타일 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: auto;
+        }
+        
+        .modal-content {
+            position: relative;
+            background-color: #fff;
+            margin: 50px auto;
+            width: 80%;
+            max-width: 900px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from {opacity: 0; transform: translateY(-50px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: var(--text-color);
+        }
+        
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-gray);
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--danger);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .post-meta {
+            color: var(--dark-gray);
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .post-category {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        
+        .post-content {
+            margin-bottom: 20px;
+            line-height: 1.6;
+            overflow-wrap: break-word;
+        }
+        
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+        }
+        
+        .post-tags {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d4a000;
+        }
+        
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 95%;
+                margin: 30px auto;
+            }
+        }
     </style>
 </head>
 <body>
@@ -723,6 +841,36 @@
             </div>
         </div>
     </div>
+    
+    <!-- 게시물 보기 모달 -->
+    <div id="post-view-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">게시물 제목</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="post-meta">
+                    <span id="modal-category" class="post-category">카테고리</span>
+                    <span id="modal-date" class="post-date">날짜</span>
+                    <span id="modal-author" class="post-author">작성자</span>
+                </div>
+                <div id="modal-content" class="post-content">
+                    게시물 내용이 여기에 표시됩니다.
+                </div>
+                <div class="post-tags">
+                    <strong>태그:</strong>
+                    <span id="modal-tags">태그 목록</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="modal-edit" class="btn btn-warning">
+                    <i class="fas fa-edit"></i> 수정하기
+                </button>
+                <button id="modal-close" class="btn btn-outline">닫기</button>
+            </div>
+        </div>
+    </div>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -792,9 +940,50 @@
             
             // 게시물 보기 함수
             window.viewPost = function(id) {
-                alert('게시물 보기: ' + id);
-                // 실제 구현에서는 게시물 상세 페이지로 이동
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const post = blogPosts.find(post => post.id === id);
+                
+                if (post) {
+                    // 모달에 데이터 채우기
+                    $('#modal-title').text(post.title);
+                    $('#modal-category').text(post.category);
+                    $('#modal-date').text(post.date);
+                    $('#modal-author').text(post.author);
+                    $('#modal-content').html(post.content);
+                    $('#modal-tags').text(post.tags.join(', '));
+                    
+                    // 수정 버튼 이벤트
+                    $('#modal-edit').off('click').on('click', function() {
+                        window.location.href = `admin-blog-write.html?id=${id}`;
+                    });
+                    
+                    // 모달 표시
+                    $('#post-view-modal').fadeIn();
+                    
+                    // 조회수 증가 및 저장
+                    post.views += 1;
+                    const postIndex = blogPosts.findIndex(p => p.id === id);
+                    blogPosts[postIndex] = post;
+                    localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+                    
+                    // 테이블에서 조회수 업데이트
+                    $(`tr[data-id="${id}"] td:nth-child(6)`).text(post.views);
+                } else {
+                    alert('게시물을 찾을 수 없습니다.');
+                }
             };
+            
+            // 모달 닫기
+            $('.close, #modal-close').click(function() {
+                $('#post-view-modal').fadeOut();
+            });
+            
+            // 모달 외부 클릭시 닫기
+            $(window).click(function(e) {
+                if ($(e.target).is('#post-view-modal')) {
+                    $('#post-view-modal').fadeOut();
+                }
+            });
             
             // 게시물 수정 함수
             window.editPost = function(id) {
