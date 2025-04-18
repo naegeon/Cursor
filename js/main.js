@@ -189,9 +189,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // 문의 객체 생성
             const inquiry = {
                 id: 'inq_' + Date.now(),
-                date: new Date().toISOString().slice(0, 10),
+                date: new Date().toISOString(),
                 name: name,
                 phone: phone,
+                subject: subject,
                 title: subject,
                 message: message,
                 status: 'new',
