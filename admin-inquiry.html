@@ -48,6 +48,7 @@
                     <tr>
                         <th>번호</th>
                         <th>이름</th>
+                        <th>연락처</th>
                         <th>제목</th>
                         <th>날짜</th>
                         <th>상태</th>
@@ -130,7 +131,30 @@
             $('#refresh-btn').click(function() {
                 loadInquiries();
             });
+            
+            // 테스트 데이터 로드 버튼 추가 (개발용, 실제 서비스에서는 제거)
+            $('.action-buttons').append(
+                '<button id="load-test-data" class="btn btn-secondary ml-2">' +
+                '<i class="fas fa-vial"></i> 테스트 데이터 생성</button>'
+            );
+            
+            // 테스트 데이터 로드 버튼 이벤트
+            $('#load-test-data').click(function() {
+                $.getScript('js/test-data.js')
+                    .done(function() {
+                        loadInquiries(); // 데이터 로드 후 테이블 새로고침
+                    })
+                    .fail(function() {
+                        alert('테스트 데이터 스크립트를 로드하는데 실패했습니다.');
+                    });
+            });
         });
     </script>
+    
+    <!-- 
+    개발 완료 후 다음 라인을 제거하세요.
+    이 스크립트는 테스트 데이터 생성을 위한 것입니다. 
+    -->
+    <!-- <script src="js/test-data.js"></script> -->
 </body>
 </html> 

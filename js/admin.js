@@ -1131,7 +1131,7 @@ function loadInquiries() {
     
     if (inquiries.length === 0) {
         const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = '<td colspan="6" class="text-center">접수된 상담 신청이 없습니다.</td>';
+        emptyRow.innerHTML = '<td colspan="7" class="text-center">접수된 상담 신청이 없습니다.</td>';
         tableBody.appendChild(emptyRow);
         return;
     }
@@ -1160,10 +1160,16 @@ function loadInquiries() {
                 statusBadge = '<span class="badge badge-secondary">기타</span>';
         }
         
+        // 데이터 확인 및 기본값 설정
+        const name = inquiry.name || '이름 없음';
+        const phone = inquiry.phone || '연락처 없음';
+        const subject = inquiry.subject || '제목 없음';
+        
         row.innerHTML = `
             <td>${inquiries.length - index}</td>
-            <td>${inquiry.name || '이름 없음'}</td>
-            <td>${inquiry.subject || inquiry.title || '제목 없음'}</td>
+            <td>${name}</td>
+            <td>${phone}</td>
+            <td>${subject}</td>
             <td>${formattedDate}</td>
             <td>${statusBadge}</td>
             <td>
@@ -1224,13 +1230,19 @@ function openInquiryModal(inquiryId) {
             statusBadge = '<span class="badge badge-secondary">기타</span>';
     }
     
+    // 데이터 확인 및 기본값 설정
+    const name = inquiry.name || '이름 없음';
+    const phone = inquiry.phone || '연락처 없음';
+    const subject = inquiry.subject || '제목 없음';
+    const message = inquiry.message || '';
+    
     // 모달 내용 업데이트
-    document.getElementById('inquiry-name').textContent = inquiry.name || '이름 없음';
-    document.getElementById('inquiry-phone').textContent = inquiry.phone || '연락처 없음';
+    document.getElementById('inquiry-name').textContent = name;
+    document.getElementById('inquiry-phone').textContent = phone;
     document.getElementById('inquiry-date').textContent = formattedDate;
     document.getElementById('inquiry-status').innerHTML = statusBadge;
-    document.getElementById('modal-title').textContent = '무료 상담 신청 상세 정보: ' + (inquiry.subject || inquiry.title || '제목 없음');
-    document.getElementById('inquiry-message').textContent = inquiry.message || '';
+    document.getElementById('modal-title').textContent = '무료 상담 신청 상세 정보: ' + subject;
+    document.getElementById('inquiry-message').textContent = message;
     
     // 이미지 표시
     const imageContainer = document.getElementById('inquiry-images');
