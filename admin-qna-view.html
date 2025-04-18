@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Q&A 게시물 상세보기 - 관리자</title>
+    <meta name="description" content="Q&A 게시물 상세보기 관리자 페이지">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <button class="toggle-btn" id="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>관리자 페이지</h3>
+            <p>안녕하세요, <span id="admin-name">Admin</span>님</p>
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> <span>대시보드</span></a></li>
+                <li><a href="admin-blog.html"><i class="fas fa-blog"></i> <span>블로그 관리</span></a></li>
+                <li><a href="admin-blog-category.html"><i class="fas fa-tags"></i> <span>카테고리 관리</span></a></li>
+                <li><a href="admin-qna.html" class="active"><i class="fas fa-question-circle"></i> <span>Q&A 관리</span></a></li>
+                <li><a href="admin-qna-category.html"><i class="fas fa-list"></i> <span>Q&A 카테고리</span></a></li>
+                <li><a href="admin-inquiry.html"><i class="fas fa-envelope"></i> <span>문의 관리</span></a></li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> <span>로그아웃</span></a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="main-content" id="main-content">
+        <div class="main-header">
+            <h1 class="page-title">Q&A 게시물 상세보기</h1>
+            <div class="action-buttons">
+                <a href="admin-qna-write.html" class="btn btn-primary" id="edit-qna-btn">
+                    <i class="fas fa-edit"></i> 게시물 수정
+                </a>
+                <button class="btn btn-danger" id="delete-qna-btn">
+                    <i class="fas fa-trash"></i> 게시물 삭제
+                </button>
+                <a href="admin-qna.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> 목록으로
+                </a>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="post-header">
+                <h2 id="qna-title">Q&A 제목</h2>
+                <div class="post-meta">
+                    <span class="post-category" id="qna-category"><i class="fas fa-folder"></i> 카테고리</span>
+                    <span class="post-author" id="qna-author"><i class="fas fa-user"></i> 작성자</span>
+                    <span class="post-date" id="qna-date"><i class="fas fa-calendar"></i> 작성일</span>
+                    <span class="post-views" id="qna-views"><i class="fas fa-eye"></i> 조회수</span>
+                    <span class="post-status" id="qna-status"><i class="fas fa-check-circle"></i> 상태</span>
+                </div>
+            </div>
+            
+            <div class="post-content" id="qna-content">
+                <!-- Q&A 내용이 여기에 동적으로 로드됩니다 -->
+            </div>
+            
+            <div class="answer-section">
+                <h3>답변</h3>
+                <div id="answer-container">
+                    <div id="answer-content" class="mb-3">
+                        <!-- 답변 내용이 여기에 표시됩니다 -->
+                    </div>
+                    <div id="answer-form" class="mb-3">
+                        <textarea id="answer-text" class="form-control" rows="5" placeholder="답변을 입력하세요..."></textarea>
+                        <div class="mt-2">
+                            <button id="save-answer-btn" class="btn btn-success">답변 저장</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-tags" id="qna-tags">
+                <!-- 태그가 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 관리자 인증 확인
+            checkAdminAuth();
+            
+            // 사이드바 초기화
+            initSidebar();
+            
+            // 로그아웃 초기화
+            initLogout();
+            
+            // URL에서 게시물 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const qnaId = urlParams.get('id');
+            
+            if (!qnaId) {
+                alert('Q&A ID가 없습니다. Q&A 목록으로 이동합니다.');
+                window.location.href = 'admin-qna.html';
+                return;
+            }
+            
+            // Q&A 데이터 로드
+            loadQnaDetails(qnaId);
+            
+            // 수정 버튼 클릭 이벤트
+            $('#edit-qna-btn').attr('href', `admin-qna-write.html?id=${qnaId}`);
+            
+            // 삭제 버튼 클릭 이벤트
+            $('#delete-qna-btn').click(function() {
+                if (confirm('정말로 이 Q&A를 삭제하시겠습니까?')) {
+                    deleteQna(qnaId);
+                }
+            });
+            
+            // 답변 저장 버튼 클릭 이벤트
+            $('#save-answer-btn').click(function() {
+                saveAnswer(qnaId);
+            });
+        });
+        
+        // Q&A 상세 정보 로드
+        function loadQnaDetails(qnaId) {
+            // localStorage에서 Q&A 게시물 가져오기
+            const qnas = JSON.parse(localStorage.getItem('qnaPosts')) || [];
+            const qna = qnas.find(q => q.id === qnaId);
+            
+            if (!qna) {
+                alert('Q&A를 찾을 수 없습니다.');
+                window.location.href = 'admin-qna.html';
+                return;
+            }
+            
+            // 조회수 증가
+            qna.views = (qna.views || 0) + 1;
+            localStorage.setItem('qnaPosts', JSON.stringify(qnas));
+            
+            // Q&A 정보 표시
+            $('#qna-title').text(qna.title);
+            $('#qna-category').html(`<i class="fas fa-folder"></i> ${qna.category}`);
+            $('#qna-author').html(`<i class="fas fa-user"></i> ${qna.author || '익명'}`);
+            $('#qna-date').html(`<i class="fas fa-calendar"></i> ${formatDate(qna.date)}`);
+            $('#qna-views').html(`<i class="fas fa-eye"></i> ${qna.views || 0}`);
+            
+            // 상태 표시
+            const statusClass = qna.answered ? 'badge-success' : 'badge-warning';
+            const statusText = qna.answered ? '답변완료' : '답변대기';
+            $('#qna-status').html(`<span class="badge ${statusClass}">${statusText}</span>`);
+            
+            // 내용 표시
+            $('#qna-content').html(qna.content);
+            
+            // 답변 표시
+            if (qna.answer) {
+                $('#answer-content').html(`
+                    <div class="answer-box">
+                        <div class="answer-meta">
+                            <span><i class="fas fa-user"></i> 관리자</span>
+                            <span><i class="fas fa-calendar"></i> ${formatDate(qna.answerDate)}</span>
+                        </div>
+                        <div class="answer-text">${qna.answer}</div>
+                    </div>
+                `);
+                $('#answer-text').val(qna.answer);
+            } else {
+                $('#answer-content').html('<div class="no-answer">아직 답변이 없습니다.</div>');
+            }
+            
+            // 태그 표시
+            if (qna.tags && qna.tags.length > 0) {
+                const tagHtml = qna.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+                $('#qna-tags').html(`<i class="fas fa-tags"></i> ${tagHtml}`);
+            } else {
+                $('#qna-tags').html('');
+            }
+        }
+        
+        // 날짜 포맷 함수
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        // 답변 저장 함수
+        function saveAnswer(qnaId) {
+            const answerText = $('#answer-text').val().trim();
+            
+            if (!answerText) {
+                alert('답변 내용을 입력해주세요.');
+                return;
+            }
+            
+            // localStorage에서 Q&A 게시물 가져오기
+            const qnas = JSON.parse(localStorage.getItem('qnaPosts')) || [];
+            const qnaIndex = qnas.findIndex(q => q.id === qnaId);
+            
+            if (qnaIndex === -1) {
+                alert('Q&A를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 답변 업데이트
+            qnas[qnaIndex].answer = answerText;
+            qnas[qnaIndex].answered = true;
+            qnas[qnaIndex].answerDate = new Date().toISOString();
+            
+            // 업데이트된 Q&A 목록 저장
+            localStorage.setItem('qnaPosts', JSON.stringify(qnas));
+            
+            alert('답변이 저장되었습니다.');
+            
+            // 화면 갱신
+            loadQnaDetails(qnaId);
+        }
+        
+        // Q&A 삭제 함수
+        function deleteQna(qnaId) {
+            // localStorage에서 Q&A 게시물 가져오기
+            const qnas = JSON.parse(localStorage.getItem('qnaPosts')) || [];
+            const updatedQnas = qnas.filter(q => q.id !== qnaId);
+            
+            // 업데이트된 Q&A 목록 저장
+            localStorage.setItem('qnaPosts', JSON.stringify(updatedQnas));
+            
+            alert('Q&A가 삭제되었습니다.');
+            window.location.href = 'admin-qna.html';
+        }
+    </script>
+</body>
+</html> 
