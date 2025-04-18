@@ -543,7 +543,8 @@
                 e.preventDefault();
                 const searchTerm = $(this).find('.search-input').val().trim();
                 if (searchTerm) {
-                    window.location.href = `blog-search.html?q=${encodeURIComponent(searchTerm)}`;
+                    // 검색어를 URL 파라미터로 추가하고 현재 페이지 리로드
+                    window.location.href = `blog.html?q=${encodeURIComponent(searchTerm)}`;
                 }
             });
             
@@ -552,15 +553,104 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const category = urlParams.get('category');
                 const tag = urlParams.get('tag');
+                const searchQuery = urlParams.get('q');
                 
-                if (category || tag) {
-                    // 여기에 필터링 로직 추가 예정
+                if (category || tag || searchQuery) {
+                    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                    let filteredPosts = blogPosts.filter(post => post.status === 'published');
+                    
+                    // 카테고리 필터링
+                    if (category) {
+                        filteredPosts = filteredPosts.filter(post => post.category === category);
+                        // 브레드크럼에 카테고리 표시
+                        $('.breadcrumb ol').html(`
+                            <li><a href="index.html">홈</a></li>
+                            <li><a href="blog.html">블로그</a></li>
+                            <li>카테고리: ${category}</li>
+                        `);
+                    }
+                    
+                    // 태그 필터링
+                    if (tag) {
+                        filteredPosts = filteredPosts.filter(post => 
+                            post.tags && post.tags.some(t => t.toLowerCase() === tag.toLowerCase())
+                        );
+                        // 브레드크럼에 태그 표시
+                        $('.breadcrumb ol').html(`
+                            <li><a href="index.html">홈</a></li>
+                            <li><a href="blog.html">블로그</a></li>
+                            <li>태그: ${tag}</li>
+                        `);
+                    }
+                    
+                    // 검색어 필터링
+                    if (searchQuery) {
+                        const query = searchQuery.toLowerCase();
+                        filteredPosts = filteredPosts.filter(post => 
+                            post.title.toLowerCase().includes(query) || 
+                            post.content.toLowerCase().includes(query) ||
+                            (post.excerpt && post.excerpt.toLowerCase().includes(query)) ||
+                            (post.tags && post.tags.some(tag => tag.toLowerCase().includes(query)))
+                        );
+                        // 브레드크럼에 검색어 표시
+                        $('.breadcrumb ol').html(`
+                            <li><a href="index.html">홈</a></li>
+                            <li><a href="blog.html">블로그</a></li>
+                            <li>검색결과: "${searchQuery}"</li>
+                        `);
+                        
+                        // 검색창에 검색어 표시
+                        $('.search-input').val(searchQuery);
+                    }
+                    
+                    // 필터링된 게시물 표시
+                    displayFilteredPosts(filteredPosts);
+                    return true;
                 }
+                
+                return false;
+            }
+            
+            // 필터링된 게시물 표시 함수
+            function displayFilteredPosts(posts) {
+                const postsContainer = $('#blog-posts-container');
+                postsContainer.empty();
+                
+                if (posts.length === 0) {
+                    postsContainer.html('<p>검색 결과가 없습니다.</p>');
+                    return;
+                }
+                
+                // 게시물 표시
+                posts.forEach(post => {
+                    const thumbnailSrc = post.thumbnailSrc || 'https://via.placeholder.com/800x500?text=Blog+Image';
+                    
+                    postsContainer.append(`
+                        <article class="blog-post">
+                            <div class="blog-post-image">
+                                <img src="${thumbnailSrc}" alt="${post.title}">
+                            </div>
+                            <div class="blog-post-content">
+                                <span class="blog-post-category">${post.category}</span>
+                                <h2 class="blog-post-title">
+                                    <a href="blog-view.html?id=${post.id}">${post.title}</a>
+                                </h2>
+                                <p class="blog-post-excerpt">${post.excerpt || post.content.replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                                <div class="blog-post-meta">
+                                    <span class="blog-post-date"><i class="fas fa-calendar-alt"></i> ${post.date}</span>
+                                    <span class="blog-post-author"><i class="fas fa-user"></i> ${post.author}</span>
+                                </div>
+                            </div>
+                        </article>
+                    `);
+                });
             }
             
             // 초기 게시물 로드
-            loadBlogPosts();
-            applyUrlFilters();
+            const filtered = applyUrlFilters();
+            if (!filtered) {
+                loadBlogPosts();
+            }
         });
     </script>
 </body>
