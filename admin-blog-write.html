@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 글 작성 | 관리자 대시보드</title>
+    <meta name="description" content="블로그 게시물을 작성할 수 있는 관리자 페이지입니다.">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Summernote Editor -->
+    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+        
+        :root {
+            --primary-color: #4e73df;
+            --primary-dark: #3a56b0;
+            --secondary-color: #f8f9fc;
+            --text-color: #5a5c69;
+            --light-gray: #eaecf4;
+            --dark-gray: #858796;
+            --success: #1cc88a;
+            --danger: #e74a3b;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            display: flex;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            position: fixed;
+            transition: all 0.3s;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        
+        .sidebar.collapsed {
+            width: 0;
+            overflow: hidden;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .sidebar-admin {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: block;
+            background-color: #fff;
+        }
+        
+        .admin-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .admin-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-menu {
+            padding: 15px 0;
+        }
+        
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: white;
+        }
+        
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            width: calc(100% - 250px);
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .main-header {
+            background-color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 99;
+        }
+        
+        .toggle-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .dropdown {
+            position: relative;
+            margin-left: 15px;
+        }
+        
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .user-dropdown img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .page-content {
+            padding: 25px;
+        }
+        
+        .page-title {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .page-title h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+        }
+        
+        /* Form Styles */
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+            background-color: white;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5c69' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 30px;
+        }
+        
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .img-preview {
+            margin-top: 10px;
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .img-preview img {
+            max-width: 100%;
+            max-height: 190px;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn i {
+            margin-right: 5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+            color: var(--text-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Tags Input */
+        .tags-input {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 5px;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            gap: 5px;
+        }
+        
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .tag .remove-tag {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        
+        .tags-input input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 5px;
+            min-width: 60px;
+        }
+        
+        /* Side Info */
+        .side-info {
+            background-color: var(--secondary-color);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .side-info h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .side-info ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .side-info ul li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .side-info ul li i {
+            color: var(--primary-color);
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        
+        /* Two Columns Layout */
+        .columns {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .column-main {
+            flex: 3;
+        }
+        
+        .column-side {
+            flex: 1;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main-content {
+                margin-left: 200px;
+                width: calc(100% - 200px);
+            }
+            
+            .columns {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 0;
+                overflow: hidden;
+            }
+            
+            .sidebar.active {
+                width: 250px;
+                overflow-y: auto;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-header {
+                padding: 15px;
+            }
+            
+            .page-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>707 Admin</h3>
+        </div>
+        
+        <div class="sidebar-admin">
+            <div class="admin-avatar">
+                <i class="fas fa-user" style="font-size: 30px; color: #4e73df; line-height: 60px;"></i>
+            </div>
+            <div class="admin-name">관리자</div>
+            <div class="admin-role">최고 관리자</div>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="admin-dashboard.html" class="menu-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>대시보드</span>
+            </a>
+            <a href="admin-blog.html" class="menu-item active">
+                <i class="fas fa-blog"></i>
+                <span>블로그 관리</span>
+            </a>
+            <a href="admin-qna.html" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span>Q&A 관리</span>
+            </a>
+            <a href="admin-users.html" class="menu-item">
+                <i class="fas fa-users"></i>
+                <span>사용자 관리</span>
+            </a>
+            <a href="admin-inquiries.html" class="menu-item">
+                <i class="fas fa-envelope"></i>
+                <span>문의 관리</span>
+            </a>
+            <a href="admin-settings.html" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+            </a>
+            <a href="#" class="menu-item" id="logout-button">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>로그아웃</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="main-content">
+        <div class="main-header">
+            <button class="toggle-sidebar" id="toggle-sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-right">
+                <div class="dropdown">
+                    <button class="dropdown-toggle">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+                
+                <div class="dropdown">
+                    <button class="dropdown-toggle user-dropdown">
+                        <img src="https://via.placeholder.com/32" alt="Admin">
+                        <span>관리자</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="page-content">
+            <div class="page-title">
+                <h1>블로그 글 작성</h1>
+                <div>
+                    <a href="admin-blog.html" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
+                    </a>
+                </div>
+            </div>
+            
+            <div class="columns">
+                <div class="column-main">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>블로그 글 작성</h2>
+                        </div>
+                        <div class="card-body">
+                            <form id="blog-post-form">
+                                <div class="form-group">
+                                    <label for="post-title">제목 *</label>
+                                    <input type="text" class="form-control" id="post-title" placeholder="블로그 글 제목을 입력하세요" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="post-content">내용 *</label>
+                                    <textarea class="form-control" id="post-content" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="post-excerpt">요약 (선택사항)</label>
+                                    <textarea class="form-control" id="post-excerpt" rows="3" 
+                                    placeholder="블로그 글의 요약을 입력하세요. 메인 페이지에서 보여집니다."></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary" id="save-post">
+                                        <i class="fas fa-save"></i> 저장하기
+                                    </button>
+                                    <button type="button" class="btn btn-outline" id="save-draft">
+                                        <i class="fas fa-file"></i> 임시저장
+                                    </button>
+                                    <a href="admin-blog.html" class="btn btn-outline">
+                                        <i class="fas fa-times"></i> 취소
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="column-side">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>게시 설정</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="post-status">상태</label>
+                                <select class="form-control" id="post-status">
+                                    <option value="draft">임시저장</option>
+                                    <option value="published">게시</option>
+                                    <option value="scheduled">예약게시</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group" id="schedule-date-group" style="display: none;">
+                                <label for="schedule-date">게시 일시</label>
+                                <input type="datetime-local" class="form-control" id="schedule-date">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="post-category">카테고리 *</label>
+                                <select class="form-control" id="post-category" required>
+                                    <option value="">카테고리 선택</option>
+                                    <option value="누수 탐지">누수 탐지</option>
+                                    <option value="누수 수리">누수 수리</option>
+                                    <option value="피해 복구">피해 복구</option>
+                                    <option value="비용 문의">비용 문의</option>
+                                    <option value="누수 대처">누수 대처</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="post-tags">태그</label>
+                                <input type="text" class="form-control" id="post-tags" placeholder="쉼표로 구분하여 입력">
+                                <div id="tags-container" class="tags-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>대표 이미지</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="featured-image">썸네일 이미지</label>
+                                <input type="file" class="form-control" id="featured-image" accept="image/*">
+                                <div id="image-preview" class="img-preview">
+                                    <p>이미지 미리보기</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="side-info">
+                        <h3>작성 팁</h3>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 제목은 명확하고 간결하게 작성하세요.</li>
+                            <li><i class="fas fa-check"></i> 이미지를 활용하여 내용을 더 풍부하게 표현하세요.</li>
+                            <li><i class="fas fa-check"></i> 태그를 적절히 사용하여 검색성을 높이세요.</li>
+                            <li><i class="fas fa-check"></i> 요약은 핵심 내용을 담아 작성하세요.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Summernote JS -->
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+    <!-- Admin JS -->
+    <script src="js/admin.js"></script>
+    <!-- Page Specific Script -->
+    <script>
+        $(document).ready(function() {
+            // 에디터 초기화
+            $('#post-content').summernote({
+                placeholder: '블로그 내용을 작성하세요...',
+                tabsize: 2,
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture', 'video']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                callbacks: {
+                    onImageUpload: function(files) {
+                        // 이미지 업로드 로직 구현
+                        for(let i = 0; i < files.length; i++) {
+                            // 실제 구현에서는 서버에 업로드하고 URL을 받아와야 함
+                            const reader = new FileReader();
+                            reader.onloadend = function() {
+                                const img = document.createElement('img');
+                                img.src = reader.result;
+                                $('#post-content').summernote('insertNode', img);
+                            }
+                            reader.readAsDataURL(files[i]);
+                        }
+                    }
+                }
+            });
+            
+            // 상태에 따라 예약 일시 표시/숨김
+            $('#post-status').change(function() {
+                if($(this).val() === 'scheduled') {
+                    $('#schedule-date-group').show();
+                } else {
+                    $('#schedule-date-group').hide();
+                }
+            });
+            
+            // 대표 이미지 미리보기
+            $('#featured-image').change(function() {
+                const file = this.files[0];
+                if(file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#image-preview').html('<img src="' + e.target.result + '" alt="미리보기">');
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // 태그 처리
+            $('#post-tags').on('keydown', function(e) {
+                if(e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    const tagValue = $(this).val().trim();
+                    if(tagValue) {
+                        addTag(tagValue);
+                        $(this).val('');
+                    }
+                }
+            });
+            
+            // 태그 추가 함수
+            function addTag(text) {
+                const tag = $(`
+                    <div class="tag">
+                        ${text}
+                        <span class="remove-tag">×</span>
+                    </div>
+                `);
+                
+                tag.find('.remove-tag').on('click', function() {
+                    $(this).parent().remove();
+                });
+                
+                $('#tags-container').append(tag);
+            }
+            
+            // 폼 제출
+            $('#blog-post-form').submit(function(e) {
+                e.preventDefault();
+                
+                // 폼 데이터 수집
+                const postData = {
+                    title: $('#post-title').val(),
+                    content: $('#post-content').summernote('code'),
+                    excerpt: $('#post-excerpt').val(),
+                    status: $('#post-status').val(),
+                    category: $('#post-category').val(),
+                    tags: getTags(),
+                    scheduledDate: $('#schedule-date').val(),
+                    // featured image는 실제 구현에서 파일 업로드 후 URL을 저장
+                };
+                
+                // 데이터 검증
+                if(!postData.title) {
+                    alert('제목을 입력해주세요.');
+                    return;
+                }
+                
+                if(!postData.content) {
+                    alert('내용을 입력해주세요.');
+                    return;
+                }
+                
+                if(!postData.category) {
+                    alert('카테고리를 선택해주세요.');
+                    return;
+                }
+                
+                // 서버에 데이터 전송 (실제 구현 필요)
+                console.log('저장할 데이터:', postData);
+                alert('글이 저장되었습니다.');
+                
+                // 저장 후 블로그 관리 페이지로 이동
+                window.location.href = 'admin-blog.html';
+            });
+            
+            // 임시저장 버튼
+            $('#save-draft').click(function() {
+                $('#post-status').val('draft');
+                $('#blog-post-form').submit();
+            });
+            
+            // 태그 배열 가져오기
+            function getTags() {
+                const tags = [];
+                $('#tags-container .tag').each(function() {
+                    tags.push($(this).text().replace('×', '').trim());
+                });
+                return tags;
+            }
+        });
+    </script>
+</body>
+</html> 
