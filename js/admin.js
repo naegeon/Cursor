@@ -1193,10 +1193,10 @@ function openInquiryModal(inquiryId) {
     
     // 모달 내용 업데이트
     document.getElementById('inquiry-name').textContent = inquiry.name;
-    document.getElementById('inquiry-contact').textContent = inquiry.phone;
+    document.getElementById('inquiry-phone').textContent = inquiry.phone;
     document.getElementById('inquiry-date').textContent = formattedDate;
     document.getElementById('inquiry-status').innerHTML = statusBadge;
-    document.getElementById('inquiry-title').textContent = inquiry.title || inquiry.subject || '제목 없음';
+    document.getElementById('modal-title').textContent = '무료 상담 신청 상세 정보: ' + (inquiry.subject || '제목 없음');
     document.getElementById('inquiry-message').textContent = inquiry.message || inquiry.content;
     
     // 이미지 표시
