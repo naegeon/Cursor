@@ -170,48 +170,58 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             // 폼 데이터 수집
-            const name = document.getElementById('name').value;
-            const phone = document.getElementById('phone').value;
-            const subject = document.getElementById('subject').value;
-            const message = document.getElementById('message').value;
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const subject = document.getElementById('subject').value.trim();
+            const message = document.getElementById('message').value.trim();
             
-            // 이미지 처리
-            const imagePreview = document.getElementById('image-preview');
-            const images = [];
+            // 이미지 수집
+            const imagePreviewContainer = document.querySelector('.image-preview-container');
+            let images = [];
             
-            if (imagePreview && imagePreview.querySelectorAll('.preview-image')) {
-                imagePreview.querySelectorAll('.preview-image').forEach(img => {
+            if (imagePreviewContainer) {
+                const previewImages = imagePreviewContainer.querySelectorAll('img');
+                previewImages.forEach(img => {
                     images.push(img.src);
                 });
             }
             
             // 문의 객체 생성
             const inquiry = {
-                id: 'inq_' + Date.now(),
-                date: new Date().toISOString().slice(0, 10),
+                id: Date.now().toString(), // 고유 ID 생성
+                date: new Date().toISOString(), // 현재 날짜 및 시간
                 name: name,
                 phone: phone,
-                title: subject,
-                content: message,
-                status: 'new',
+                subject: subject,
+                message: message,
+                status: '대기중', // 초기 상태
                 images: images,
-                response: ''
+                response: '' // 응답 초기화
             };
             
-            // localStorage에 저장
+            // 로컬 스토리지에 저장
             let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
             inquiries.push(inquiry);
             localStorage.setItem('inquiries', JSON.stringify(inquiries));
             
-            // 폼 초기화 및 성공 메시지 표시
-            contactForm.reset();
-            document.getElementById('image-preview').innerHTML = '';
-            document.getElementById('form-success').style.display = 'block';
+            // 폼 초기화
+            this.reset();
             
-            // 성공 메시지 5초 후 숨김
-            setTimeout(function() {
-                document.getElementById('form-success').style.display = 'none';
-            }, 5000);
+            // 이미지 미리보기 초기화
+            if (imagePreviewContainer) {
+                imagePreviewContainer.innerHTML = '';
+            }
+            
+            // 성공 메시지 표시
+            const successMessage = document.querySelector('.form-success-message');
+            if (successMessage) {
+                successMessage.style.display = 'block';
+                
+                // 5초 후 메시지 숨기기
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 5000);
+            }
         });
     }
 }); 

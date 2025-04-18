@@ -1068,77 +1068,117 @@ function saveInquiry(inquiry) {
     localStorage.setItem('inquiries', JSON.stringify(inquiries));
 }
 
-// 문의 불러오기 함수
+// 문의 관리 초기화 - 페이지 로드 시 문의 목록을 표시
+function initInquiryManagement() {
+    // 문의 관리 페이지인지 확인
+    if (document.getElementById('inquiry-table')) {
+        // 문의 목록 로드
+        loadInquiries();
+        
+        // 새로고침 버튼 이벤트 리스너
+        const refreshBtn = document.getElementById('refresh-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', loadInquiries);
+        }
+        
+        // 모달 닫기 버튼 이벤트 리스너
+        const closeBtn = document.querySelector('.close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        const modal = document.getElementById('inquiry-modal');
+        if (modal) {
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        }
+    }
+}
+
+// 문의 목록 로드 함수
 function loadInquiries() {
-    const inquiryList = document.getElementById('inquiry-list');
-    if (!inquiryList) return;
+    const inquiriesTable = document.getElementById('inquiry-table');
+    if (!inquiriesTable) return;
     
-    const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
+    const tbody = inquiriesTable.querySelector('tbody');
+    tbody.innerHTML = '';
     
-    // 테이블 초기화
-    inquiryList.innerHTML = '';
+    // 로컬 스토리지에서 문의 데이터 가져오기
+    let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
     
-    // 문의가 없는 경우
+    // 문의가 없는 경우 메시지 표시
     if (inquiries.length === 0) {
-        inquiryList.innerHTML = '<tr><td colspan="6" class="text-center">등록된 문의가 없습니다.</td></tr>';
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" class="text-center">등록된 문의가 없습니다.</td>';
+        tbody.appendChild(tr);
         return;
     }
     
-    // 문의 목록 표시 (최신순)
-    inquiries.slice().reverse().forEach((inquiry, index) => {
-        const row = document.createElement('tr');
+    // 최신순으로 정렬 (날짜 내림차순)
+    inquiries.sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // 문의 목록 표시
+    inquiries.forEach((inquiry, index) => {
+        const tr = document.createElement('tr');
         
-        // 상태에 따른 배지 클래스 결정
-        let statusClass = '';
-        let statusText = '';
-        
+        // 상태에 따른 배지 색상 설정
+        let statusBadge = '';
         switch(inquiry.status) {
-            case 'new':
-                statusClass = 'status-new';
-                statusText = '신규';
+            case '대기중':
+                statusBadge = '<span class="badge badge-info">대기중</span>';
                 break;
-            case 'inprogress':
-                statusClass = 'status-inprogress';
-                statusText = '처리중';
+            case '처리중':
+                statusBadge = '<span class="badge badge-warning">처리중</span>';
                 break;
-            case 'resolved':
-                statusClass = 'status-resolved';
-                statusText = '해결됨';
+            case '완료':
+                statusBadge = '<span class="badge badge-success">완료</span>';
                 break;
             default:
-                statusClass = 'status-new';
-                statusText = '신규';
+                statusBadge = '<span class="badge badge-secondary">대기중</span>';
         }
         
-        row.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${inquiry.date}</td>
+        // 날짜 형식 변환
+        const date = new Date(inquiry.date);
+        const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+        tr.innerHTML = `
+            <td>${inquiries.length - index}</td>
+            <td>${formattedDate}</td>
             <td>${inquiry.name}</td>
             <td>${inquiry.title}</td>
-            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-            <td class="table-action">
-                <button class="btn view-btn" data-id="${inquiry.id}"><i class="fas fa-eye"></i> 보기</button>
-                <button class="btn delete-btn" data-id="${inquiry.id}"><i class="fas fa-trash"></i> 삭제</button>
+            <td>${statusBadge}</td>
+            <td>
+                <button class="btn btn-info btn-sm view-btn" data-id="${inquiry.id}">
+                    <i class="fas fa-eye"></i> 보기
+                </button>
+                <button class="btn btn-danger btn-sm delete-btn" data-id="${inquiry.id}">
+                    <i class="fas fa-trash"></i> 삭제
+                </button>
             </td>
         `;
-        inquiryList.appendChild(row);
+        
+        tbody.appendChild(tr);
     });
     
-    // 보기 버튼 이벤트 연결
-    const viewButtons = document.querySelectorAll('.view-btn');
-    viewButtons.forEach(button => {
-        button.addEventListener('click', function() {
+    // 보기 버튼 이벤트 리스너 추가
+    const viewBtns = document.querySelectorAll('.view-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
             const inquiryId = this.getAttribute('data-id');
             openInquiryModal(inquiryId);
         });
     });
     
-    // 삭제 버튼 이벤트 연결
-    const deleteButtons = document.querySelectorAll('.delete-btn');
-    deleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const inquiryId = this.getAttribute('data-id');
-            if (confirm('정말 이 문의를 삭제하시겠습니까?')) {
+    // 삭제 버튼 이벤트 리스너 추가
+    const deleteBtns = document.querySelectorAll('.delete-btn');
+    deleteBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (confirm('이 문의를 삭제하시겠습니까?')) {
+                const inquiryId = this.getAttribute('data-id');
                 deleteInquiry(inquiryId);
             }
         });
@@ -1147,106 +1187,170 @@ function loadInquiries() {
 
 // 문의 모달 열기 함수
 function openInquiryModal(inquiryId) {
+    // 로컬 스토리지에서 문의 데이터 가져오기
     const inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
-    const inquiry = inquiries.find(i => i.id === inquiryId);
+    const inquiry = inquiries.find(item => item.id === inquiryId);
     
     if (!inquiry) return;
     
-    // 모달 데이터 업데이트
-    document.getElementById('inquiry-date').textContent = inquiry.date;
-    document.getElementById('inquiry-name').textContent = inquiry.name;
-    document.getElementById('inquiry-phone').textContent = inquiry.phone || '연락처 없음';
-    document.getElementById('inquiry-title').textContent = inquiry.title;
-    document.getElementById('inquiry-content').textContent = inquiry.content;
+    const modal = document.getElementById('inquiry-modal');
+    const modalTitle = document.getElementById('inquiry-modal-title');
+    const modalContent = document.getElementById('inquiry-modal-content');
     
-    // 이미지 표시
-    const imagesContainer = document.getElementById('inquiry-images');
-    imagesContainer.innerHTML = '';
+    // 모달 제목 설정
+    modalTitle.textContent = inquiry.title;
     
+    // 날짜 형식 변환
+    const date = new Date(inquiry.date);
+    const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    
+    // 상태에 따른 배지 색상 설정
+    let statusBadge = '';
+    switch(inquiry.status) {
+        case '대기중':
+            statusBadge = '<span class="badge badge-info">대기중</span>';
+            break;
+        case '처리중':
+            statusBadge = '<span class="badge badge-warning">처리중</span>';
+            break;
+        case '완료':
+            statusBadge = '<span class="badge badge-success">완료</span>';
+            break;
+        default:
+            statusBadge = '<span class="badge badge-secondary">대기중</span>';
+    }
+    
+    // 모달 내용 설정
+    modalContent.innerHTML = `
+        <div class="inquiry-meta mb-3">
+            <div><strong>이름:</strong> ${inquiry.name}</div>
+            <div><strong>날짜:</strong> ${formattedDate}</div>
+            <div><strong>상태:</strong> ${statusBadge}</div>
+            <div><strong>연락처:</strong> ${inquiry.phone || '없음'}</div>
+        </div>
+        
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">문의 내용</h5>
+            </div>
+            <div class="card-body">
+                <p>${inquiry.content.replace(/\n/g, '<br>')}</p>
+            </div>
+        </div>
+    `;
+    
+    // 이미지가 있는 경우 이미지 표시
     if (inquiry.images && inquiry.images.length > 0) {
-        inquiry.images.forEach(imgSrc => {
-            const img = document.createElement('img');
-            img.src = imgSrc;
-            img.alt = '첨부 이미지';
-            img.className = 'inquiry-image';
-            imagesContainer.appendChild(img);
+        let imagesHtml = `
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="mb-0">첨부 이미지</h5>
+                </div>
+                <div class="card-body">
+                    <div class="inquiry-images d-flex flex-wrap">
+        `;
+        
+        inquiry.images.forEach(image => {
+            imagesHtml += `<img src="${image}" alt="첨부 이미지" class="img-thumbnail m-1" style="max-width: 150px; max-height: 150px;">`;
         });
-    } else {
-        imagesContainer.innerHTML = '<p>첨부된 이미지가 없습니다.</p>';
-    }
-    
-    // 응답 표시
-    if (document.getElementById('response-text')) {
-        document.getElementById('response-text').value = inquiry.response || '';
-    }
-    
-    // 상태에 따른 UI 조정
-    const statusDisplay = document.getElementById('inquiry-status');
-    if (statusDisplay) {
-        let statusClass = '';
-        let statusText = '';
         
-        switch(inquiry.status) {
-            case 'new':
-                statusClass = 'status-new';
-                statusText = '신규';
-                break;
-            case 'inprogress':
-                statusClass = 'status-inprogress';
-                statusText = '처리중';
-                break;
-            case 'resolved':
-                statusClass = 'status-resolved';
-                statusText = '해결됨';
-                break;
-            default:
-                statusClass = 'status-new';
-                statusText = '신규';
-        }
+        imagesHtml += `
+                    </div>
+                </div>
+            </div>
+        `;
         
-        statusDisplay.className = `status-badge ${statusClass}`;
-        statusDisplay.textContent = statusText;
+        modalContent.innerHTML += imagesHtml;
     }
     
-    // 저장 버튼 이벤트 연결
-    const saveButton = document.getElementById('save-response');
-    if (saveButton) {
-        saveButton.onclick = function() {
-            saveInquiryResponse(inquiryId);
-        };
-    }
+    // 응답 폼 추가
+    modalContent.innerHTML += `
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">답변</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <textarea class="form-control" id="response-text" rows="4" placeholder="답변을 입력하세요...">${inquiry.response || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-primary" id="save-response-btn" data-id="${inquiry.id}">답변 저장</button>
+                </div>
+            </div>
+        </div>
+    `;
     
     // 모달 표시
-    document.getElementById('inquiry-modal').style.display = 'block';
+    modal.style.display = 'block';
+    
+    // 답변 저장 버튼 이벤트 리스너 추가
+    const saveResponseBtn = document.getElementById('save-response-btn');
+    saveResponseBtn.addEventListener('click', function() {
+        const inquiryId = this.getAttribute('data-id');
+        saveInquiryResponse(inquiryId);
+    });
 }
 
-// 문의 응답 저장 함수
+// 문의 답변 저장 함수
 function saveInquiryResponse(inquiryId) {
-    const response = document.getElementById('response-text').value;
+    const responseText = document.getElementById('response-text').value.trim();
     
+    // 로컬 스토리지에서 문의 데이터 가져오기
     let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
-    const index = inquiries.findIndex(i => i.id === inquiryId);
+    const inquiryIndex = inquiries.findIndex(item => item.id === inquiryId);
     
-    if (index !== -1) {
-        inquiries[index].response = response;
-        inquiries[index].status = 'resolved';
-        localStorage.setItem('inquiries', JSON.stringify(inquiries));
-        
-        alert('응답이 저장되었습니다.');
-        closeModal();
-        loadInquiries();
-    }
+    if (inquiryIndex === -1) return;
+    
+    // 답변 및 상태 업데이트
+    inquiries[inquiryIndex].response = responseText;
+    inquiries[inquiryIndex].status = responseText ? '완료' : '대기중';
+    
+    // 로컬 스토리지에 저장
+    localStorage.setItem('inquiries', JSON.stringify(inquiries));
+    
+    // 모달 닫기 및 목록 새로고침
+    alert('답변이 저장되었습니다.');
+    closeModal();
+    loadInquiries();
 }
 
 // 문의 삭제 함수
 function deleteInquiry(inquiryId) {
+    // 로컬 스토리지에서 문의 데이터 가져오기
     let inquiries = JSON.parse(localStorage.getItem('inquiries')) || [];
-    inquiries = inquiries.filter(i => i.id !== inquiryId);
+    
+    // 문의 삭제
+    inquiries = inquiries.filter(item => item.id !== inquiryId);
+    
+    // 로컬 스토리지에 저장
     localStorage.setItem('inquiries', JSON.stringify(inquiries));
+    
+    // 목록 새로고침
     loadInquiries();
 }
 
 // 모달 닫기 함수
 function closeModal() {
-    document.getElementById('inquiry-modal').style.display = 'none';
-} 
+    const modal = document.getElementById('inquiry-modal');
+    modal.style.display = 'none';
+}
+
+// 문서 로드 시 실행
+document.addEventListener('DOMContentLoaded', function() {
+    // ... existing code ...
+    
+    // 문의 관리 초기화
+    initInquiryManagement();
+    
+    // 모바일 사이드바 토글
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
+            
+            sidebar.classList.toggle('active');
+            mainContent.classList.toggle('sidebar-active');
+        });
+    }
+}); 

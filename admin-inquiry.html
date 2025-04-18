@@ -5,93 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문의 관리 - 관리자</title>
     <meta name="description" content="문의 관리 관리자 페이지">
-    <!-- 폰트 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
+    <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- 주요 스타일 -->
     <style>
-        :root {
-            --primary-color: #4CAF50;
-            --secondary-color: #2E8B57;
-            --light-color: #E8F5E9;
-            --dark-color: #1B5E20;
-            --danger-color: #F44336;
-            --warning-color: #FFC107;
-            --success-color: #8BC34A;
-            --info-color: #2196F3;
-            --gray-color: #f4f6f9;
-            --dark-gray: #343a40;
-            --text-color: #333;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: #f4f6f9;
-            color: var(--text-color);
+        /* 사이드바 스타일 */
+        .admin-container {
             display: flex;
             min-height: 100vh;
         }
         
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        ul {
-            list-style: none;
-        }
-        
-        /* 사이드바 */
         .sidebar {
             width: 250px;
-            background: var(--dark-gray);
+            background-color: #2c3e50;
             color: #fff;
+            padding: 20px 0;
             transition: all 0.3s;
-            position: fixed;
-            height: 100%;
-            z-index: 100;
         }
         
-        .sidebar-brand {
-            padding: 20px 15px;
-            font-size: 1.5rem;
-            font-weight: 700;
+        .sidebar-header {
+            padding: 0 20px 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            margin: 0;
+            font-size: 1.5rem;
         }
         
         .sidebar-menu {
             padding: 20px 0;
         }
         
-        .sidebar-item {
-            padding: 10px 20px;
+        .sidebar-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
             margin-bottom: 5px;
+        }
+        
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: #fff;
+            text-decoration: none;
             transition: all 0.3s;
         }
         
-        .sidebar-item:hover, .sidebar-item.active {
-            background: rgba(255,255,255,0.1);
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background-color: rgba(255,255,255,0.1);
         }
         
-        .sidebar-item i {
+        .sidebar-menu i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
         }
         
-        /* 메인 콘텐츠 */
+        /* 메인 콘텐츠 스타일 */
         .main-content {
-            margin-left: 250px;
             flex: 1;
             padding: 20px;
-            transition: all 0.3s;
+            background-color: #f5f5f5;
+            overflow-x: auto;
         }
         
         .main-header {
@@ -99,196 +77,229 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            background: #fff;
+            background-color: #fff;
             padding: 15px 20px;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .page-title {
+            margin: 0;
             font-size: 1.5rem;
-            font-weight: 700;
+            color: #333;
         }
         
-        .search-bar {
+        .action-buttons {
             display: flex;
-            align-items: center;
+            gap: 10px;
         }
         
-        .search-input {
+        .btn {
             padding: 8px 15px;
-            border: 1px solid #ddd;
+            border: none;
             border-radius: 4px;
-            margin-right: 10px;
-        }
-        
-        .filter-btn {
-            padding: 8px 15px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-right: 5px;
             cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s;
         }
         
-        .filter-btn:hover, .filter-btn.active {
-            background: var(--light-color);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+        .btn i {
+            margin-right: 5px;
         }
         
-        /* 테이블 */
-        .card {
-            background: #fff;
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 20px;
+        .primary-btn {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .search-form {
+            display: flex;
             margin-bottom: 20px;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .search-form input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
         }
         
-        th, td {
+        .search-form button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        
+        /* 테이블 스타일 */
+        .inquiry-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .inquiry-table th, .inquiry-table td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
         
-        th {
+        .inquiry-table th {
             background-color: #f8f9fa;
             font-weight: 600;
-        }
-        
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            text-align: center;
-        }
-        
-        .status-new {
-            background-color: var(--info-color);
-            color: white;
-        }
-        
-        .status-progress {
-            background-color: var(--warning-color);
             color: #333;
         }
         
-        .status-resolved {
-            background-color: var(--success-color);
-            color: white;
+        .inquiry-table tr:last-child td {
+            border-bottom: none;
         }
         
-        .btn {
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-            margin-right: 5px;
+        .inquiry-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-waiting {
+            background-color: #ffeaa7;
+            color: #d35400;
+        }
+        
+        .status-completed {
+            background-color: #a3ffb3;
+            color: #007e33;
+        }
+        
+        .action-cell {
+            width: 120px;
         }
         
         .view-btn {
-            background-color: var(--info-color);
+            padding: 5px 10px;
+            background-color: #3498db;
             color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 5px;
         }
         
         .delete-btn {
-            background-color: var(--danger-color);
+            padding: 5px 10px;
+            background-color: #e74c3c;
             color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
         
-        .btn:hover {
-            opacity: 0.8;
-        }
-        
-        /* 모달 */
+        /* 모달 스타일 */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            overflow-y: auto;
         }
         
         .modal-content {
             background-color: #fff;
-            margin: 5% auto;
+            margin: 50px auto;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             width: 80%;
-            max-width: 700px;
-            position: relative;
+            max-width: 800px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-title {
+            margin: 0;
+            font-size: 1.5rem;
         }
         
         .close-btn {
-            position: absolute;
-            right: 20px;
-            top: 20px;
+            background: none;
+            border: none;
             font-size: 1.5rem;
             cursor: pointer;
-        }
-        
-        .inquiry-detail {
-            margin-bottom: 20px;
-        }
-        
-        .inquiry-detail h3 {
-            margin-bottom: 15px;
-            border-bottom: 1px solid #ddd;
-            padding-bottom: 10px;
-        }
-        
-        .inquiry-detail p {
-            margin-bottom: 10px;
-        }
-        
-        .inquiry-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
             color: #777;
-            margin-bottom: 15px;
         }
         
-        .inquiry-content {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 5px;
+        .inquiry-details {
             margin-bottom: 20px;
-            white-space: pre-line;
+        }
+        
+        .inquiry-details h4 {
+            margin: 15px 0 5px;
+            color: #555;
+        }
+        
+        .inquiry-details p {
+            margin: 5px 0;
+        }
+        
+        .inquiry-message {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
         }
         
         .inquiry-images {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
             margin-bottom: 20px;
         }
         
-        .inquiry-image {
-            width: 100px;
-            height: 100px;
+        .inquiry-images .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .inquiry-images .image-item {
+            width: 150px;
+            height: 150px;
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
         }
         
         .response-form {
             margin-top: 20px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
         }
         
         .response-form textarea {
@@ -296,167 +307,139 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 10px;
-            height: 120px;
+            min-height: 120px;
+            margin-bottom: 15px;
+            font-family: inherit;
+            resize: vertical;
         }
         
-        .save-response-btn {
-            background-color: var(--primary-color);
+        .response-form button {
+            padding: 10px 20px;
+            background-color: #2ecc71;
             color: white;
-            padding: 8px 16px;
-        }
-        
-        /* 햄버거 메뉴 (모바일용) */
-        .menu-toggle {
-            display: none;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 200;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
+            font-size: 14px;
         }
         
-        .menu-toggle span {
-            display: block;
-            width: 25px;
-            height: 3px;
-            background-color: var(--dark-gray);
-            margin-bottom: 5px;
-            transition: all 0.3s;
+        .response-form button:hover {
+            background-color: #27ae60;
+        }
+        
+        .no-inquiries {
+            text-align: center;
+            padding: 40px 0;
+            color: #777;
         }
         
         /* 반응형 스타일 */
         @media (max-width: 768px) {
+            .admin-container {
+                flex-direction: column;
+            }
+            
             .sidebar {
-                transform: translateX(-100%);
-                width: 80%;
-                max-width: 250px;
+                width: 100%;
+                margin-bottom: 20px;
+                display: none;
             }
             
             .sidebar.active {
-                transform: translateX(0);
-            }
-            
-            .main-content {
-                margin-left: 0;
-                padding: 60px 15px 15px;
-            }
-            
-            .menu-toggle {
                 display: block;
             }
             
-            .menu-toggle.active span:nth-child(1) {
-                transform: rotate(45deg) translate(5px, 5px);
-            }
-            
-            .menu-toggle.active span:nth-child(2) {
-                opacity: 0;
-            }
-            
-            .menu-toggle.active span:nth-child(3) {
-                transform: rotate(-45deg) translate(5px, -5px);
+            .main-content {
+                padding: 10px;
             }
             
             .main-header {
                 flex-direction: column;
                 align-items: flex-start;
+                gap: 10px;
             }
             
-            .search-bar {
-                margin-top: 15px;
-                width: 100%;
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
             }
             
-            .search-input {
-                flex: 1;
+            .inquiry-table {
+                font-size: 14px;
             }
             
-            table {
-                font-size: 0.9rem;
+            .inquiry-table th, .inquiry-table td {
+                padding: 8px 10px;
             }
             
-            .inquiry-images {
-                gap: 5px;
-            }
-            
-            .inquiry-image {
+            .action-cell {
                 width: 80px;
-                height: 80px;
+            }
+            
+            .view-btn, .delete-btn {
+                padding: 3px 6px;
+                font-size: 12px;
+            }
+            
+            .sidebar-toggle {
+                display: block;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* 토글 버튼 */
+        .sidebar-toggle {
+            display: none;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: block;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 햄버거 메뉴 (모바일용) -->
-    <div class="menu-toggle">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
-    
-    <!-- 사이드바 -->
-    <div class="sidebar">
-        <div class="sidebar-brand">
-            <a href="index.html">집꾸미다 관리자</a>
-        </div>
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="admin-menu.html">
-                    <i class="fas fa-tachometer-alt"></i> 대시보드
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="admin-blog.html">
-                    <i class="fas fa-blog"></i> 블로그 관리
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="admin-blog-category.html">
-                    <i class="fas fa-tags"></i> 블로그 카테고리/태그
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="admin-qna.html">
-                    <i class="fas fa-question-circle"></i> Q&A 관리
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="admin-qna-category.html">
-                    <i class="fas fa-folder"></i> Q&A 카테고리/태그
-                </a>
-            </li>
-            <li class="sidebar-item active">
-                <a href="admin-inquiry.html">
-                    <i class="fas fa-envelope"></i> 문의 관리
-                </a>
-            </li>
-            <li class="sidebar-item">
-                <a href="#" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> 로그아웃
-                </a>
-            </li>
-        </ul>
-    </div>
-    
-    <!-- 메인 콘텐츠 -->
-    <div class="main-content">
-        <div class="main-header">
-            <h1 class="page-title">문의 관리</h1>
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="검색어를 입력하세요..." id="inquiry-search">
-                <button class="filter-btn active" data-status="all">전체</button>
-                <button class="filter-btn" data-status="new">신규</button>
-                <button class="filter-btn" data-status="progress">진행중</button>
-                <button class="filter-btn" data-status="resolved">해결됨</button>
+    <div class="admin-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>관리자 패널</h3>
             </div>
-        </div>
+            <div class="sidebar-menu">
+                <ul>
+                    <li><a href="admin-dashboard.html"><i class="fas fa-tachometer-alt"></i> 대시보드</a></li>
+                    <li><a href="admin-blog.html"><i class="fas fa-blog"></i> 블로그 관리</a></li>
+                    <li><a href="admin-blog-category.html"><i class="fas fa-folder"></i> 블로그 카테고리</a></li>
+                    <li><a href="admin-qna.html"><i class="fas fa-question-circle"></i> Q&A 관리</a></li>
+                    <li><a href="admin-qna-category.html"><i class="fas fa-folder"></i> Q&A 카테고리</a></li>
+                    <li><a href="admin-inquiry.html" class="active"><i class="fas fa-envelope"></i> 문의 관리</a></li>
+                    <li><a href="index.html" target="_blank"><i class="fas fa-home"></i> 사이트로 이동</a></li>
+                    <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> 로그아웃</a></li>
+                </ul>
+            </div>
+        </nav>
         
-        <div class="card">
-            <table id="inquiry-table">
+        <div class="main-content">
+            <div class="main-header">
+                <h1 class="page-title">문의 관리</h1>
+                <div class="action-buttons">
+                    <button class="btn primary-btn" id="refresh-btn">
+                        <i class="fas fa-sync-alt"></i> 새로고침
+                    </button>
+                </div>
+            </div>
+            
+            <table class="inquiry-table" id="inquiry-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>번호</th>
                         <th>날짜</th>
                         <th>이름</th>
                         <th>제목</th>
@@ -465,41 +448,42 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- 여기에 동적으로 문의 목록이 추가됩니다 -->
+                    <!-- 문의 항목이 동적으로 추가될 위치 -->
                 </tbody>
             </table>
         </div>
     </div>
     
-    <!-- 문의 상세 모달 -->
+    <!-- 문의 세부 정보 모달 -->
     <div id="inquiry-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div class="inquiry-detail">
-                <h3 id="modal-title">문의 제목</h3>
-                <div class="inquiry-meta">
-                    <span id="modal-name-date">이름 (날짜)</span>
-                    <span id="modal-status">상태</span>
-                </div>
-                <p><strong>연락처:</strong> <span id="modal-phone"></span></p>
-                <h4>문의 내용:</h4>
-                <div id="modal-content" class="inquiry-content"></div>
-                
-                <div id="modal-images" class="inquiry-images">
-                    <!-- 여기에 동적으로 이미지가 추가됩니다 -->
-                </div>
-                
-                <div class="response-form">
-                    <h4>답변:</h4>
-                    <textarea id="response-text" placeholder="답변을 입력하세요..."></textarea>
-                    <button class="btn save-response-btn" id="save-response-btn">답변 저장</button>
-                </div>
+            <div class="modal-header">
+                <h2 id="inquiry-modal-title"></h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body" id="inquiry-modal-content">
+                <!-- 문의 세부 정보가 동적으로 추가될 위치 -->
             </div>
         </div>
     </div>
-    
-    <!-- jQuery와 admin.js -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- jQuery와 admin.js 로드 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="js/admin.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 관리자 인증 체크
+            checkAdminAuth();
+            
+            // 사이드바 초기화
+            initSidebar();
+            
+            // 로그아웃 기능 초기화
+            initLogout();
+            
+            // 문의 관리 초기화
+            initInquiryManagement();
+        });
+    </script>
 </body>
 </html> 
