@@ -533,5 +533,123 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Main JS -->
     <script src="js/main.js"></script>
+    
+    <!-- Page Specific Script -->
+    <script>
+        $(document).ready(function() {
+            // URL에서 게시물 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = urlParams.get('id');
+            
+            if (!postId) {
+                // ID가 없으면 블로그 메인 페이지로 리디렉션
+                window.location.href = 'blog.html';
+                return;
+            }
+            
+            // 로컬 스토리지에서 게시물 데이터 가져오기
+            function loadPostData() {
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const post = blogPosts.find(p => p.id == postId);
+                
+                if (!post || post.status !== 'published') {
+                    // 게시물이 없거나 발행되지 않은 상태면 블로그 메인 페이지로 리디렉션
+                    window.location.href = 'blog.html';
+                    return;
+                }
+                
+                // 페이지 제목 업데이트
+                document.title = `${post.title} | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체`;
+                
+                // 페이지 헤더 업데이트
+                $('.page-title').text(post.title);
+                $('.breadcrumb ol').html(`
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li>${post.title}</li>
+                `);
+                
+                // 게시물 내용 업데이트
+                $('.post-category').text(post.category);
+                $('.post-title').text(post.title);
+                $('.post-date').html(`<i class="fas fa-calendar-alt"></i> ${post.date}`);
+                $('.post-author').html(`<i class="fas fa-user"></i> ${post.author}`);
+                $('.post-views').html(`<i class="fas fa-eye"></i> ${post.views || 0} 조회`);
+                
+                // 썸네일 이미지 설정
+                const thumbnailSrc = post.thumbnailSrc || 'images/blog-default.jpg';
+                $('.post-featured-image img').attr('src', thumbnailSrc).attr('alt', post.title);
+                
+                // 게시물 내용 설정
+                $('.post-content').html(post.content);
+                
+                // 태그 설정
+                if (post.tags && post.tags.length) {
+                    const tagList = $('.tag-list');
+                    tagList.empty();
+                    post.tags.forEach(tag => {
+                        tagList.append(`<a href="blog.html?tag=${encodeURIComponent(tag)}" class="tag">${tag}</a>`);
+                    });
+                } else {
+                    $('.post-tags').hide();
+                }
+                
+                // 조회수 증가 및 저장
+                updateViewCount(post);
+                
+                // 이전/다음 게시물 설정
+                setupPostNavigation(blogPosts, post);
+            }
+            
+            // 조회수 증가 및 저장
+            function updateViewCount(post) {
+                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const postIndex = blogPosts.findIndex(p => p.id == post.id);
+                
+                if (postIndex !== -1) {
+                    // 조회수 증가
+                    post.views = (post.views || 0) + 1;
+                    blogPosts[postIndex] = post;
+                    localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+                    
+                    // 화면에 업데이트된 조회수 표시
+                    $('.post-views').html(`<i class="fas fa-eye"></i> ${post.views} 조회`);
+                }
+            }
+            
+            // 이전/다음 게시물 설정
+            function setupPostNavigation(blogPosts, currentPost) {
+                // 발행된 게시물만 필터링하고 날짜순으로 정렬
+                const publishedPosts = blogPosts.filter(p => p.status === 'published')
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // 현재 게시물의 인덱스 찾기
+                const currentIndex = publishedPosts.findIndex(p => p.id == currentPost.id);
+                
+                // 이전 게시물
+                if (currentIndex < publishedPosts.length - 1) {
+                    const prevPost = publishedPosts[currentIndex + 1];
+                    $('.post-nav-previous .post-nav-title').html(`
+                        <a href="blog-view.html?id=${prevPost.id}">${prevPost.title}</a>
+                    `);
+                } else {
+                    $('.post-nav-previous').hide();
+                }
+                
+                // 다음 게시물
+                if (currentIndex > 0) {
+                    const nextPost = publishedPosts[currentIndex - 1];
+                    $('.post-nav-next .post-nav-title').html(`
+                        <a href="blog-view.html?id=${nextPost.id}">${nextPost.title}</a>
+                    `);
+                } else {
+                    $('.post-nav-next').hide();
+                }
+            }
+            
+            // 게시물 로드
+            loadPostData();
+        });
+    </script>
 </body>
 </html> 
