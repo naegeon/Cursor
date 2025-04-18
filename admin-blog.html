@@ -710,9 +710,9 @@
                                     <td>1,245</td>
                                     <td>
                                         <div class="table-actions">
-                                            <div class="action-icon view-btn">
+                                            <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                                 <i class="fas fa-eye"></i>
-                                            </div>
+                                            </a>
                                             <div class="action-icon edit-btn">
                                                 <i class="fas fa-edit"></i>
                                             </div>
@@ -731,9 +731,9 @@
                                     <td>987</td>
                                     <td>
                                         <div class="table-actions">
-                                            <div class="action-icon view-btn">
+                                            <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                                 <i class="fas fa-eye"></i>
-                                            </div>
+                                            </a>
                                             <div class="action-icon edit-btn">
                                                 <i class="fas fa-edit"></i>
                                             </div>
@@ -752,9 +752,9 @@
                                     <td>1,520</td>
                                     <td>
                                         <div class="table-actions">
-                                            <div class="action-icon view-btn">
+                                            <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                                 <i class="fas fa-eye"></i>
-                                            </div>
+                                            </a>
                                             <div class="action-icon edit-btn">
                                                 <i class="fas fa-edit"></i>
                                             </div>
@@ -773,9 +773,9 @@
                                     <td>0</td>
                                     <td>
                                         <div class="table-actions">
-                                            <div class="action-icon view-btn">
+                                            <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                                 <i class="fas fa-eye"></i>
-                                            </div>
+                                            </a>
                                             <div class="action-icon edit-btn">
                                                 <i class="fas fa-edit"></i>
                                             </div>
@@ -794,9 +794,9 @@
                                     <td>763</td>
                                     <td>
                                         <div class="table-actions">
-                                            <div class="action-icon view-btn">
+                                            <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                                 <i class="fas fa-eye"></i>
-                                            </div>
+                                            </a>
                                             <div class="action-icon edit-btn">
                                                 <i class="fas fa-edit"></i>
                                             </div>
@@ -942,9 +942,9 @@
                             <td>${post.views || 0}</td>
                             <td>
                                 <div class="table-actions">
-                                    <div class="action-icon view-btn" onclick="viewPost(${post.id})">
+                                    <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                         <i class="fas fa-eye"></i>
-                                    </div>
+                                    </a>
                                     <div class="action-icon edit-btn" onclick="editPost(${post.id})">
                                         <i class="fas fa-edit"></i>
                                     </div>
@@ -1009,39 +1009,10 @@
             }
             
             // 게시물 보기 함수
-            window.viewPost = function(id) {
-                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                const post = blogPosts.find(post => post.id === id);
-                
-                if (post) {
-                    // 모달에 데이터 채우기
-                    $('#modal-title').text(post.title);
-                    $('#modal-category').text(post.category);
-                    $('#modal-date').text(post.date);
-                    $('#modal-author').text(post.author);
-                    $('#modal-content').html(post.content);
-                    $('#modal-tags').text(post.tags.join(', '));
-                    
-                    // 수정 버튼 이벤트
-                    $('#modal-edit').off('click').on('click', function() {
-                        window.location.href = `admin-blog-write.html?id=${id}`;
-                    });
-                    
-                    // 모달 표시
-                    $('#post-view-modal').fadeIn();
-                    
-                    // 조회수 증가 및 저장
-                    post.views += 1;
-                    const postIndex = blogPosts.findIndex(p => p.id === id);
-                    blogPosts[postIndex] = post;
-                    localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
-                    
-                    // 테이블에서 조회수 업데이트
-                    $(`tr[data-id="${id}"] td:nth-child(6)`).text(post.views);
-                } else {
-                    alert('게시물을 찾을 수 없습니다.');
-                }
-            };
+            function viewPost(postId) {
+                // Redirect to the view page instead of showing a modal
+                window.location.href = `admin-blog-view.html?id=${postId}`;
+            }
             
             // 모달 닫기
             $('.close, #modal-close').click(function() {
@@ -1132,9 +1103,9 @@
                             <td>${post.views || 0}</td>
                             <td>
                                 <div class="table-actions">
-                                    <div class="action-icon view-btn" onclick="viewPost(${post.id})">
+                                    <a href="admin-blog-view.html?id=${post.id}" class="btn view-btn">
                                         <i class="fas fa-eye"></i>
-                                    </div>
+                                    </a>
                                     <div class="action-icon edit-btn" onclick="editPost(${post.id})">
                                         <i class="fas fa-edit"></i>
                                     </div>

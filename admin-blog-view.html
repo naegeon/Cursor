@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>블로그 게시물 상세보기 - 관리자</title>
+    <meta name="description" content="블로그 게시물 상세보기 관리자 페이지">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* 전체 스타일 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 사이드바 스타일 */
+        .sidebar {
+            width: 250px;
+            background-color: #343a40;
+            color: #fff;
+            position: fixed;
+            height: 100%;
+            left: 0;
+            top: 0;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .sidebar-brand {
+            padding: 20px 15px;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+        .sidebar-menu ul {
+            list-style: none;
+        }
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+        .sidebar-menu a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            display: block;
+            padding: 12px 20px;
+            transition: all 0.3s;
+        }
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+        .sidebar-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* 메인 콘텐츠 스타일 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            margin-left: 250px;
+            transition: margin-left 0.3s;
+        }
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 500;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+        }
+        .btn i {
+            margin-right: 5px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #0069d9;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        /* 게시물 상세보기 스타일 */
+        .post-view {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .post-header {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+        .post-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .post-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .post-meta-item {
+            display: flex;
+            align-items: center;
+        }
+        .post-meta-item i {
+            margin-right: 5px;
+        }
+        .post-thumbnail {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .post-thumbnail img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .post-content {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        .post-tags {
+            margin-top: 20px;
+        }
+        .post-tag {
+            display: inline-block;
+            background-color: #f0f0f0;
+            color: #555;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        /* 모바일 반응형 */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            .sidebar.active {
+                width: 250px;
+            }
+            .sidebar-brand {
+                display: none;
+            }
+            .sidebar.active .sidebar-brand {
+                display: block;
+            }
+            .sidebar-menu a span {
+                display: none;
+            }
+            .sidebar.active .sidebar-menu a span {
+                display: inline;
+            }
+            .main-content {
+                margin-left: 70px;
+            }
+            .sidebar.active + .main-content {
+                margin-left: 250px;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+                width: 250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .sidebar-brand {
+                display: block;
+            }
+            .sidebar-menu a span {
+                display: inline;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.active + .main-content {
+                margin-left: 0;
+            }
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .action-buttons {
+                margin-top: 15px;
+            }
+        }
+        @media (max-width: 576px) {
+            .post-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+        
+        /* 토글 버튼 */
+        .toggle-sidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background-color: #343a40;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .toggle-sidebar {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 사이드바 토글 버튼 (모바일) -->
+    <button class="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- 사이드바 -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            관리자 대시보드
+        </div>
+        <div class="sidebar-menu">
+            <ul>
+                <li>
+                    <a href="admin-dashboard.html">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>대시보드</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-blog.html" class="active">
+                        <i class="fas fa-blog"></i>
+                        <span>블로그 관리</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-blog-category.html">
+                        <i class="fas fa-tags"></i>
+                        <span>블로그 카테고리/태그</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-qna.html">
+                        <i class="fas fa-question-circle"></i>
+                        <span>질문 관리</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="admin-qna-category.html">
+                        <i class="fas fa-folder"></i>
+                        <span>질문 카테고리/태그</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>로그아웃</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+    
+    <!-- 메인 콘텐츠 -->
+    <main class="main-content">
+        <div class="main-header">
+            <h1 class="page-title">블로그 게시물 상세보기</h1>
+            <div class="action-buttons">
+                <a href="admin-blog.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> 목록으로
+                </a>
+                <a href="#" id="edit-post-btn" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> 수정하기
+                </a>
+                <a href="#" id="delete-post-btn" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> 삭제하기
+                </a>
+            </div>
+        </div>
+        
+        <div class="post-view">
+            <div class="post-header">
+                <h2 class="post-title" id="post-title">게시물 제목 로딩중...</h2>
+                <div class="post-meta">
+                    <div class="post-meta-item">
+                        <i class="fas fa-folder"></i>
+                        <span id="post-category">카테고리</span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-user"></i>
+                        <span id="post-author">작성자</span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-calendar"></i>
+                        <span id="post-date">날짜</span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-eye"></i>
+                        <span id="post-views">조회수</span>
+                    </div>
+                    <div class="post-meta-item">
+                        <i class="fas fa-comments"></i>
+                        <span id="post-comments">댓글 0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-thumbnail" id="post-thumbnail">
+                <img src="https://via.placeholder.com/800x400?text=Thumbnail" alt="게시물 썸네일">
+            </div>
+            
+            <div class="post-content" id="post-content">
+                게시물 내용 로딩중...
+            </div>
+            
+            <div class="post-tags" id="post-tags">
+                <!-- 태그는 JavaScript로 동적 생성됩니다 -->
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            // 관리자 인증 확인
+            if (typeof checkAdminAuth === 'function') {
+                checkAdminAuth();
+            }
+            
+            // URL에서 게시물 ID 가져오기
+            const urlParams = new URLSearchParams(window.location.search);
+            const postId = Number(urlParams.get('id'));
+            
+            if (!postId) {
+                alert('올바르지 않은 게시물 ID입니다.');
+                window.location.href = 'admin-blog.html';
+                return;
+            }
+            
+            // 게시물 데이터 로드
+            loadPostData(postId);
+            
+            // 수정 버튼 이벤트
+            document.getElementById('edit-post-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = `admin-blog-write.html?id=${postId}`;
+            });
+            
+            // 삭제 버튼 이벤트
+            document.getElementById('delete-post-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('이 게시물을 정말 삭제하시겠습니까?')) {
+                    deletePost(postId);
+                }
+            });
+        });
+        
+        // 게시물 데이터 로드 함수
+        function loadPostData(postId) {
+            // localStorage에서 게시물 데이터 가져오기
+            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            const post = blogPosts.find(post => post.id === postId);
+            
+            if (!post) {
+                alert('게시물을 찾을 수 없습니다.');
+                window.location.href = 'admin-blog.html';
+                return;
+            }
+            
+            // 게시물 데이터 페이지에 표시
+            document.getElementById('post-title').textContent = post.title;
+            document.getElementById('post-category').textContent = post.category;
+            document.getElementById('post-author').textContent = post.author;
+            document.getElementById('post-date').textContent = post.date;
+            document.getElementById('post-views').textContent = `조회수 ${post.views}`;
+            document.getElementById('post-comments').textContent = `댓글 ${post.comments ? post.comments.length : 0}`;
+            document.getElementById('post-content').innerHTML = post.content;
+            
+            // 썸네일 이미지 설정
+            const thumbnailSrc = post.thumbnailSrc || 'https://via.placeholder.com/800x400?text=No+Image';
+            document.querySelector('#post-thumbnail img').src = thumbnailSrc;
+            document.querySelector('#post-thumbnail img').alt = post.title;
+            
+            // 태그 표시
+            const tagsContainer = document.getElementById('post-tags');
+            tagsContainer.innerHTML = '';
+            if (post.tags && post.tags.length > 0) {
+                post.tags.forEach(tag => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'post-tag';
+                    tagEl.textContent = tag;
+                    tagsContainer.appendChild(tagEl);
+                });
+            }
+            
+            // 조회수 증가 및 저장
+            post.views += 1;
+            const postIndex = blogPosts.findIndex(p => p.id === postId);
+            blogPosts[postIndex] = post;
+            localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+        }
+        
+        // 게시물 삭제 함수
+        function deletePost(postId) {
+            const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            const updatedPosts = blogPosts.filter(post => post.id !== postId);
+            localStorage.setItem('blogPosts', JSON.stringify(updatedPosts));
+            alert('게시물이 삭제되었습니다.');
+            window.location.href = 'admin-blog.html';
+        }
+    </script>
+</body>
+</html> 
