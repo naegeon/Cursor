@@ -748,6 +748,13 @@
             $('#blog-post-form').submit(function(e) {
                 e.preventDefault();
                 
+                // 썸네일 이미지 URL 가져오기
+                let thumbnailSrc = '';
+                const imgPreview = $('#image-preview img');
+                if(imgPreview.length > 0) {
+                    thumbnailSrc = imgPreview.attr('src');
+                }
+                
                 // 폼 데이터 수집
                 const postData = {
                     id: isEditing ? editingId : Date.now(), // 수정 모드면 기존 ID 사용, 아니면 새 ID 생성
@@ -760,7 +767,8 @@
                     date: isEditing ? getCurrentPost().date : new Date().toISOString().split('T')[0],
                     scheduledDate: $('#schedule-date').val(),
                     author: '관리자',
-                    views: isEditing ? getCurrentPost().views : 0
+                    views: isEditing ? getCurrentPost().views : 0,
+                    thumbnailSrc: thumbnailSrc // 썸네일 이미지 URL 추가
                 };
                 
                 // 현재 수정 중인 게시물 가져오기

@@ -577,7 +577,7 @@
                 $('.post-views').html(`<i class="fas fa-eye"></i> ${post.views || 0} 조회`);
                 
                 // 썸네일 이미지 설정
-                const thumbnailSrc = post.thumbnailSrc || 'images/blog-default.jpg';
+                const thumbnailSrc = post.thumbnailSrc || 'https://via.placeholder.com/800x500?text=Blog+Image';
                 $('.post-featured-image img').attr('src', thumbnailSrc).attr('alt', post.title);
                 
                 // 게시물 내용 설정
