@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스 | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체</title>
+    <meta name="description" content="집꾸미다의 누수탐지, 누수수리, 피해복구 등 전문 서비스를 소개합니다. 최신 기술과 숙련된 전문가가 최상의 서비스를 제공합니다.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Services Page Specific Styles */
+        .page-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 100px 0 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb ol {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 5px;
+        }
+        
+        .breadcrumb li:not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+        }
+        
+        .breadcrumb a {
+            color: var(--accent-color);
+        }
+        
+        .section-description {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 50px;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .service-detail {
+            display: flex;
+            margin-bottom: 80px;
+            align-items: center;
+        }
+        
+        .service-detail.reverse {
+            flex-direction: row-reverse;
+        }
+        
+        .service-image {
+            flex: 0 0 45%;
+        }
+        
+        .service-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .service-info {
+            flex: 0 0 50%;
+            padding: 0 30px;
+        }
+        
+        .service-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .service-features {
+            list-style: none;
+            margin-top: 20px;
+        }
+        
+        .service-features li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .service-features i {
+            color: var(--primary-color);
+            margin-right: 10px;
+        }
+        
+        /* Process Steps */
+        .process-steps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
+        
+        .process-step {
+            flex: 0 0 18%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .step-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            opacity: 0.2;
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .process-step h3 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        /* FAQs */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .faq-question {
+            background-color: #f9f9f9;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question h3 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+        
+        .faq-toggle {
+            color: var(--primary-color);
+        }
+        
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .faq-item.active .faq-answer {
+            padding: 20px;
+        }
+        
+        @media screen and (max-width: 992px) {
+            .service-detail, .service-detail.reverse {
+                flex-direction: column;
+            }
+            
+            .service-image, .service-info {
+                flex: 0 0 100%;
+            }
+            
+            .service-image {
+                margin-bottom: 30px;
+            }
+            
+            .service-info {
+                padding: 0;
+            }
+            
+            .process-step {
+                flex: 0 0 30%;
+                margin-bottom: 40px;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .process-step {
+                flex: 0 0 45%;
+            }
+        }
+        
+        @media screen and (max-width: 576px) {
+            .process-step {
+                flex: 0 0 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="집꾸미다 로고">
+            </a>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                    <li class="nav-item"><a href="services.html" class="nav-link">서비스</a></li>
+                    <li class="nav-item"><a href="blog.html" class="nav-link">블로그</a></li>
+                    <li class="nav-item"><a href="qna.html" class="nav-link">묻고답하기</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-link">연락처</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">서비스</h1>
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="index.html">홈</a></li>
+                    <li>서비스</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Services Overview -->
+    <section class="section services-overview">
+        <div class="container">
+            <h2 class="section-title">누수 관련 종합 서비스</h2>
+            <p class="section-description">집꾸미다는 누수 문제에 대한 종합적인 해결책을 제공합니다. 누수 탐지부터 수리, 피해 복구까지 원스톱 서비스로 고객의 소중한 재산을 보호합니다.</p>
+            
+            <div class="service-detail">
+                <div class="service-image">
+                    <img src="images/service-leak-detection.jpg" alt="누수 탐지 서비스">
+                </div>
+                <div class="service-info">
+                    <h3>누수 탐지 서비스</h3>
+                    <p>최신 장비와 기술을 활용하여 누수의 정확한 위치를 찾아냅니다. 열화상 카메라, 음향 탐지기, 습도 측정기 등 첨단 장비로 벽과 바닥을 최소한으로 손상시키며 숨겨진 누수까지 정확하게 탐지합니다.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> 비파괴 누수 탐지</li>
+                        <li><i class="fas fa-check"></i> 열화상 카메라 탐지</li>
+                        <li><i class="fas fa-check"></i> 음향 누수 탐지</li>
+                        <li><i class="fas fa-check"></i> 트레이서 가스 탐지</li>
+                        <li><i class="fas fa-check"></i> 습도 측정 탐지</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="service-detail reverse">
+                <div class="service-image">
+                    <img src="images/service-leak-repair.jpg" alt="누수 수리 서비스">
+                </div>
+                <div class="service-info">
+                    <h3>누수 수리 서비스</h3>
+                    <p>다양한 유형의 누수 문제를 신속하고 효과적으로 수리합니다. 파이프 교체, 조인트 수리, 방수 처리 등 고품질 자재와 전문 기술로 재발을 방지하는 확실한 해결책을 제공합니다.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> 파이프 교체 및 수리</li>
+                        <li><i class="fas fa-check"></i> 밸브 및 조인트 수리</li>
+                        <li><i class="fas fa-check"></i> 방수 처리</li>
+                        <li><i class="fas fa-check"></i> 배관 시스템 업그레이드</li>
+                        <li><i class="fas fa-check"></i> 긴급 누수 수리</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="service-detail">
+                <div class="service-image">
+                    <img src="images/service-damage-restoration.jpg" alt="피해 복구 서비스">
+                </div>
+                <div class="service-info">
+                    <h3>피해 복구 서비스</h3>
+                    <p>누수로 인한 피해를 완벽하게 복구해 드립니다. 물로 인한 손상, 곰팡이 제거, 구조 보강까지 종합적인 복구 서비스를 제공합니다. 전문 복구 팀이 원상태로 빠르게 복구해 드립니다.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> 수분 제거 및 건조</li>
+                        <li><i class="fas fa-check"></i> 곰팡이 제거 및 방지</li>
+                        <li><i class="fas fa-check"></i> 벽체 및 천장 복구</li>
+                        <li><i class="fas fa-check"></i> 바닥재 복구</li>
+                        <li><i class="fas fa-check"></i> 구조 보강</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="service-detail reverse">
+                <div class="service-image">
+                    <img src="images/service-prevention.jpg" alt="예방 점검 서비스">
+                </div>
+                <div class="service-info">
+                    <h3>예방 점검 서비스</h3>
+                    <p>정기적인 점검으로 누수 문제를 사전에 예방합니다. 잠재적인 위험 요소를 식별하고 조기에 조치하여 큰 피해를 방지합니다. 체계적인 점검 계획으로 안심하고 생활하세요.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check"></i> 정기 배관 점검</li>
+                        <li><i class="fas fa-check"></i> 압력 테스트</li>
+                        <li><i class="fas fa-check"></i> 배관 내시경 검사</li>
+                        <li><i class="fas fa-check"></i> 위험 요소 평가</li>
+                        <li><i class="fas fa-check"></i> 맞춤형 예방 계획</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="section process">
+        <div class="container">
+            <h2 class="section-title">서비스 진행 과정</h2>
+            <p class="section-subtitle">집꾸미다는 체계적인 프로세스로 누수 문제를 해결합니다.</p>
+            
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">01</div>
+                    <div class="step-icon">
+                        <i class="fas fa-phone-alt"></i>
+                    </div>
+                    <h3>문의 및 상담</h3>
+                    <p>전화 또는 온라인으로 문의하시면 전문 상담원이 상황을 파악하고 최적의 서비스를 안내해 드립니다.</p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">02</div>
+                    <div class="step-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>현장 조사</h3>
+                    <p>숙련된 기술자가 현장을 방문하여 정밀 진단을 통해 누수 위치와 원인을 파악합니다.</p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">03</div>
+                    <div class="step-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>견적 제공</h3>
+                    <p>조사 결과를 바탕으로 투명하고 정확한 견적을 제공하며, 최적의 해결 방안을 제시합니다.</p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">04</div>
+                    <div class="step-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <h3>수리 및 복구</h3>
+                    <p>전문 기술자가 최신 장비와 기술로 신속하고 정확하게 수리 및 복구 작업을 진행합니다.</p>
+                </div>
+                
+                <div class="process-step">
+                    <div class="step-number">05</div>
+                    <div class="step-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>최종 확인</h3>
+                    <p>모든 작업이 완료된 후 문제가 완벽하게 해결되었는지 확인하고 품질을 보증합니다.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQs Section -->
+    <section class="section faqs">
+        <div class="container">
+            <h2 class="section-title">자주 묻는 질문</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>누수 탐지는 얼마나 걸리나요?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>누수 탐지 시간은 상황에 따라 다르지만, 일반적으로 1~2시간 정도 소요됩니다. 복잡한 누수나 접근이 어려운 위치의 경우 더 오래 걸릴 수 있습니다. 정확한 시간은 현장 조사 후 안내해 드립니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>벽이나 바닥을 뜯어야 하나요?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>집꾸미다는 비파괴 탐지 기술을 우선적으로 사용하여 구조물 손상을 최소화합니다. 첨단 장비를 통해 대부분의 누수는 벽이나 바닥을 뜯지 않고도 탐지 가능합니다. 다만 수리 과정에서 누수 지점에 접근하기 위해 일부 철거가 필요할 수 있으며, 이런 경우 사전에 충분히 설명 드립니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>견적은 어떻게 받을 수 있나요?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>견적은 현장 조사 후 제공됩니다. 전화 또는 온라인으로 문의하시면 방문 일정을 잡고, 전문 기술자가 누수 상태를 정확히 진단한 후 투명한 견적을 제시해 드립니다. 기본 방문 조사 비용은 추후 서비스 이용 시 전액 할인됩니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>긴급 상황에도 출동 가능한가요?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>네, 집꾸미다는 24시간 긴급 출동 서비스를 제공합니다. 심각한 누수로 인한 긴급 상황 발생 시 신속하게 대응하여 추가 피해를 최소화해 드립니다. 긴급 상황은 우선적으로 처리되며, 최대한 빠른 시간 내에 전문가가 방문합니다.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>수리 후 보증 기간이 있나요?</h3>
+                        <span class="faq-toggle"><i class="fas fa-plus"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>네, 집꾸미다의 모든 수리 서비스는 작업 완료 후 1년 보증이 기본적으로 제공됩니다. 보증 기간 내에 동일한 문제가 재발할 경우 무상으로 재수리해 드립니다. 자재에 따라 추가 보증이 적용될 수 있으며, 정확한 보증 내용은 서비스 계약 시 안내해 드립니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta">
+        <div class="container">
+            <h2 class="section-title">전문가의 도움이 필요하신가요?</h2>
+            <p class="section-subtitle">지금 연락하시면 누수 문제에 대한 맞춤형 해결책을 제공해 드립니다.</p>
+            <div class="cta-buttons">
+                <a href="contact.html" class="btn">무료 상담 신청</a>
+                <a href="tel:01012345678" class="btn btn-secondary">전화 문의</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3 class="footer-title">집꾸미다</h3>
+                <p>누수탐지 및 누수피해복구 전문업체로서 최신 기술과 풍부한 경험을 바탕으로 고객 만족을 최우선으로 합니다.</p>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-blog"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">서비스</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">누수 탐지</a></li>
+                    <li><a href="services.html">누수 수리</a></li>
+                    <li><a href="services.html">피해 복구</a></li>
+                    <li><a href="services.html">예방 점검</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="services.html">서비스</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="qna.html">묻고답하기</a></li>
+                    <li><a href="contact.html">연락처</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">연락처</h3>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> 서울특별시 강남구 테헤란로 123</li>
+                    <li><i class="fas fa-phone"></i> 02-123-4567</li>
+                    <li><i class="fas fa-mobile-alt"></i> 010-1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> info@jipkkumida.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <p>&copy; 2025 집꾸미다. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+    <!-- FAQ JS -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqItems = document.querySelectorAll('.faq-item');
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                const toggle = item.querySelector('.faq-toggle');
+                const answer = item.querySelector('.faq-answer');
+                
+                question.addEventListener('click', function() {
+                    item.classList.toggle('active');
+                    
+                    if (item.classList.contains('active')) {
+                        toggle.innerHTML = '<i class="fas fa-minus"></i>';
+                        answer.style.maxHeight = answer.scrollHeight + 'px';
+                    } else {
+                        toggle.innerHTML = '<i class="fas fa-plus"></i>';
+                        answer.style.maxHeight = '0';
+                    }
+                    
+                    // Close other FAQs
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('active')) {
+                            otherItem.classList.remove('active');
+                            otherItem.querySelector('.faq-toggle').innerHTML = '<i class="fas fa-plus"></i>';
+                            otherItem.querySelector('.faq-answer').style.maxHeight = '0';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

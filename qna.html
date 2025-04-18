@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>묻고답하기 | 집꾸미다 - 누수탐지 및 누수피해복구 전문업체</title>
+    <meta name="description" content="집꾸미다 묻고답하기 페이지에서 누수에 관한 궁금한 점을 질문하고 전문가의 답변을 받아보세요.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* QnA Page Specific Styles */
+        .page-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 100px 0 50px;
+            margin-bottom: 50px;
+            text-align: center;
+        }
+        
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .breadcrumb {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        .breadcrumb ol {
+            display: flex;
+            list-style: none;
+        }
+        
+        .breadcrumb li {
+            margin: 0 5px;
+        }
+        
+        .breadcrumb li:not(:last-child):after {
+            content: '>';
+            margin-left: 10px;
+        }
+        
+        .breadcrumb a {
+            color: var(--accent-color);
+        }
+        
+        .qna-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .qna-main {
+            flex: 1;
+            min-width: 280px;
+        }
+        
+        .qna-sidebar {
+            width: 300px;
+        }
+        
+        .ask-question-btn {
+            display: inline-block;
+            background-color: var(--primary-color);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 500;
+            margin-bottom: 30px;
+            transition: background-color 0.3s;
+        }
+        
+        .ask-question-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .ask-question-btn i {
+            margin-right: 10px;
+        }
+        
+        /* Questions List */
+        .question-item {
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 25px;
+            transition: box-shadow 0.3s;
+        }
+        
+        .question-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .question-header {
+            border-bottom: 1px solid #e1e1e1;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .question-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 10px;
+        }
+        
+        .question-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            font-size: 14px;
+            color: #777;
+        }
+        
+        .question-meta span i {
+            margin-right: 5px;
+            color: var(--primary-color);
+        }
+        
+        .question-content {
+            line-height: 1.6;
+        }
+        
+        .question-text {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #e1e1e1;
+        }
+        
+        .question-answer {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .question-answer:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid #f9f9f9;
+        }
+        
+        .answer-meta {
+            margin-top: 15px;
+            text-align: right;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+        
+        .pagination-link {
+            display: inline-block;
+            padding: 8px 12px;
+            margin: 0 5px;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            color: var(--text-color);
+            transition: all 0.3s;
+        }
+        
+        .pagination-link:hover {
+            border-color: var(--primary-color);
+        }
+        
+        .pagination-link.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        
+        .pagination-prev, .pagination-next {
+            font-weight: 500;
+        }
+        
+        /* Question Form */
+        .question-form {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 5px;
+            margin-top: 40px;
+        }
+        
+        .question-form h3 {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e1e1;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        
+        .form-check input {
+            margin-right: 8px;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar-widget {
+            background-color: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .widget-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e1e1e1;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .category-list {
+            list-style: none;
+        }
+        
+        .category-list li {
+            margin-bottom: 10px;
+            border-bottom: 1px dashed #e1e1e1;
+            padding-bottom: 10px;
+        }
+        
+        .category-list li:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .category-list a {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-color);
+            transition: color 0.3s;
+        }
+        
+        .category-list a:hover {
+            color: var(--primary-color);
+        }
+        
+        .count {
+            display: inline-block;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .recent-questions {
+            list-style: none;
+        }
+        
+        .recent-questions li {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed #e1e1e1;
+        }
+        
+        .recent-questions li:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        
+        .recent-question-link {
+            display: block;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            transition: color 0.3s;
+            line-height: 1.4;
+        }
+        
+        .recent-question-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .question-status {
+            display: inline-block;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        
+        .status-answered {
+            background-color: #e6f7e6;
+            color: #28a745;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #ffc107;
+        }
+        
+        .widget-contact {
+            margin: 15px 0;
+        }
+        
+        .widget-contact p {
+            margin-bottom: 10px;
+        }
+        
+        .widget-contact i {
+            color: var(--primary-color);
+            width: 20px;
+            margin-right: 5px;
+        }
+        
+        @media (max-width: 992px) {
+            .qna-container {
+                flex-direction: column;
+            }
+            .qna-sidebar {
+                width: 100%;
+                order: 1;
+            }
+            .qna-main {
+                order: 2;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .question-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .pagination {
+                flex-wrap: wrap;
+            }
+            .question-form {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .question-item {
+                padding: 15px;
+            }
+            .question-answer {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <img src="images/logo.png" alt="집꾸미다 로고">
+            </a>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+            
+            <nav>
+                <ul class="nav-list">
+                    <li class="nav-item"><a href="index.html" class="nav-link">홈</a></li>
+                    <li class="nav-item"><a href="services.html" class="nav-link">서비스</a></li>
+                    <li class="nav-item"><a href="blog.html" class="nav-link">블로그</a></li>
+                    <li class="nav-item"><a href="qna.html" class="nav-link">묻고답하기</a></li>
+                    <li class="nav-item"><a href="contact.html" class="nav-link">연락처</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1 class="page-title">묻고답하기</h1>
+            <nav class="breadcrumb">
+                <ol>
+                    <li><a href="index.html">홈</a></li>
+                    <li>묻고답하기</li>
+                </ol>
+            </nav>
+        </div>
+    </section>
+
+    <!-- QnA Section -->
+    <section class="section qna">
+        <div class="container qna-container">
+            <main class="qna-main">
+                <a href="#question-form" class="ask-question-btn">
+                    <i class="fas fa-question-circle"></i> 질문하기
+                </a>
+                
+                <!-- Questions List -->
+                <div class="questions-list">
+                    <!-- Question 1 -->
+                    <div class="question-item">
+                        <div class="question-header">
+                            <h3 class="question-title">천장에서 누수 발생 시 응급 조치 방법이 궁금합니다.</h3>
+                            <div class="question-meta">
+                                <span class="question-category"><i class="fas fa-tag"></i> 누수 대처</span>
+                                <span class="question-author"><i class="fas fa-user"></i> 김지수</span>
+                                <span class="question-date"><i class="fas fa-calendar-alt"></i> 2025.04.15</span>
+                            </div>
+                        </div>
+                        <div class="question-content">
+                            <p class="question-text">안녕하세요. 최근 심한 비가 온 후 천장에서 물이 떨어지는 현상이 발견되었습니다. 현재 누수 지점 아래에 물통을 놓아둔 상태인데, 전문가가 방문하기 전까지 더 취할 수 있는 응급 조치가 있을까요? 또한 이런 상황에서 보험 청구가 가능한지도 궁금합니다.</p>
+                            <div class="question-answer">
+                                <p>김지수님, 천장 누수로 많이 불편하시겠습니다. 응급 조치로는 다음 사항을 권장드립니다:</p>
+                                <ol>
+                                    <li>물통뿐만 아니라 주변 가구와 전자제품을 이동시켜 추가 피해를 방지하세요.</li>
+                                    <li>천장 부분이 부풀어 오른 경우, 물이 고여있을 수 있으니 중앙에 작은 구멍을 내어 물을 빼주면 천장 전체가 내려앉는 상황을 방지할 수 있습니다.</li>
+                                    <li>가능하다면 위층에 연락하여 물 사용을 자제해달라고 요청하세요.</li>
+                                </ol>
+                                <p>보험 청구는 주택종합보험에 가입되어 있다면 가능합니다. 누수 발생 즉시 사진과 동영상으로 증거를 남기고, 보험사에 빠르게 연락하는 것이 중요합니다. 필요하시면 저희 집꾸미다에서 정확한 누수 위치 확인과 보험 청구를 위한 증명서 발급도 도와드릴 수 있습니다.</p>
+                                <div class="answer-meta">
+                                    <span class="answer-author">이수리 (기술팀장)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 2 -->
+                    <div class="question-item">
+                        <div class="question-header">
+                            <h3 class="question-title">누수 탐지 비용은 어떻게 되나요?</h3>
+                            <div class="question-meta">
+                                <span class="question-category"><i class="fas fa-tag"></i> 비용 문의</span>
+                                <span class="question-author"><i class="fas fa-user"></i> 박현우</span>
+                                <span class="question-date"><i class="fas fa-calendar-alt"></i> 2025.04.10</span>
+                            </div>
+                        </div>
+                        <div class="question-content">
+                            <p class="question-text">욕실에서 벽으로 물이 스며드는 것 같아 누수가 의심됩니다. 누수 탐지만 의뢰할 경우 비용이 어떻게 되나요? 또한 탐지 후 바로 수리까지 진행하면 추가 비용은 어떻게 책정되는지 궁금합니다.</p>
+                            <div class="question-answer">
+                                <p>박현우님, 문의 감사합니다. 누수 탐지 비용은 건물의 크기와 의심되는 누수 지점의 복잡도에 따라 달라집니다. 일반 가정집 욕실의 경우, 기본 탐지 비용은 10만원부터 시작하며, 정확한 견적은 현장 방문 후에 제공해 드립니다.</p>
+                                <p>탐지 후 즉시 수리를 진행하실 경우, 탐지 비용의 50%를 할인해 드리고 있습니다. 수리 비용은 누수 원인과 필요한 작업 범위에 따라 달라지지만, 간단한 실런트 처리부터 배관 교체까지 다양한 옵션을 제시해 드리며, 고객님이 선택하실 수 있습니다.</p>
+                                <p>정확한 견적을 원하시면 연락처 페이지에서 무료 상담을 신청해 주시거나, 02-123-4567로 연락 주시면 자세히 안내해 드리겠습니다.</p>
+                                <div class="answer-meta">
+                                    <span class="answer-author">김상담 (고객센터)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 3 -->
+                    <div class="question-item">
+                        <div class="question-header">
+                            <h3 class="question-title">화장실 타일 사이로 물이 새는데 부분 수리가 가능한가요?</h3>
+                            <div class="question-meta">
+                                <span class="question-category"><i class="fas fa-tag"></i> 수리 문의</span>
+                                <span class="question-author"><i class="fas fa-user"></i> 이미라</span>
+                                <span class="question-date"><i class="fas fa-calendar-alt"></i> 2025.04.05</span>
+                            </div>
+                        </div>
+                        <div class="question-content">
+                            <p class="question-text">화장실 타일 사이의 줄눈이 노후되어 물이 새는 것 같습니다. 타일을 전체적으로 교체하지 않고, 줄눈만 보수하는 것이 가능한지 궁금합니다. 또한 어떤 자재를 사용하는지, 내구성은 어떤지도 알고 싶습니다.</p>
+                            <div class="question-answer">
+                                <p>이미라님, 문의 주셔서 감사합니다. 네, 타일을 교체하지 않고 줄눈만 보수하는 것은 충분히 가능합니다. 이런 경우 저희는 다음과 같은 절차로 진행합니다:</p>
+                                <ol>
+                                    <li>기존 줄눈을 전문 도구로 제거합니다.</li>
+                                    <li>틈새를 깨끗이 청소하고 건조시킵니다.</li>
+                                    <li>방수 성능이 뛰어난 에폭시 계열 줄눈재를 사용하여 새로 시공합니다.</li>
+                                </ol>
+                                <p>저희가 사용하는 자재는 곰팡이와 박테리아 번식을 억제하는 성분이 포함되어 있으며, 일반 시멘트 줄눈보다 내구성이 2~3배 우수합니다. 적절히 관리하시면 최소 5년 이상 유지됩니다.</p>
+                                <p>부분 보수만으로 해결이 안 되는 심각한 누수인 경우에는 방문 조사 후 최적의 해결책을 제안해 드리겠습니다. 자세한 상담을 원하시면 연락처를 남겨주세요.</p>
+                                <div class="answer-meta">
+                                    <span class="answer-author">박기술 (시공팀장)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    <a href="#" class="pagination-link pagination-prev"><i class="fas fa-angle-left"></i> 이전</a>
+                    <a href="#" class="pagination-link active">1</a>
+                    <a href="#" class="pagination-link">2</a>
+                    <a href="#" class="pagination-link">3</a>
+                    <a href="#" class="pagination-link pagination-next">다음 <i class="fas fa-angle-right"></i></a>
+                </div>
+                
+                <!-- Question Form -->
+                <div class="question-form" id="question-form">
+                    <h3>질문하기</h3>
+                    <form id="ask-form">
+                        <div class="form-group">
+                            <label for="name" class="form-label">이름</label>
+                            <input type="text" id="name" name="name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email" id="email" name="email" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone" class="form-label">연락처</label>
+                            <input type="tel" id="phone" name="phone" class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category" class="form-label">카테고리</label>
+                            <select id="category" name="category" class="form-control" required>
+                                <option value="">카테고리 선택</option>
+                                <option value="누수 탐지">누수 탐지</option>
+                                <option value="누수 수리">누수 수리</option>
+                                <option value="피해 복구">피해 복구</option>
+                                <option value="비용 문의">비용 문의</option>
+                                <option value="누수 대처">누수 대처</option>
+                                <option value="기타">기타</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="title" class="form-label">제목</label>
+                            <input type="text" id="title" name="title" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="question" class="form-label">질문 내용</label>
+                            <textarea id="question" name="question" class="form-control" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-check">
+                                <input type="checkbox" name="agree" required>
+                                개인정보 수집 및 이용에 동의합니다.
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn">질문 등록하기</button>
+                    </form>
+                </div>
+            </main>
+            
+            <aside class="qna-sidebar">
+                <!-- Categories Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">카테고리</h3>
+                    <ul class="category-list">
+                        <li><a href="#">누수 탐지 <span class="count">12</span></a></li>
+                        <li><a href="#">누수 수리 <span class="count">18</span></a></li>
+                        <li><a href="#">피해 복구 <span class="count">9</span></a></li>
+                        <li><a href="#">비용 문의 <span class="count">15</span></a></li>
+                        <li><a href="#">누수 대처 <span class="count">7</span></a></li>
+                        <li><a href="#">기타 <span class="count">5</span></a></li>
+                    </ul>
+                </div>
+                
+                <!-- Recent Questions Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">최근 질문</h3>
+                    <ul class="recent-questions">
+                        <li>
+                            <a href="#" class="recent-question-link">천장에서 누수 발생 시 응급 조치 방법이 궁금합니다.</a>
+                            <span class="question-status status-answered">답변 완료</span>
+                        </li>
+                        <li>
+                            <a href="#" class="recent-question-link">누수 탐지 비용은 어떻게 되나요?</a>
+                            <span class="question-status status-answered">답변 완료</span>
+                        </li>
+                        <li>
+                            <a href="#" class="recent-question-link">화장실 타일 사이로 물이 새는데 부분 수리가 가능한가요?</a>
+                            <span class="question-status status-answered">답변 완료</span>
+                        </li>
+                        <li>
+                            <a href="#" class="recent-question-link">세면대 하부 배관에서 물이 새는데 부품 교체만으로 가능할까요?</a>
+                            <span class="question-status status-pending">답변 대기</span>
+                        </li>
+                        <li>
+                            <a href="#" class="recent-question-link">베란다 샤시 주변으로 빗물이 새는 경우도 누수 탐지가 가능한가요?</a>
+                            <span class="question-status status-pending">답변 대기</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info Widget -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">문의 연락처</h3>
+                    <p>누수 관련 긴급 상담이 필요하신가요?</p>
+                    <div class="widget-contact">
+                        <p><i class="fas fa-phone"></i> 02-123-4567</p>
+                        <p><i class="fas fa-mobile-alt"></i> 010-1234-5678</p>
+                        <p><i class="fas fa-envelope"></i> info@jipkkumida.com</p>
+                    </div>
+                    <a href="contact.html" class="btn" style="margin-top: 15px;">상담 신청하기</a>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-column">
+                <h3 class="footer-title">집꾸미다</h3>
+                <p>누수탐지 및 누수피해복구 전문업체로서 최신 기술과 풍부한 경험을 바탕으로 고객 만족을 최우선으로 합니다.</p>
+                <ul class="social-links">
+                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                    <li><a href="#"><i class="fab fa-youtube"></i></a></li>
+                    <li><a href="#"><i class="fab fa-blog"></i></a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">서비스</h3>
+                <ul class="footer-links">
+                    <li><a href="services.html">누수 탐지</a></li>
+                    <li><a href="services.html">누수 수리</a></li>
+                    <li><a href="services.html">피해 복구</a></li>
+                    <li><a href="services.html">예방 점검</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">바로가기</h3>
+                <ul class="footer-links">
+                    <li><a href="index.html">홈</a></li>
+                    <li><a href="services.html">서비스</a></li>
+                    <li><a href="blog.html">블로그</a></li>
+                    <li><a href="qna.html">묻고답하기</a></li>
+                    <li><a href="contact.html">연락처</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3 class="footer-title">연락처</h3>
+                <ul class="footer-contact-info">
+                    <li><i class="fas fa-map-marker-alt"></i> 서울특별시 강남구 테헤란로 123</li>
+                    <li><i class="fas fa-phone"></i> 02-123-4567</li>
+                    <li><i class="fas fa-mobile-alt"></i> 010-1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> info@jipkkumida.com</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="copyright">
+            <div class="container">
+                <p>&copy; 2025 집꾸미다. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+</body>
+</html> 
