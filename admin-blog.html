@@ -524,12 +524,60 @@
             <div class="page-title">
                 <h1>블로그 관리</h1>
                 <div class="action-buttons">
-                    <button class="btn btn-primary">
+                    <button class="btn btn-primary" id="create-post-btn">
                         <i class="fas fa-plus"></i> 새 글 작성
                     </button>
                     <button class="btn btn-outline">
                         <i class="fas fa-file-export"></i> 내보내기
                     </button>
+                </div>
+            </div>
+            
+            <!-- Create/Edit Post Form -->
+            <div class="card" id="blog-post-form-card">
+                <div class="card-header">
+                    <h2>블로그 글 작성</h2>
+                </div>
+                <div class="card-body">
+                    <form id="blog-form">
+                        <div class="form-group">
+                            <label for="blog-title">제목</label>
+                            <input type="text" id="blog-title" name="title" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blog-category">카테고리</label>
+                            <select id="blog-category" name="category" class="form-control" required>
+                                <option value="">카테고리 선택</option>
+                                <option value="누수 탐지">누수 탐지</option>
+                                <option value="누수 수리">누수 수리</option>
+                                <option value="피해 복구">피해 복구</option>
+                                <option value="비용 문의">비용 문의</option>
+                                <option value="누수 대처">누수 대처</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blog-content">내용</label>
+                            <textarea id="blog-content" name="content" class="form-control" rows="10" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blog-tags">태그 (쉼표로 구분)</label>
+                            <input type="text" id="blog-tags" name="tags" class="form-control" placeholder="예: 누수, 화장실, 배관">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blog-thumbnail">썸네일 이미지</label>
+                            <input type="file" id="blog-thumbnail" name="thumbnail" class="form-control" accept="image/*">
+                            <div id="thumbnail-preview" class="img-preview"></div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">저장하기</button>
+                            <button type="button" class="btn btn-outline" id="cancel-post-btn">취소</button>
+                        </div>
+                    </form>
                 </div>
             </div>
             
@@ -724,60 +772,9 @@
         </div>
     </div>
 
-    <script>
-        // Check if user is logged in as admin
-        document.addEventListener('DOMContentLoaded', function() {
-            const isAdmin = localStorage.getItem('adminLoggedIn');
-            if (!isAdmin) {
-                window.location.href = 'admin-login.html';
-            }
-            
-            // Toggle sidebar
-            const toggleButton = document.getElementById('toggle-sidebar');
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            
-            toggleButton.addEventListener('click', function() {
-                sidebar.classList.toggle('collapsed');
-                mainContent.classList.toggle('expanded');
-            });
-            
-            // Logout functionality
-            const logoutButton = document.getElementById('logout-button');
-            logoutButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                localStorage.removeItem('adminLoggedIn');
-                window.location.href = 'admin-login.html';
-            });
-            
-            // Blog table row actions
-            const viewButtons = document.querySelectorAll('.view-btn');
-            const editButtons = document.querySelectorAll('.edit-btn');
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            
-            viewButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Redirect to view blog post
-                    alert('게시물 보기 기능 구현 예정');
-                });
-            });
-            
-            editButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Redirect to edit blog post
-                    alert('게시물 수정 기능 구현 예정');
-                });
-            });
-            
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    if (confirm('이 게시물을 삭제하시겠습니까?')) {
-                        // Delete blog post
-                        alert('게시물 삭제 기능 구현 예정');
-                    }
-                });
-            });
-        });
-    </script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Admin JS -->
+    <script src="js/admin.js"></script>
 </body>
 </html> 
