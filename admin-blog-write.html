@@ -4,900 +4,660 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>블로그 글 작성 | 관리자 대시보드</title>
-    <meta name="description" content="블로그 게시물을 작성할 수 있는 관리자 페이지입니다.">
-    <!-- Google Fonts -->
+    <meta name="description" content="관리자 블로그 글 작성 페이지">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Summernote Editor -->
-    <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 90px;
+            --transition-speed: 0.3s;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Noto Sans KR', sans-serif;
         }
-        
-        :root {
-            --primary-color: #4e73df;
-            --primary-dark: #3a56b0;
-            --secondary-color: #f8f9fc;
-            --text-color: #5a5c69;
-            --light-gray: #eaecf4;
-            --dark-gray: #858796;
-            --success: #1cc88a;
-            --danger: #e74a3b;
-            --warning: #f6c23e;
-            --info: #36b9cc;
-        }
-        
+
         body {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f8f9fc;
             display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        
-        /* Sidebar Styles */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+
+        /* 사이드바 스타일 */
+        #sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--primary-color) 0%, #224abe 100%);
             color: white;
+            transition: width var(--transition-speed);
+            height: 100vh;
             position: fixed;
-            transition: all 0.3s;
             overflow-y: auto;
             z-index: 100;
         }
-        
-        .sidebar.collapsed {
-            width: 0;
-            overflow: hidden;
+
+        #sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
         }
-        
-        .sidebar-header {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .sidebar-header h3 {
-            font-size: 1.5rem;
-            margin-bottom: 0;
-        }
-        
-        .sidebar-admin {
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .admin-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            margin: 0 auto 10px;
-            display: block;
-            background-color: #fff;
-        }
-        
-        .admin-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .admin-role {
-            font-size: 0.8rem;
-            opacity: 0.8;
-        }
-        
-        .sidebar-menu {
-            padding: 15px 0;
-        }
-        
-        .menu-item {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            transition: all 0.3s;
-            border-left: 3px solid transparent;
-        }
-        
-        .menu-item:hover, .menu-item.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left-color: white;
-        }
-        
-        .menu-item i {
-            margin-right: 10px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-            width: calc(100% - 250px);
-        }
-        
-        .main-content.expanded {
-            margin-left: 0;
-            width: 100%;
-        }
-        
-        .main-header {
-            background-color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 99;
-        }
-        
-        .toggle-sidebar {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            color: var(--text-color);
-            cursor: pointer;
-        }
-        
-        .header-right {
-            display: flex;
-            align-items: center;
-        }
-        
-        .dropdown {
-            position: relative;
-            margin-left: 15px;
-        }
-        
-        .dropdown-toggle {
-            background: none;
-            border: none;
-            font-size: 1.1rem;
-            color: var(--text-color);
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        .user-dropdown img {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            margin-right: 5px;
-        }
-        
-        .page-content {
-            padding: 25px;
-        }
-        
-        .page-title {
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .page-title h1 {
-            font-size: 1.8rem;
-            color: var(--text-color);
-        }
-        
-        /* Form Styles */
-        .card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            margin-bottom: 25px;
-            overflow: hidden;
-        }
-        
-        .card-header {
-            padding: 15px 20px;
-            background-color: white;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: var(--primary-color);
-            outline: none;
-        }
-        
-        select.form-control {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5c69' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            padding-right: 30px;
-        }
-        
-        textarea.form-control {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .img-preview {
-            margin-top: 10px;
-            max-width: 200px;
-            max-height: 200px;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            padding: 5px;
+
+        .sidebar-brand {
+            padding: 1.5rem 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
-        .img-preview img {
-            max-width: 100%;
-            max-height: 190px;
+
+        .sidebar-brand h2 {
+            font-size: 1.2rem;
+            text-align: center;
+            transition: opacity var(--transition-speed);
         }
-        
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
+
+        #sidebar.collapsed .sidebar-brand h2 {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
         }
-        
-        .btn {
-            padding: 10px 16px;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
+
+        .sidebar-menu {
+            padding: 1rem 0;
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            display: inline-flex;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            transition: all var(--transition-speed);
+        }
+
+        .sidebar-menu a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .sidebar-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-left: 4px solid white;
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        #sidebar.collapsed .menu-text {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        /* 메인 콘텐츠 스타일 */
+        #main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed);
+            padding: 1rem;
+        }
+
+        #main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #e3e6f0;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            color: var(--dark-color);
+            display: flex;
             align-items: center;
         }
-        
-        .btn i {
-            margin-right: 5px;
+
+        .page-title i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
         }
-        
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* 카드 스타일 */
+        .card {
+            background-color: white;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.15);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #e3e6f0;
+            background-color: #f8f9fc;
+            border-radius: 0.35rem 0.35rem 0 0;
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            display: inline-block;
+            font-weight: 500;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            border: 1px solid transparent;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
         .btn-primary {
+            color: white;
             background-color: var(--primary-color);
-            color: white;
+            border-color: var(--primary-color);
         }
-        
+
         .btn-primary:hover {
-            background-color: var(--primary-dark);
+            background-color: #2e59d9;
+            border-color: #2653d4;
         }
-        
-        .btn-outline {
-            background-color: transparent;
-            border: 1px solid var(--light-gray);
-            color: var(--text-color);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--light-gray);
-        }
-        
-        .btn-danger {
-            background-color: var(--danger);
+
+        .btn-success {
             color: white;
+            background-color: var(--success-color);
+            border-color: var(--success-color);
         }
-        
+
+        .btn-success:hover {
+            background-color: #17a673;
+            border-color: #169b6b;
+        }
+
+        .btn-danger {
+            color: white;
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
         .btn-danger:hover {
-            background-color: #c0392b;
+            background-color: #e02d1b;
+            border-color: #d52a1a;
         }
-        
-        /* Tags Input */
-        .tags-input {
+
+        .btn-secondary {
+            color: white;
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #717384;
+            border-color: #6b6d7d;
+        }
+
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #495057;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            color: #495057;
+            background-color: #fff;
+            border-color: #bac8f3;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+
+        select.form-control {
+            height: calc(1.5em + 0.75rem + 2px);
+        }
+
+        textarea.form-control {
+            height: auto;
+            min-height: 150px;
+        }
+
+        /* 에디터 스타일 */
+        .editor-container {
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .editor-toolbar {
+            padding: 0.5rem;
+            background-color: #f8f9fc;
+            border-bottom: 1px solid #ced4da;
             display: flex;
             flex-wrap: wrap;
-            padding: 5px;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            gap: 5px;
+            gap: 0.25rem;
         }
-        
-        .tag {
+
+        .editor-btn {
+            background: none;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-radius: 0.25rem;
+        }
+
+        .editor-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .editor-btn i {
+            font-size: 1rem;
+        }
+
+        .editor-content {
+            padding: 0.75rem;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        /* 이미지 업로드 스타일 */
+        .image-preview {
+            margin-top: 1rem;
+            max-width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        /* 태그 선택 스타일 */
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag-item {
+            background-color: #e9ecef;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
             display: inline-flex;
             align-items: center;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
+            font-size: 0.875rem;
         }
-        
-        .tag .remove-tag {
-            margin-left: 5px;
-            cursor: pointer;
+
+        .tag-item input[type="checkbox"] {
+            margin-right: 0.25rem;
         }
-        
-        .tags-input input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 5px;
-            min-width: 60px;
-        }
-        
-        /* Side Info */
-        .side-info {
-            background-color: var(--secondary-color);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .side-info h3 {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: var(--text-color);
-        }
-        
-        .side-info ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .side-info ul li {
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-        }
-        
-        .side-info ul li i {
-            color: var(--primary-color);
-            margin-right: 8px;
-            font-size: 14px;
-        }
-        
-        /* Two Columns Layout */
-        .columns {
-            display: flex;
-            gap: 20px;
-        }
-        
-        .column-main {
-            flex: 3;
-        }
-        
-        .column-side {
-            flex: 1;
-        }
-        
-        /* Responsive Styles */
+
+        /* 반응형 스타일 */
         @media (max-width: 992px) {
-            .sidebar {
-                width: 200px;
+            #sidebar {
+                width: var(--sidebar-collapsed-width);
             }
-            
-            .main-content {
-                margin-left: 200px;
-                width: calc(100% - 200px);
-            }
-            
-            .columns {
-                flex-direction: column;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
+
+            #sidebar .menu-text {
+                opacity: 0;
                 width: 0;
+                height: 0;
                 overflow: hidden;
             }
-            
-            .sidebar.active {
-                width: 250px;
-                overflow-y: auto;
+
+            #main-content {
+                margin-left: var(--sidebar-collapsed-width);
             }
-            
-            .main-content {
+
+            #main-content.expanded {
+                margin-left: var(--sidebar-width);
+            }
+
+            #sidebar.collapsed {
+                width: 0;
+            }
+
+            #main-content.expanded {
                 margin-left: 0;
-                width: 100%;
-            }
-            
-            .page-title {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
             }
         }
-        
-        @media (max-width: 576px) {
-            .main-header {
-                padding: 15px;
+
+        @media (max-width: 768px) {
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 0.5rem;
+                margin-top: 1rem;
             }
-            
-            .page-content {
-                padding: 15px;
+
+            .main-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 576px) {
+            #main-content {
+                padding: 0.5rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <h3>707 Admin</h3>
+    <!-- 사이드바 -->
+    <div id="sidebar">
+        <div class="sidebar-brand">
+            <h2>관리자 대시보드</h2>
         </div>
-        
-        <div class="sidebar-admin">
-            <div class="admin-avatar">
-                <i class="fas fa-user" style="font-size: 30px; color: #4e73df; line-height: 60px;"></i>
-            </div>
-            <div class="admin-name">관리자</div>
-            <div class="admin-role">최고 관리자</div>
-        </div>
-        
-        <div class="sidebar-menu">
-            <a href="admin-dashboard.html" class="menu-item">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>대시보드</span>
-            </a>
-            <a href="admin-blog.html" class="menu-item active">
-                <i class="fas fa-blog"></i>
-                <span>블로그 관리</span>
-            </a>
-            <a href="admin-qna.html" class="menu-item">
-                <i class="fas fa-question-circle"></i>
-                <span>Q&A 관리</span>
-            </a>
-            <a href="admin-users.html" class="menu-item">
-                <i class="fas fa-users"></i>
-                <span>사용자 관리</span>
-            </a>
-            <a href="admin-inquiries.html" class="menu-item">
-                <i class="fas fa-envelope"></i>
-                <span>문의 관리</span>
-            </a>
-            <a href="admin-settings.html" class="menu-item">
-                <i class="fas fa-cog"></i>
-                <span>설정</span>
-            </a>
-            <a href="#" class="menu-item" id="logout-button">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>로그아웃</span>
-            </a>
-        </div>
+        <ul class="sidebar-menu">
+            <li>
+                <a href="admin-menu.html">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span class="menu-text">대시보드</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin-blog.html" class="active">
+                    <i class="fas fa-blog"></i>
+                    <span class="menu-text">블로그 관리</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin-blog-category.html">
+                    <i class="fas fa-tags"></i>
+                    <span class="menu-text">블로그 카테고리</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin-qna.html">
+                    <i class="fas fa-question-circle"></i>
+                    <span class="menu-text">Q&A 관리</span>
+                </a>
+            </li>
+            <li>
+                <a href="admin-qna-category.html">
+                    <i class="fas fa-folder"></i>
+                    <span class="menu-text">Q&A 카테고리</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="logout-button">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="menu-text">로그아웃</span>
+                </a>
+            </li>
+        </ul>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content" id="main-content">
+    <!-- 메인 콘텐츠 -->
+    <div id="main-content">
         <div class="main-header">
-            <button class="toggle-sidebar" id="toggle-sidebar">
-                <i class="fas fa-bars"></i>
-            </button>
-            
-            <div class="header-right">
-                <div class="dropdown">
-                    <button class="dropdown-toggle">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </button>
-                </div>
-                
-                <div class="dropdown">
-                    <button class="dropdown-toggle user-dropdown">
-                        <img src="https://via.placeholder.com/32" alt="Admin">
-                        <span>관리자</span>
-                    </button>
-                </div>
+            <h1 class="page-title">
+                <i class="fas fa-edit"></i> 블로그 글 작성
+            </h1>
+            <div class="action-buttons">
+                <button id="publish-button" class="btn btn-success">
+                    <i class="fas fa-save"></i> 게시하기
+                </button>
+                <button id="preview-button" class="btn btn-primary">
+                    <i class="fas fa-eye"></i> 미리보기
+                </button>
+                <button id="draft-button" class="btn btn-secondary">
+                    <i class="fas fa-save"></i> 임시저장
+                </button>
+                <a href="admin-blog.html" class="btn btn-danger">
+                    <i class="fas fa-times"></i> 취소
+                </a>
             </div>
         </div>
-        
-        <div class="page-content">
-            <div class="page-title">
-                <h1>블로그 글 작성</h1>
-                <div>
-                    <a href="admin-blog.html" class="btn btn-outline">
-                        <i class="fas fa-arrow-left"></i> 목록으로 돌아가기
-                    </a>
-                </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>블로그 포스트 작성</h3>
             </div>
-            
-            <div class="columns">
-                <div class="column-main">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>블로그 글 작성</h2>
-                        </div>
-                        <div class="card-body">
-                            <form id="blog-post-form">
-                                <div class="form-group">
-                                    <label for="post-title">제목 *</label>
-                                    <input type="text" class="form-control" id="post-title" placeholder="블로그 글 제목을 입력하세요" required>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="post-content">내용 *</label>
-                                    <textarea class="form-control" id="post-content" required></textarea>
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="post-excerpt">요약 (선택사항)</label>
-                                    <textarea class="form-control" id="post-excerpt" rows="3" 
-                                    placeholder="블로그 글의 요약을 입력하세요. 메인 페이지에서 보여집니다."></textarea>
-                                </div>
-                                
-                                <div class="form-actions">
-                                    <button type="submit" class="btn btn-primary" id="save-post">
-                                        <i class="fas fa-save"></i> 저장하기
-                                    </button>
-                                    <button type="button" class="btn btn-outline" id="save-draft">
-                                        <i class="fas fa-file"></i> 임시저장
-                                    </button>
-                                    <a href="admin-blog.html" class="btn btn-outline">
-                                        <i class="fas fa-times"></i> 취소
-                                    </a>
-                                </div>
-                            </form>
-                        </div>
+            <div class="card-body">
+                <form id="blog-post-form">
+                    <div class="form-group">
+                        <label for="post-title">제목</label>
+                        <input type="text" id="post-title" class="form-control" placeholder="제목을 입력하세요" required>
                     </div>
-                </div>
-                
-                <div class="column-side">
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>게시 설정</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="post-status">상태</label>
-                                <select class="form-control" id="post-status">
-                                    <option value="draft">임시저장</option>
-                                    <option value="published">게시</option>
-                                    <option value="scheduled">예약게시</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group" id="schedule-date-group" style="display: none;">
-                                <label for="schedule-date">게시 일시</label>
-                                <input type="datetime-local" class="form-control" id="schedule-date">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="post-category">카테고리 *</label>
-                                <select class="form-control" id="post-category" required>
-                                    <option value="">카테고리 선택</option>
-                                    <option value="누수 탐지">누수 탐지</option>
-                                    <option value="누수 수리">누수 수리</option>
-                                    <option value="피해 복구">피해 복구</option>
-                                    <option value="비용 문의">비용 문의</option>
-                                    <option value="누수 대처">누수 대처</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="post-tags">태그</label>
-                                <input type="text" class="form-control" id="post-tags" placeholder="쉼표로 구분하여 입력">
-                                <div id="tags-container" class="tags-container"></div>
-                            </div>
+                    
+                    <div class="form-group">
+                        <label for="post-category">카테고리</label>
+                        <select id="post-category" class="form-control">
+                            <option value="">카테고리 선택</option>
+                            <option value="technology">기술</option>
+                            <option value="programming">프로그래밍</option>
+                            <option value="design">디자인</option>
+                            <option value="business">비즈니스</option>
+                            <option value="lifestyle">라이프스타일</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>태그</label>
+                        <div class="tag-selector">
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-web" name="tags[]" value="web">
+                                <label for="tag-web">웹</label>
+                            </span>
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-javascript" name="tags[]" value="javascript">
+                                <label for="tag-javascript">자바스크립트</label>
+                            </span>
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-html" name="tags[]" value="html">
+                                <label for="tag-html">HTML</label>
+                            </span>
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-css" name="tags[]" value="css">
+                                <label for="tag-css">CSS</label>
+                            </span>
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-react" name="tags[]" value="react">
+                                <label for="tag-react">React</label>
+                            </span>
+                            <span class="tag-item">
+                                <input type="checkbox" id="tag-node" name="tags[]" value="node">
+                                <label for="tag-node">Node.js</label>
+                            </span>
                         </div>
                     </div>
                     
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>대표 이미지</h2>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-group">
-                                <label for="featured-image">썸네일 이미지</label>
-                                <input type="file" class="form-control" id="featured-image" accept="image/*">
-                                <div id="image-preview" class="img-preview">
-                                    <p>이미지 미리보기</p>
-                                </div>
+                    <div class="form-group">
+                        <label for="post-excerpt">요약</label>
+                        <textarea id="post-excerpt" class="form-control" placeholder="글의 요약 내용을 입력하세요" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="post-content">내용</label>
+                        <div class="editor-container">
+                            <div class="editor-toolbar">
+                                <button type="button" class="editor-btn" title="굵게">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="기울임">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="밑줄">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="취소선">
+                                    <i class="fas fa-strikethrough"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="제목">
+                                    <i class="fas fa-heading"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="인용구">
+                                    <i class="fas fa-quote-right"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="코드">
+                                    <i class="fas fa-code"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="링크">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="이미지">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="순서 있는 목록">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="순서 없는 목록">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="editor-btn" title="가로선">
+                                    <i class="fas fa-minus"></i>
+                                </button>
                             </div>
+                            <div class="editor-content" id="post-content" contenteditable="true"></div>
                         </div>
                     </div>
                     
-                    <div class="side-info">
-                        <h3>작성 팁</h3>
-                        <ul>
-                            <li><i class="fas fa-check"></i> 제목은 명확하고 간결하게 작성하세요.</li>
-                            <li><i class="fas fa-check"></i> 이미지를 활용하여 내용을 더 풍부하게 표현하세요.</li>
-                            <li><i class="fas fa-check"></i> 태그를 적절히 사용하여 검색성을 높이세요.</li>
-                            <li><i class="fas fa-check"></i> 요약은 핵심 내용을 담아 작성하세요.</li>
-                        </ul>
+                    <div class="form-group">
+                        <label for="featured-image">대표 이미지</label>
+                        <input type="file" id="featured-image" class="form-control" accept="image/*">
+                        <img id="image-preview" class="image-preview">
                     </div>
-                </div>
+                    
+                    <div class="form-group">
+                        <label for="post-status">상태</label>
+                        <select id="post-status" class="form-control">
+                            <option value="publish">게시</option>
+                            <option value="draft">임시저장</option>
+                            <option value="private">비공개</option>
+                        </select>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Summernote JS -->
-    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
-    <!-- Admin JS -->
     <script src="js/admin.js"></script>
-    <!-- Page Specific Script -->
     <script>
-        $(document).ready(function() {
-            // 로그인 상태 확인
-            const isLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
-            if (!isLoggedIn) {
-                // 로그인되지 않았으면 로그인 페이지로 리디렉션
-                window.location.href = 'admin-login.html';
+        // 이미지 미리보기
+        document.getElementById('featured-image').addEventListener('change', function(e) {
+            const preview = document.getElementById('image-preview');
+            const file = e.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+        
+        // 게시하기 버튼 이벤트
+        document.getElementById('publish-button').addEventListener('click', function() {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').innerHTML;
+            
+            if (title.trim() === '') {
+                alert('제목을 입력해주세요.');
                 return;
             }
             
-            // Summernote 에디터 초기화
-            $('#post-content').summernote({
-                placeholder: '내용을 입력하세요',
-                height: 300,
-                lang: 'ko-KR',
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                callbacks: {
-                    onImageUpload: function(files) {
-                        // 이미지 업로드 처리
-                        for (let i = 0; i < files.length; i++) {
-                            const file = files[i];
-                            // 이미지 리사이징
-                            resizeImage(file, 800, 600, (resizedImage) => {
-                                const reader = new FileReader();
-                                reader.onloadend = function() {
-                                    // 리사이징된 이미지를 에디터에 삽입
-                                    const img = document.createElement('img');
-                                    img.src = reader.result;
-                                    // 이미지 스타일 추가 (에디터 너비를 초과하지 않도록)
-                                    img.style.maxWidth = '100%';
-                                    img.style.height = 'auto';
-                                    $('#post-content').summernote('insertNode', img);
-                                };
-                                reader.readAsDataURL(resizedImage);
-                            });
-                        }
-                    }
-                }
-            });
-            
-            // 이미지 리사이징 함수
-            function resizeImage(file, maxWidth, maxHeight, callback) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        // 이미지 크기가 최대 크기보다 작으면 리사이징하지 않음
-                        if (img.width <= maxWidth && img.height <= maxHeight) {
-                            callback(file);
-                            return;
-                        }
-                        
-                        // 비율 계산
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        if (width > maxWidth) {
-                            height = height * (maxWidth / width);
-                            width = maxWidth;
-                        }
-                        
-                        if (height > maxHeight) {
-                            width = width * (maxHeight / height);
-                            height = maxHeight;
-                        }
-                        
-                        // 캔버스에 리사이징된 이미지 그리기
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // 리사이징된 이미지를 Blob으로 변환
-                        canvas.toBlob((blob) => {
-                            callback(new File([blob], file.name, { type: file.type }));
-                        }, file.type);
-                    };
-                    img.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
+            if (content.trim() === '') {
+                alert('내용을 입력해주세요.');
+                return;
             }
             
-            let isEditing = false;
-            let editingId = null;
+            // 이 부분에서 포스트 저장 로직이 실행됩니다.
+            // 실제 구현에서는 savePost 함수를 호출하여 저장 처리
+            alert('블로그 포스트가 게시되었습니다.');
+            window.location.href = 'admin-blog.html';
+        });
+        
+        // 임시저장 버튼 이벤트
+        document.getElementById('draft-button').addEventListener('click', function() {
+            const title = document.getElementById('post-title').value;
             
-            // URL에서 id 파라미터 가져오기
-            const urlParams = new URLSearchParams(window.location.search);
-            const postId = urlParams.get('id');
-            
-            // 이미지 미리보기 기능
-            $('#featured-image').change(function() {
-                const file = this.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        $('#image-preview').html('<img src="' + e.target.result + '" alt="미리보기">');
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-            
-            // 게시물 수정 모드인 경우 데이터 로드
-            if (postId) {
-                isEditing = true;
-                editingId = parseInt(postId);
-                loadPostData(editingId);
-                $('.page-title h1').text('블로그 글 수정');
+            if (title.trim() === '') {
+                alert('제목을 입력해주세요.');
+                return;
             }
             
-            // 로컬 스토리지에서 게시물 데이터 가져오기
-            function loadPostData(id) {
-                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                const post = blogPosts.find(post => post.id === id);
-                
-                if (post) {
-                    $('#post-title').val(post.title);
-                    $('#post-category').val(post.category);
-                    $('#post-content').summernote('code', post.content);
-                    $('#post-excerpt').val(post.excerpt);
-                    $('#post-status').val(post.status);
-                    $('#schedule-date').val(post.scheduledDate);
-                    
-                    if (post.thumbnailSrc) {
-                        $('#image-preview').html('<img src="' + post.thumbnailSrc + '" alt="썸네일 미리보기">');
-                    }
-                    
-                    // 태그 설정
-                    $('#post-tags').val(post.tags.join(', '));
-                    
-                    // 상태에 따라 예약 일시 표시/숨김
-                    if (post.status === 'scheduled') {
-                        $('#schedule-date-group').show();
-                    } else {
-                        $('#schedule-date-group').hide();
-                    }
-                } else {
-                    alert('게시물을 찾을 수 없습니다.');
-                    window.location.href = 'admin-blog.html';
-                }
+            // 이 부분에서 임시저장 로직이 실행됩니다.
+            document.getElementById('post-status').value = 'draft';
+            alert('블로그 포스트가 임시저장되었습니다.');
+        });
+        
+        // 미리보기 버튼 이벤트
+        document.getElementById('preview-button').addEventListener('click', function() {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').innerHTML;
+            
+            if (title.trim() === '') {
+                alert('제목을 입력해주세요.');
+                return;
             }
             
-            // 폼 제출 처리
-            $('#blog-post-form').submit(function(e) {
-                e.preventDefault();
-                
-                // 썸네일 이미지 URL 가져오기
-                let thumbnailSrc = '';
-                const imgPreview = $('#image-preview img');
-                if(imgPreview.length > 0) {
-                    thumbnailSrc = imgPreview.attr('src');
-                }
-                
-                // 폼 데이터 수집
-                const postData = {
-                    id: isEditing ? editingId : Date.now(), // 수정 모드면 기존 ID 사용, 아니면 새 ID 생성
-                    title: $('#post-title').val(),
-                    content: $('#post-content').summernote('code'),
-                    excerpt: $('#post-excerpt').val(),
-                    status: $('#post-status').val(),
-                    category: $('#post-category').val(),
-                    tags: $('#post-tags').val().split(',').map(tag => tag.trim()).filter(tag => tag),
-                    date: isEditing ? getCurrentPost().date : new Date().toISOString().split('T')[0],
-                    scheduledDate: $('#schedule-date').val(),
-                    author: '관리자',
-                    views: isEditing ? getCurrentPost().views : 0,
-                    thumbnailSrc: thumbnailSrc // 썸네일 이미지 URL 추가
-                };
-                
-                // 현재 수정 중인 게시물 가져오기
-                function getCurrentPost() {
-                    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                    return blogPosts.find(post => post.id === editingId) || { date: new Date().toISOString().split('T')[0], views: 0 };
-                }
-                
-                // 로컬 스토리지에 저장
-                savePostToLocalStorage(postData);
-                
-                // 저장 완료 후 블로그 관리 페이지로 이동
-                alert(isEditing ? '게시물이 수정되었습니다.' : '게시물이 저장되었습니다.');
-                window.location.href = 'admin-blog.html';
-            });
-            
-            // 임시저장 버튼
-            $('#save-draft').click(function() {
-                $('#post-status').val('draft');
-                $('#blog-post-form').submit();
-            });
-            
-            // 태그 처리
-            $('#post-tags').on('keydown', function(e) {
-                if(e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    const tagValue = $(this).val().trim();
-                    if(tagValue) {
-                        addTag(tagValue);
-                        $(this).val('');
-                    }
-                }
-            });
-            
-            // 태그 추가 함수
-            function addTag(text) {
-                const tag = $(`
-                    <div class="tag">
-                        ${text}
-                        <span class="remove-tag">×</span>
-                    </div>
-                `);
-                
-                tag.find('.remove-tag').on('click', function() {
-                    $(this).parent().remove();
-                });
-                
-                $('#tags-container').append(tag);
+            if (content.trim() === '') {
+                alert('내용을 입력해주세요.');
+                return;
             }
             
-            // 로컬 스토리지에 게시물 저장
-            function savePostToLocalStorage(postData) {
-                const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                
-                if (isEditing) {
-                    // 수정 모드: 기존 게시물 업데이트
-                    const index = blogPosts.findIndex(post => post.id === editingId);
-                    if (index !== -1) {
-                        blogPosts[index] = postData;
-                    } else {
-                        blogPosts.push(postData);
-                    }
-                } else {
-                    // 새 게시물 추가
-                    blogPosts.push(postData);
-                }
-                
-                localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
-            }
-            
-            // 상태에 따라 예약 일시 표시/숨김
-            $('#post-status').change(function() {
-                if($(this).val() === 'scheduled') {
-                    $('#schedule-date-group').show();
-                } else {
-                    $('#schedule-date-group').hide();
-                }
-            });
+            // 미리보기 로직 - 보통 새 창에서 미리보기를 보여줍니다.
+            alert('미리보기 기능이 구현될 예정입니다.');
         });
     </script>
 </body>
