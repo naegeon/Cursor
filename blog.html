@@ -513,13 +513,14 @@
                             </div>
                         </article>
                     `);
-                    
-                    // 최근 게시물 목록 (최대 5개)
-                    if (index < 5) {
-                        recentPosts.append(`
-                            <li><a href="blog-view.html?id=${post.id}">${post.title}</a></li>
-                        `);
-                    }
+                });
+                
+                // 최근 게시물 목록 (최대 5개)
+                // 별도로 최근 게시물 목록 생성 (한번 더 정렬하여 가장 최신글이 상단에 오도록)
+                publishedPosts.slice(0, 5).forEach(post => {
+                    recentPosts.append(`
+                        <li><a href="blog-view.html?id=${post.id}">${post.title}</a></li>
+                    `);
                 });
                 
                 // 카테고리 목록 표시
@@ -614,6 +615,7 @@
             // 필터링된 게시물 표시 함수
             function displayFilteredPosts(posts) {
                 const postsContainer = $('#blog-posts-container');
+                const recentPosts = $('#recent-posts');
                 postsContainer.empty();
                 
                 if (posts.length === 0) {
@@ -642,6 +644,14 @@
                                 </div>
                             </div>
                         </article>
+                    `);
+                });
+                
+                // 최근 게시물 목록 업데이트 (최대 5개)
+                recentPosts.empty();
+                posts.slice(0, 5).forEach(post => {
+                    recentPosts.append(`
+                        <li><a href="blog-view.html?id=${post.id}">${post.title}</a></li>
                     `);
                 });
             }
